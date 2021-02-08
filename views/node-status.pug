@@ -87,7 +87,7 @@ block content
 							div.row
 								div.summary-table-label Difficulty
 								div.summary-table-content.text-monospace
-									- var difficultyData = utils.formatLargeNumber(getblockchaininfo.difficulty, 3);
+									- var difficultyData = utils.formatLargeNumber(miningInfo.difficulty.sha256d, 3);
 									span(title=parseFloat(getblockchaininfo.difficulty).toLocaleString(), data-toggle="tooltip")
 										span #{difficultyData[0]}
 										span  x 10

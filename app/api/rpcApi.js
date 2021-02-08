@@ -58,6 +58,29 @@ function getPeerInfo() {
 	return getRpcData("getpeerinfo");
 }
 
+function getNameScanListInfo(start,count = 1200,options) {
+	return getRpcDataWithParams({method:"name_scan", parameters:[start,count]});
+}
+
+function getNameListInfo(name) {
+	console.log('getNameListInfo:',name)
+	if(name !== "" && name  !== undefined){
+		return getRpcDataWithParams({method:"name_list", parameters:[name]});
+	}else {
+		return getRpcData("name_list");
+	}
+}
+
+function getNameHistoryInfo(name) {
+	return getRpcDataWithParams({method:"name_history", parameters:[name]});
+}
+
+function getNamePendingInfo() {
+	return getRpcData("name_pending");
+}
+
+
+
 function getMempoolTxids() {
 	return getRpcDataWithParams({method:"getrawmempool", parameters:[false]});
 }
@@ -502,6 +525,11 @@ module.exports = {
 	getBlockStatsByHeight: getBlockStatsByHeight,
 	getBlockHeaderByHash: getBlockHeaderByHash,
 	getBlockHeaderByHeight: getBlockHeaderByHeight,
+	getNameHistoryInfo: getNameHistoryInfo,
+	getNamePendingInfo:getNamePendingInfo,
+	getNameListInfo:getNameListInfo,
+	getNameScanListInfo:getNameScanListInfo,
+
 
 	minRpcVersions: minRpcVersions
 };

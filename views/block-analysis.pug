@@ -1,267 +1,276 @@
 extends layout
 
 block headContent
-	title Block Analysis ##{result.getblock.height.toLocaleString()}, #{result.getblock.hash}
+	if (result.getblock && result.getblock.length > 0)
+		title Block Analysis ##{result.getblock.height.toLocaleString()}, #{result.getblock.hash}
+	else
+		title Block Analysis No Block
+
 
 block content
-	h1.h3 Block Analysis 
-		small.text-monospace(style="width: 100%;") ##{result.getblock.height.toLocaleString()}
-		br
-		small.text-monospace.word-wrap(style="width: 100%;") #{result.getblock.hash}
-	hr
 
-	div.mb-2
-		if (result.getblock)
-			a.btn.btn-sm.btn-primary.mb-1(href=("./block/" + result.getblock.hash)) &laquo; Block Details: 
-				span.text-monospace ##{result.getblock.height.toLocaleString()}
+	if (result.getblock)
 
-	div.row
-		- var sumTableLabelClass = (result.blockstats != null ? "summary-split-table-label" : "summary-table-label");
-		- var sumTableValueClass = (result.blockstats != null ? "summary-split-table-content" : "summary-table-content");
+		h1.h3 Block Analysis
+			small.text-monospace(style="width: 100%;") ##{result.getblock.height.toLocaleString()}
+			br
+			small.text-monospace.word-wrap(style="width: 100%;") #{result.getblock.hash}
+		hr
 
-		div.mb-3.col
-			div.card.shadow-sm(style="height: 100%;")
-				div.card-body.px-2.px-md-3
-					h3.h6.mb-0 Summary
-					hr
+		div.mb-2
+			if (result.getblock)
+				a.btn.btn-sm.btn-primary.mb-1(href=("./block/" + result.getblock.hash)) &laquo; Block Details:
+					span.text-monospace ##{result.getblock.height.toLocaleString()}
 
-					div.clearfix
-						div.row
-							div.summary-table-label Date
-							div.summary-table-content.text-monospace
-								- var timestampHuman = result.getblock.time;
-								include includes/timestamp-human.pug
-								small.ml-1 utc
+		div.row
+			- var sumTableLabelClass = (result.blockstats != null ? "summary-split-table-label" : "summary-table-label");
+			- var sumTableValueClass = (result.blockstats != null ? "summary-split-table-content" : "summary-table-content");
 
-								- var timeAgoTime = result.getblock.time;
-								span.text-muted.ml-2 (
-									include includes/time-ago-text.pug
-									span  ago)
+			div.mb-3.col
+				div.card.shadow-sm(style="height: 100%;")
+					div.card-body.px-2.px-md-3
+						h3.h6.mb-0 Summary
+						hr
 
-						if (result.getblock.weight)
+						div.clearfix
 							div.row
-								div.summary-table-label Weight
+								div.summary-table-label Date
 								div.summary-table-content.text-monospace
-									span #{result.getblock.weight.toLocaleString()} 
-										small wu 
+									- var timestampHuman = result.getblock.time;
+									include includes/timestamp-human.pug
+									small.ml-1 utc
 
-									span.text-muted  (#{new Decimal(100 * result.getblock.weight / coinConfig.maxBlockWeight).toDecimalPlaces(2)}% full)
-									
-						else
+									- var timeAgoTime = result.getblock.time;
+									span.text-muted.ml-2 (
+										include includes/time-ago-text.pug
+										span  ago)
+
+							if (result.getblock.weight)
+								div.row
+									div.summary-table-label Weight
+									div.summary-table-content.text-monospace
+										span #{result.getblock.weight.toLocaleString()}
+											small wu
+
+										span.text-muted  (#{new Decimal(100 * result.getblock.weight / coinConfig.maxBlockWeight).toDecimalPlaces(2)}% full)
+
+							else
+								div.row
+									div.summary-table-label Size
+									div.summary-table-content.text-monospace #{result.getblock.size.toLocaleString()}
+										small B
+
 							div.row
-								div.summary-table-label Size
-								div.summary-table-content.text-monospace #{result.getblock.size.toLocaleString()}
-									small B
+								div.summary-table-label Transactions
+								div.summary-table-content.text-monospace #{result.getblock.tx.length.toLocaleString()}
 
-						div.row
-							div.summary-table-label Transactions
-							div.summary-table-content.text-monospace #{result.getblock.tx.length.toLocaleString()}
+							div.row
+								div.summary-table-label Confirmations
+								div.summary-table-content.text-monospace
+									if (result.getblock.confirmations < 6)
+										span.font-weight-bold.text-warning #{result.getblock.confirmations.toLocaleString()}
+											a(data-toggle="tooltip", title="Fewer than 6 confirmations is generally considered 'unsettled' for high-value transactions. The applicability of this guidance may vary.")
+												i.fas.fa-unlock-alt
+									else
+										span.font-weight-bold.text-success #{result.getblock.confirmations.toLocaleString()}
+											a(data-toggle="tooltip", title="6 confirmations is generally considered 'settled'. High-value transactions may require more; low-value transactions may require less.")
+												i.fas.fa-lock
 
-						div.row
-							div.summary-table-label Confirmations
-							div.summary-table-content.text-monospace
-								if (result.getblock.confirmations < 6)
-									span.font-weight-bold.text-warning #{result.getblock.confirmations.toLocaleString()} 
-										a(data-toggle="tooltip", title="Fewer than 6 confirmations is generally considered 'unsettled' for high-value transactions. The applicability of this guidance may vary.")
-											i.fas.fa-unlock-alt
-								else
-									span.font-weight-bold.text-success #{result.getblock.confirmations.toLocaleString()} 
-										a(data-toggle="tooltip", title="6 confirmations is generally considered 'settled'. High-value transactions may require more; low-value transactions may require less.")
-											i.fas.fa-lock
-
-	div#progress-wrapper.mb-huge
-		div.card.shadow-sm.mb-3
-			div.card-body
-				h4.h6 Loading transactions: 
-					span(id="progress-text")
-				div.progress.mt-2(id="progress-bar", style="height: 7px;")
-					div.progress-bar(id="data-progress", role="progressbar", aria-valuenow="0", aria-valuemin="0" ,aria-valuemax="100")
+		div#progress-wrapper.mb-huge
+			div.card.shadow-sm.mb-3
+				div.card-body
+					h4.h6 Loading transactions:
+						span(id="progress-text")
+					div.progress.mt-2(id="progress-bar", style="height: 7px;")
+						div.progress-bar(id="data-progress", role="progressbar", aria-valuenow="0", aria-valuemin="0" ,aria-valuemax="100")
 
 
-	div#main-content(style="display: none;")
-		div.row
-			div.col-xl-6
-				div.card.shadow-sm.mb-3
-					div.card-body
-						h3.h6.mb-0 Top Value Transactions
-						hr
+		div#main-content(style="display: none;")
+			div.row
+				div.col-xl-6
+					div.card.shadow-sm.mb-3
+						div.card-body
+							h3.h6.mb-0 Top Value Transactions
+							hr
 
-						div.table-responsive
+							div.table-responsive
+								table.table.table-striped.mb-0
+									thead
+										tr
+											th.data-header Transaction
+											th.data-header.text-right Output Value
+
+									tbody(id="tbody-top-value-tx")
+										tr.text-monospace.row-prototype(style="display: none;")
+											td.data-tx-link
+											td.text-right.data-tx-value
+
+				div.col-xl-6
+					div.card.shadow-sm.mb-3
+						div.card-body
+							h3.h6.mb-0 Top Size Transactions
+							hr
+
+							div.table-responsive
+								table.table.table-striped.mb-0
+									thead
+										tr
+											th.data-header Transaction
+											th.data-header.text-right Size
+
+									tbody(id="tbody-top-size-tx")
+										tr.text-monospace.row-prototype(style="display: none;")
+											td.data-tx-link
+											td.text-right.data-tx-value
+
+				div.col-xl-6
+					div.card.shadow-sm.mb-3
+						div.card-body
+							h3.h6.mb-0 Top Fee Transactions
+							hr
+
+							div.table-responsive
+								table.table.table-striped.mb-0
+									thead
+										tr
+											th.data-header Transaction
+											th.data-header.text-right Fee
+
+									tbody(id="tbody-top-fee-tx")
+										tr.text-monospace.row-prototype(style="display: none;")
+											td.data-tx-link
+											td.text-right.data-tx-value
+
+				div.col-xl-6
+					div.card.shadow-sm.mb-3
+						div.card-body
+							h3.h6.mb-0 Top Fee Rate Transactions
+							hr
+
+							div.table-responsive
+								table.table.table-striped.mb-0
+									thead
+										tr
+											th.data-header Transaction
+											th.data-header.text-right Fee Rate
+
+									tbody(id="tbody-top-fee-rate-tx")
+										tr.text-monospace.row-prototype(style="display: none;")
+											td.data-tx-link
+											td.text-right.data-tx-value
+
+				div.col-lg-6.mb-3
+					div.card.shadow-sm(style="height: 100%;")
+						div.card-body
+							h3.h6.mb-0 Input Types
+							hr
+
 							table.table.table-striped.mb-0
-								thead
-									tr
-										th.data-header Transaction
-										th.data-header.text-right Output Value
-
-								tbody(id="tbody-top-value-tx")
+								tbody(id="tbody-input-types")
 									tr.text-monospace.row-prototype(style="display: none;")
-										td.data-tx-link
-										td.text-right.data-tx-value
+										td
+											small.data-tag.bg-dark.data-type
 
-			div.col-xl-6
-				div.card.shadow-sm.mb-3
-					div.card-body
-						h3.h6.mb-0 Top Size Transactions
-						hr
+										td.data-count
 
-						div.table-responsive
+				div.col-lg-6.mb-3
+					div.card.shadow-sm(style="height: 100%;")
+						div.card-body
+							h3.h6.mb-0 Output Types
+							hr
+
 							table.table.table-striped.mb-0
-								thead
-									tr
-										th.data-header Transaction
-										th.data-header.text-right Size
-
-								tbody(id="tbody-top-size-tx")
+								tbody(id="tbody-output-types")
 									tr.text-monospace.row-prototype(style="display: none;")
-										td.data-tx-link
-										td.text-right.data-tx-value
+										td
+											small.data-tag.bg-dark.data-type
 
-			div.col-xl-6
-				div.card.shadow-sm.mb-3
-					div.card-body
-						h3.h6.mb-0 Top Fee Transactions
-						hr
+										td.data-count
 
-						div.table-responsive
-							table.table.table-striped.mb-0
-								thead
-									tr
-										th.data-header Transaction
-										th.data-header.text-right Fee
+			div.row
+				div.col-lg-6
+					div.card.shadow-sm.mb-3
+						div.card-body
+							h3.h6.mb-0 Transaction Value
+							hr
 
-								tbody(id="tbody-top-fee-tx")
-									tr.text-monospace.row-prototype(style="display: none;")
-										td.data-tx-link
-										td.text-right.data-tx-value
+							canvas(id="graph-tx-value")
 
-			div.col-xl-6
-				div.card.shadow-sm.mb-3
-					div.card-body
-						h3.h6.mb-0 Top Fee Rate Transactions
-						hr
+				div.col-lg-6
+					div.card.shadow-sm.mb-3
+						div.card-body
+							h3.h6.mb-0 Transaction Value Distribution
+							hr
 
-						div.table-responsive
-							table.table.table-striped.mb-0
-								thead
-									tr
-										th.data-header Transaction
-										th.data-header.text-right Fee Rate
+							canvas(id="chart-tx-value-distribution")
 
-								tbody(id="tbody-top-fee-rate-tx")
-									tr.text-monospace.row-prototype(style="display: none;")
-										td.data-tx-link
-										td.text-right.data-tx-value
+				div.col-lg-6
+					div.card.shadow-sm.mb-3
+						div.card-body
+							h3.h6.mb-0 Transaction Fee
+							hr
 
-			div.col-lg-6.mb-3
-				div.card.shadow-sm(style="height: 100%;")
-					div.card-body
-						h3.h6.mb-0 Input Types
-						hr
+							canvas(id="graph-tx-fee")
 
-						table.table.table-striped.mb-0
-							tbody(id="tbody-input-types")
-								tr.text-monospace.row-prototype(style="display: none;")
-									td
-										small.data-tag.bg-dark.data-type
+				div.col-lg-6
+					div.card.shadow-sm.mb-3
+						div.card-body
+							h3.h6.mb-0 Transaction Fee Distribution
+							hr
 
-									td.data-count
-								
-			div.col-lg-6.mb-3
-				div.card.shadow-sm(style="height: 100%;")
-					div.card-body
-						h3.h6.mb-0 Output Types
-						hr
+							canvas(id="chart-tx-fee-distribution")
 
-						table.table.table-striped.mb-0
-							tbody(id="tbody-output-types")
-								tr.text-monospace.row-prototype(style="display: none;")
-									td
-										small.data-tag.bg-dark.data-type
+				div.col-lg-6
+					div.card.shadow-sm.mb-3
+						div.card-body
+							h3.h6.mb-0 Transaction Fee Rate
+							hr
 
-									td.data-count
+							canvas(id="graph-tx-fee-rate")
 
-		div.row
-			div.col-lg-6
-				div.card.shadow-sm.mb-3
-					div.card-body
-						h3.h6.mb-0 Transaction Value
-						hr
+				div.col-lg-6
+					div.card.shadow-sm.mb-3
+						div.card-body
+							h3.h6.mb-0 Transaction Fee Rate Distribution
+							hr
 
-						canvas(id="graph-tx-value")
+							canvas(id="chart-tx-fee-rate-distribution")
 
-			div.col-lg-6
-				div.card.shadow-sm.mb-3
-					div.card-body
-						h3.h6.mb-0 Transaction Value Distribution
-						hr
+				div.col-lg-6
+					div.card.shadow-sm.mb-3
+						div.card-body
+							h3.h6.mb-0 Transaction Size
+							hr
 
-						canvas(id="chart-tx-value-distribution")
+							canvas(id="graph-tx-size")
 
-			div.col-lg-6
-				div.card.shadow-sm.mb-3
-					div.card-body
-						h3.h6.mb-0 Transaction Fee
-						hr
+				div.col-lg-6
+					div.card.shadow-sm.mb-3
+						div.card-body
+							h3.h6.mb-0 Transaction Size Distribution
+							hr
 
-						canvas(id="graph-tx-fee")
+							canvas(id="chart-tx-size-distribution")
 
-			div.col-lg-6
-				div.card.shadow-sm.mb-3
-					div.card-body
-						h3.h6.mb-0 Transaction Fee Distribution
-						hr
+				div.col-lg-6
+					div.card.shadow-sm.mb-3
+						div.card-body
+							h3.h6.mb-0 Transaction Input Count
+							hr
 
-						canvas(id="chart-tx-fee-distribution")
+							canvas(id="graph-tx-inputs")
 
-			div.col-lg-6
-				div.card.shadow-sm.mb-3
-					div.card-body
-						h3.h6.mb-0 Transaction Fee Rate
-						hr
+				div.col-lg-6
+					div.card.shadow-sm.mb-3
+						div.card-body
+							h3.h6.mb-0 Transaction Output Count
+							hr
 
-						canvas(id="graph-tx-fee-rate")
+							canvas(id="graph-tx-outputs")
+	else
+		p No Invalid hash or txid
 
-			div.col-lg-6
-				div.card.shadow-sm.mb-3
-					div.card-body
-						h3.h6.mb-0 Transaction Fee Rate Distribution
-						hr
 
-						canvas(id="chart-tx-fee-rate-distribution")
-
-			div.col-lg-6
-				div.card.shadow-sm.mb-3
-					div.card-body
-						h3.h6.mb-0 Transaction Size
-						hr
-
-						canvas(id="graph-tx-size")
-
-			div.col-lg-6
-				div.card.shadow-sm.mb-3
-					div.card-body
-						h3.h6.mb-0 Transaction Size Distribution
-						hr
-
-						canvas(id="chart-tx-size-distribution")
-
-			div.col-lg-6
-				div.card.shadow-sm.mb-3
-					div.card-body
-						h3.h6.mb-0 Transaction Input Count
-						hr
-
-						canvas(id="graph-tx-inputs")
-
-			div.col-lg-6
-				div.card.shadow-sm.mb-3
-					div.card-body
-						h3.h6.mb-0 Transaction Output Count
-						hr
-
-						canvas(id="graph-tx-outputs")
-
-			
 
 block endOfBody
 	- var txidChunkSize = 10;
@@ -270,8 +279,8 @@ block endOfBody
 	script(src='./js/decimal.js')
 	script.
 		var txidChunkSize = !{txidChunkSize};
-		var txidChunks = !{JSON.stringify(utils.splitArrayIntoChunks(result.getblock.tx, txidChunkSize))};
-		var blockHeight = !{result.getblock.height};
+		var txidChunks = (result.getblock !== undefined ) ? !{JSON.stringify(utils.splitArrayIntoChunks(result.getblock.tx, txidChunkSize))} : " Invalid transaction id";
+		var blockHeight = (result.getblock !== undefined ) ? !{result.getblock.height} : 0;
 		var satsMultiplier = !{coinConfig.baseCurrencyUnit.multiplier};
 		var vByteSizes = false;
 

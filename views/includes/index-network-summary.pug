@@ -44,7 +44,7 @@ div.row.index-summary
 						i.fas.fa-dumbbell.mr-1.summary-icon
 						span Difficulty
 					td.text-right.text-monospace
-						- var difficultyData = utils.formatLargeNumber(getblockchaininfo.difficulty, 2);
+						- var difficultyData = utils.formatLargeNumber(miningInfo.difficulty.sha256d, 2);
 						span.border-dotted(data-toggle="tooltip", title=parseFloat(getblockchaininfo.difficulty).toLocaleString())
 							span #{difficultyData[0]}
 							small.px-2.px-lg-0.px-xl-2 x
@@ -191,9 +191,9 @@ div.row.index-summary
 							span Total Supply
 						td.text-right.text-monospace
 							if (utxoSetSummary)
-								- var maxSupply = coinConfig.maxSupplyByNetwork[activeBlockchain];
+								- var maxSupply =  coinConfig.maxSupplyByNetwork[activeBlockchain];
 
-								span.border-dotted(title=`${new Decimal(utxoSetSummary.total_amount).dividedBy(maxSupply).times(100).toDP(4)}% produced`, data-toggle="tooltip") #{parseFloat(utxoSetSummary.total_amount).toLocaleString()}
+								span.border-dotted(title=`${new Decimal(utxoSetSummary.amount.total).dividedBy(maxSupply).times(100).toDP(4)}% produced`, data-toggle="tooltip") #{parseFloat(utxoSetSummary.amount.total).toLocaleString()}
 							else
 								small.text-muted.border-dotted(title=utxoCalculatingDesc, data-toggle="tooltip") calculating...
 
@@ -238,7 +238,7 @@ div.row.index-summary
 								td.text-right.text-monospace
 									if (utxoSetSummary)
 										- var activeCurrency = global.currencyFormatType.length > 0 ? global.currencyFormatType : "usd";
-										- var xxx = utils.formatLargeNumber(parseFloat(utxoSetSummary.total_amount) * exchangeRates[activeCurrency], 1);
+										- var xxx = utils.formatLargeNumber(parseFloat(utxoSetSummary.amount.total) * exchangeRates[activeCurrency], 1);
 
 										if (activeCurrency == "eur")
 											span €

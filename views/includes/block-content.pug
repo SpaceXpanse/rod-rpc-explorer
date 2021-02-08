@@ -311,7 +311,7 @@ div.tab-content
 							div.row
 								div.summary-split-table-label Difficulty
 								div.summary-split-table-content.text-monospace
-									- var difficultyData = utils.formatLargeNumber(result.getblock.difficulty, 3);
+									- var difficultyData = utils.formatLargeNumber(result.getblock.powdata.difficulty, 3);
 									
 									span(title=parseFloat(result.getblock.difficulty).toLocaleString(), data-toggle="tooltip")
 										span #{difficultyData[0]}

@@ -200,8 +200,8 @@ module.exports = {
 				// }
 			]
 		},
-		subHeaderToolsList:[0, 9, 8, 4, 10, 6, 7, 12], // indexes in "siteTools" below that are shown in the site "sub menu" (visible on all pages except homepage)
-		prioritizedToolIdsList: [0, 8, 10, 9, 3, 4, 11, 2, 5, 1, 6, 7,12],
+		subHeaderToolsList:[0, 9, 8, 4, 10, 6], // indexes in "siteTools" below that are shown in the site "sub menu" (visible on all pages except homepage)
+		prioritizedToolIdsList: [0, 8, 10, 9, 3, 4, 11, 2, 5, 1, 6],
 	},
 
 	credentials: credentials,

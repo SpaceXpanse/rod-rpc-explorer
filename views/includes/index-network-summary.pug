@@ -12,37 +12,56 @@ div.row.index-summary
 			tbody
 
 				if (hashrate1d && hashrate7d)
-					- var hashrate1dayData0 = utils.formatLargeNumber(hashrate1d, 0);
-					- var hashrate7dayData0 = utils.formatLargeNumber(hashrate7d, 0);
-					- var hashrate1dayData1 = utils.formatLargeNumber(hashrate1d, 1);
-					- var hashrate7dayData1 = utils.formatLargeNumber(hashrate7d, 1);
+					- var hashrate1dayData0 = utils.formatLargeNumber(hashrate1d['sha256d'], 0);
+					- var hashrate7dayData0 = utils.formatLargeNumber(hashrate7d['sha256d'], 0);
+					- var hashrate1dayData1 = utils.formatLargeNumber(hashrate1d['sha256d'], 1);
+					- var hashrate7dayData1 = utils.formatLargeNumber(hashrate7d['sha256d'], 1);
+
+					- var hashrate1dayData0_n = utils.formatLargeNumber(hashrate1d['neoscrypt'], 0);
+					- var hashrate7dayData0_n = utils.formatLargeNumber(hashrate7d['neoscrypt'], 0);
+					- var hashrate1dayData1_n = utils.formatLargeNumber(hashrate1d['neoscrypt'], 1);
+					- var hashrate7dayData1_n = utils.formatLargeNumber(hashrate7d['neoscrypt'], 1);
+
 					tr
-						th.px-2.px-lg-0.px-xl-2
+						th.px-3.px-lg-0.px-xl-3
 							i.fas.fa-tachometer-alt.mr-1.summary-icon
-							span.border-dotted(title="Estimates for global network hashrate for 1 day / 7 days.", data-toggle="tooltip") Hashrate
+							span.border-dotted(title="Estimates for global network hashrate for 1 day / 7 days.", data-toggle="tooltip") sha256d Hash Rate:
 							small.ml-1 (d/w)
 						td.text-right.text-monospace
 							span.d-xxl-none #{hashrate1dayData0[0]}
 							span.d-none.d-xxl-inline #{hashrate1dayData1[0]}
-							small.text-muted  / 
-							span.d-xxl-none #{hashrate7dayData0[0]} 
-							span.d-none.d-xxl-inline #{hashrate7dayData1[0]} 
+							small.text-muted  /
+							span.d-xxl-none #{hashrate7dayData0[0]}
+							span.d-none.d-xxl-inline #{hashrate7dayData1[0]}
 							small.border-dotted(title=`${hashrate1dayData0[1].abbreviation}H = ${hashrate1dayData0[1].name}-hash (x10^${hashrate1dayData0[1].exponent})`, data-toggle="tooltip") #{hashrate1dayData0[1].abbreviation}H/s
 
-				if (!["regtest", "signet"].includes(global.activeBlockchain))
 					tr
-						th.px-2.px-lg-0.px-xl-2
-							i.fas.fa-edit.mr-1.summary-icon
-							span.border-dotted(title="Estimate of the number of days the current global hashrate would require to produce all the hashes needed to re-write the entire blockchain.", data-toggle="tooltip") Chain Rewrite Days
+						th.px-3.px-lg-0.px-xl-3
+							i.fas.fa-tachometer-alt.mr-1.summary-icon
+							span.border-dotted(title="Estimates for global network hashrate for 1 day / 7 days.", data-toggle="tooltip") neoscrypt Hash Rate
+							small.ml-1 (d/w)
 						td.text-right.text-monospace
-							- var globalHashCount = parseInt("0x" + getblockchaininfo.chainwork);
-							- var rewriteDays = globalHashCount / hashrate7d / 60 / 60 / 24;
-							span #{new Decimal(rewriteDays).toDecimalPlaces(1)}
+							span.d-xxl-none #{hashrate1dayData0_n[0]}
+							span.d-none.d-xxl-inline #{hashrate1dayData1_n[0]}
+							small.text-muted  /
+							span.d-xxl-none #{hashrate7dayData0_n[0]}
+							span.d-none.d-xxl-inline #{hashrate7dayData1_n[0]}
+							small.border-dotted(title=`${hashrate1dayData0_n[1].abbreviation}H = ${hashrate1dayData0_n[1].name}-hash (x10^${hashrate1dayData0_n[1].exponent})`, data-toggle="tooltip") #{hashrate1dayData0_n[1].abbreviation}H/s
+
+				if (!["regtest", "signet"].includes(global.activeBlockchain))
+						tr
+							th.px-3.px-lg-0.px-xl-3
+								i.fas.fa-edit.mr-1.summary-icon
+								span.border-dotted(title="Estimate of the number of days the current global hashrate would require to produce all the hashes needed to re-write the entire blockchain.", data-toggle="tooltip") Chain Rewrite Days
+							td.text-right.text-monospace
+								- var globalHashCount = parseInt("0x" + getblockchaininfo.chainwork);
+								- var rewriteDays = globalHashCount / hashrate7d.sha256d / 60 / 60 / 24;
+								span #{new Decimal(rewriteDays).toDecimalPlaces(1)}
 
 				tr
-					th.px-2.px-lg-0.px-xl-2
+					th.px-3.px-lg-0.px-xl-3
 						i.fas.fa-dumbbell.mr-1.summary-icon
-						span Difficulty
+						span sha256d Difficulty
 					td.text-right.text-monospace
 						- var difficultyData = utils.formatLargeNumber(miningInfo.difficulty.sha256d, 2);
 						span.border-dotted(data-toggle="tooltip", title=parseFloat(getblockchaininfo.difficulty).toLocaleString())
@@ -50,9 +69,21 @@ div.row.index-summary
 							small.px-2.px-lg-0.px-xl-2 x
 							span 10
 							sup #{difficultyData[1].exponent}
+				tr
+
+					th.px-3.px-lg-0.px-xl-3
+						i.fas.fa-dumbbell.mr-1.summary-icon
+						span neoscrypt Difficulty
+					td.text-right.text-monospace
+						- var difficultyData_n = utils.formatLargeNumber(miningInfo.difficulty.neoscrypt, 2);
+						span.border-dotted(data-toggle="tooltip", title=parseFloat(getblockchaininfo.difficulty).toLocaleString())
+							span #{difficultyData_n[0]}
+							small.px-2.px-lg-0.px-xl-2 x
+							span 10
+							sup #{difficultyData_n[1].exponent}
 
 				tr
-					th.px-2.px-lg-0.px-xl-2
+					th.px-3.px-lg-0.px-xl-3
 						i.fas.fa-unlock.mr-1.summary-icon
 						span Pending Tx
 					td.text-right.text-monospace
@@ -68,30 +99,8 @@ div.row.index-summary
 						else
 							span.text-danger.border-dotted(title="There was an error getting this data. Check your application logs for possible explanation.", data-toggle="tooltip") Error
 
-				if (smartFeeEstimates)
-					tr
-						th.px-2.px-lg-0.px-xl-2
-							i.fas.fa-bullseye.mr-1.summary-icon
-							span.border-dotted(title="Current fee estimates (using 'estimatesmartfee') for getting a transaction included in 1 block, 6 blocks (1 hr), 144 blocks (1 day), or 1,008 blocks (1 week).", data-toggle="tooltip") Fee Targets
-							if (false)
-								small.ml-1 (1/h/d/w)
-						td.text-right.text-monospace
-							if (smartFeeEstimates)
-								span #{smartFeeEstimates[1]}
-								small.d-md-none  
-								small.text-muted /
-								span #{smartFeeEstimates[6]}
-								small.text-muted /
-								span #{smartFeeEstimates[144]}
-								small.text-muted /
-								span #{smartFeeEstimates[1008]}
-								small  sat/vB
-
-							else
-								span.text-danger.border-dotted(title="There was an error getting this data. Check your application logs for possible explanation.", data-toggle="tooltip") Error
-
 				tr
-					th.px-2.px-lg-0.px-xl-2
+					th.px-3.px-lg-0.px-xl-3
 						i.fas.fa-clock.mr-1.summary-icon
 						span.border-dotted(title=`Average block time for blocks in the current difficulty epoch (#${difficultyPeriod}). The difference between the target (${coinConfig.targetBlockTimeMinutes}min) and this time indicates how the difficulty will adjust for the next epoch.`, data-toggle="tooltip") Block Time
 						small.ml-1 (e#{difficultyPeriod.toLocaleString()})
@@ -118,7 +127,7 @@ div.row.index-summary
 						span.border-dotted(title=diffAdjText, data-toggle="tooltip") #{timePerBlockDuration.format()}
 							if (!isNaN(diffAdjPercent))
 								small.text-muted.ml-1 (#{diffAdjSign}#{diffAdjPercent.toDP(1)}%)
-								
+
 
 	div(class=colClass)
 		h5.h6 Blockchain
@@ -179,7 +188,7 @@ div.row.index-summary
 								- var utxoCount = utils.formatLargeNumber(utxoSetSummary.txouts, 2);
 								- var utxoDataSize = utils.formatLargeNumber(utxoSetSummary.disk_size, 2);
 								span #{utxoCount[0]} #{utxoCount[1].abbreviation}
-								small.text-muted  / 
+								small.text-muted  /
 								span #{utxoDataSize[0]} #{utxoDataSize[1].abbreviation}B
 							else
 								small.text-muted.border-dotted(title=utxoCalculatingDesc, data-toggle="tooltip") calculating...

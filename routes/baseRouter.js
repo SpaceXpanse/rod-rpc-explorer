@@ -130,6 +130,7 @@ router.get("/", function (req, res, next) {
 
         coreApi.getBlocksByHeight(blockHeights).then(function (latestBlocks) {
             res.locals.latestBlocks = latestBlocks;
+            console.log('latestBlocks',latestBlocks)
             res.locals.blocksUntilDifficultyAdjustment = ((res.locals.difficultyPeriod + 1) * coinConfig.difficultyAdjustmentBlockCount) - latestBlocks[0].height;
 
             Promise.all(promises).then(function (promiseResults) {
@@ -155,8 +156,8 @@ router.get("/", function (req, res, next) {
                 res.locals.smartFeeEstimates = smartFeeEstimates;
 
 
-                res.locals.hashrate1d = promiseResults[3]['sha256d'];
-                res.locals.hashrate7d = promiseResults[4]['sha256d'];
+                res.locals.hashrate1d = promiseResults[3];
+                res.locals.hashrate7d = promiseResults[4];
 
 
                 var rawblockstats = promiseResults[5];
@@ -1543,13 +1544,13 @@ router.get("/address/:address", function (req, res, next) {
 });
 
 router.get("/rpc-terminal", function (req, res, next) {
-    if (!config.demoSite && !req.authenticated) {
-        res.send("RPC Terminal / Browser require authentication. Set an authentication password via the 'BTCEXP_BASIC_AUTH_PASSWORD' environment variable (see .env-sample file for more info).");
-
-        next();
-
-        return;
-    }
+    // if (!req.authenticated) {
+    //     res.send("RPC Terminal / Browser require authentication. Set an authentication password via the 'BTCEXP_BASIC_AUTH_PASSWORD' environment variable (see .env-sample file for more info).");
+    //
+    //     next();
+    //
+    //     return;
+    // }
 
     res.render("rpc-terminal");
 
@@ -1557,13 +1558,13 @@ router.get("/rpc-terminal", function (req, res, next) {
 });
 
 router.post("/rpc-terminal", function (req, res, next) {
-    if (!config.demoSite && !req.authenticated) {
-        res.send("RPC Terminal / Browser require authentication. Set an authentication password via the 'BTCEXP_BASIC_AUTH_PASSWORD' environment variable (see .env-sample file for more info).");
-
-        next();
-
-        return;
-    }
+    // if (!req.authenticated) {
+    //     res.send("RPC Terminal / Browser require authentication. Set an authentication password via the 'BTCEXP_BASIC_AUTH_PASSWORD' environment variable (see .env-sample file for more info).");
+    //
+    //     next();
+    //
+    //     return;
+    // }
 
     var params = req.body.cmd.trim().split(/\s+/);
     var cmd = params.shift();
@@ -1620,13 +1621,13 @@ router.post("/rpc-terminal", function (req, res, next) {
 });
 
 router.get("/rpc-browser", function (req, res, next) {
-    if (!config.demoSite && !req.authenticated) {
-        res.send("RPC Terminal / Browser require authentication. Set an authentication password via the 'BTCEXP_BASIC_AUTH_PASSWORD' environment variable (see .env-sample file for more info).");
-
-        next();
-
-        return;
-    }
+    // if (!req.authenticated) {
+    //     res.send("RPC Terminal / Browser require authentication. Set an authentication password via the 'BTCEXP_BASIC_AUTH_PASSWORD' environment variable (see .env-sample file for more info).");
+    //
+    //     next();
+    //
+    //     return;
+    // }
 
     coreApi.getHelp().then(function (result) {
         res.locals.gethelp = result;

@@ -12,7 +12,7 @@ div.table-responsive
 
                 th.data-header.text-right Age
                 th.data-header.text-right
-                    span.border-dotted(title="Time To Mine - The time it took to mine this block after the previous block. 'Fast' blocks (mined in < 5min) are shown in green; 'slow' blocks (mined in > 15min) are shown in red.", data-toggle="tooltip") T.T.M.
+                    span.border-dotted(title="Time To Mine - The time it took to mine this block after the previous block. 'Fast' blocks (mined in < 10s) are shown in green; 'slow' blocks (mined in > 90s) are shown in red.", data-toggle="tooltip") T.T.M.
                 th.data-header.text-right Miner
                 th.data-header.text-right
                     span.border-dotted(title="The number of transactions included in each block.", data-toggle="tooltip") N(tx)
@@ -83,9 +83,9 @@ div.table-responsive
                         td.data-cell.text-monospace.text-right
                             if (timeDiff)
                                 - var colorClass = "text-muted";
-                                if (timeDiff < 300000)
+                                if (timeDiff < 10000)
                                     - var colorClass = "text-success";
-                                if (timeDiff > 900000)
+                                if (timeDiff > 90000)
                                     - var colorClass = "text-danger";
 
                                 span.font-weight-light(class=colorClass)
@@ -103,7 +103,7 @@ div.table-responsive
                                 else
                                     span.font-weight-light.text-muted -
 
-                        td.data-cell.text-monospace.text-right
+                        td.data-cell.text-monospace.text-center
                             if (block.powdata && block.powdata.algo)
                                 small.rounded.bg-primary.text-white.px-2.py-1(data-toggle="tooltip", title=("Identified by: " + block.powdata.algo)) #{utils.ellipsize(block.powdata.algo, 10)}
                             else

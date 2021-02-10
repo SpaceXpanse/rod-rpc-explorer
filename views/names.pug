@@ -7,15 +7,15 @@ block content
 	h1.h3 Names
 	hr
 
-	div.mb-3
-		form.form.form-inline(method="get", action="./names-scan")
-			input(type="hidden", name="_csrf", value=csrfToken)
-
-			div.input-group
-				input.form-control(id="input-value", type="text", name="query", placeholder="search name", value=(query), style="width: 400px;")
-
-				div.input-group-append
-					button.btn.btn-primary(type="submit") Go
+	//div.mb-3
+	//	form.form.form-inline(method="get", action="./names-scan")
+	//		input(type="hidden", name="_csrf", value=csrfToken)
+	//
+	//		div.input-group
+	//			input.form-control(id="input-value", type="text", name="query", placeholder="search name", value=(query), style="width: 400px;")
+	//
+	//			div.input-group-append
+	//				button.btn.btn-primary(type="submit") Go
 
 	if (nameList)
 

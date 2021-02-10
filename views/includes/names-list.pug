@@ -15,7 +15,7 @@ div.table-responsive
 
 		tbodys
 			each name, nameIndex in nameList
-				if (name && ((sort == "desc" && (nameIndex < nameList.length - 1 || name.height == 0)) || (sort == "asc" && (name.height == 0 || nameIndex > 0))))
+				if (name && ((sort == "desc" && (nameIndex < nameList.length  || name.height == 0)) || (sort == "asc" && (name.height == 0 || nameIndex > 0))))
 					tr
 						td
 							if (sort == "desc")

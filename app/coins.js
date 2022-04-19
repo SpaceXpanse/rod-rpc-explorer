@@ -1,11 +1,11 @@
 var btc = require("./coins/btc.js");
 var ltc = require("./coins/ltc.js");
-var xaya = require("./coins/xaya.js");
+var xaya = require("./coins/spacexpanse.js");
 
 module.exports = {
 	"BTC": btc,
 	"LTC": ltc,
-	"XAYA":xaya,
+	"SPACEXPANSE":spacexpanse,
 
-	"coins":["BTC", "LTC","XAYA"]
+	"coins":["BTC", "LTC","SPACEXPANSE"]
 };

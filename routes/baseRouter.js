@@ -1968,7 +1968,7 @@ router.get("/fun", function (req, res, next) {
     next();
 });
 
-router.get("/xaya-whitepaper", function (req, res, next) {
+router.get("/spacexpanse-whitepaper", function (req, res, next) {
     res.render("bitcoin-whitepaper");
 
     next();

@@ -20,7 +20,7 @@ html(lang="en")
 		
 		link(rel='stylesheet', href='./css/styling.css')
 
-		link(rel="icon", type="image/png", href=("./img/logo/xaya.png"))
+		link(rel="icon", type="image/png", href=("./img/logo/spacexpanse.png"))
 
 		include includes/debug-overrides.pug
 
@@ -33,14 +33,14 @@ html(lang="en")
 				a.navbar-brand(href="./")
 					span
 						if (coinConfig.logoUrlsByNetwork && coinConfig.logoUrlsByNetwork[activeBlockchain])
-							img.header-image(src="./img/logo/xaya.svg", alt="logo")
+							img.header-image(src="./img/logo/spacexpanse.svg", alt="logo")
 						else
-							img.header-image(src="./img/logo/xaya.svg", alt="logo")
+							img.header-image(src="./img/logo/spacexpanse.svg", alt="logo")
 
 						if (coinConfig.siteTitlesByNetwork && coinConfig.siteTitlesByNetwork[activeBlockchain])
 							span #{coinConfig.siteTitlesByNetwork[activeBlockchain]}
 						else
-							span Xaya Explorer
+							span ROD Explorer
 						
 				button.navbar-toggler.navbar-toggler-right(type="button", data-toggle="collapse", data-target="#navbarNav", aria-label="collapse navigation")
 					span.navbar-toggler-icon

@@ -4,17 +4,17 @@ Decimal8 = Decimal.clone({ precision:8, rounding:8 });
 var currencyUnits = [
 	{
 		type:"native",
-		name:"CHI",
+		name:"ROD",
 		multiplier:1,
 		default:true,
-		values:["", "chi", "CHI"],
+		values:["", "rod", "ROD"],
 		decimalPlaces:8
 	},
 	{
 		type:"native",
-		name:"mCHI",
+		name:"mROD",
 		multiplier:1000,
-		values:["mchi"],
+		values:["mrod"],
 		decimalPlaces:5
 	},
 	{
@@ -50,22 +50,22 @@ var currencyUnits = [
 ];
 
 module.exports = {
-	name:"XAYA",
-	ticker:"CHI",
+	name:"SPACEXPANSE",
+	ticker:"ROD",
 	logoUrlsByNetwork:{
-		"main":"./img/logo/xaya.svg",
+		"main":"./img/logo/spacexpanse.svg",
 		"test":"./img/logo/tbtc.svg",
 		"regtest":"./img/logo/tbtc.svg",
 		"signet":"./img/logo/signet.svg"
 	},
 	siteTitlesByNetwork: {
-		"main":"Xaya Explorer",
-		"test":"Testnet Explorer",
-		"regtest":"Regtest Explorer",
-		"signet":"Signet Explorer",
+		"main":"ROD Explorer",
+		"test":"ROD Testnet Explorer",
+		"regtest":"ROD Regtest Explorer",
+		"signet":"ROD Signet Explorer",
 	},
-	siteDescriptionHtml:"<b>Xaya Explorer</b>",
-	nodeTitle:"Xaya Full Node",
+	siteDescriptionHtml:"<b>ROD Explorer</b>",
+	nodeTitle:"ROD Full Node",
 	nodeUrl:"",
 	demoSiteUrl: "",
 	miningPoolsConfigUrls:[
@@ -85,7 +85,7 @@ module.exports = {
 	targetBlockTimeSeconds: 600,
 	targetBlockTimeMinutes: 10,
 	currencyUnits:currencyUnits,
-	currencyUnitsByName:{"CHI":currencyUnits[0], "mCHI":currencyUnits[1], "bits":currencyUnits[2], "sat":currencyUnits[3]},
+	currencyUnitsByName:{"ROD":currencyUnits[0], "mROD":currencyUnits[1], "bits":currencyUnits[2], "sat":currencyUnits[3]},
 	baseCurrencyUnit:currencyUnits[3],
 	defaultCurrencyUnit:currencyUnits[0],
 	feeSatoshiPerByteBucketMaxima: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 15, 20, 25, 50, 75, 100, 150],

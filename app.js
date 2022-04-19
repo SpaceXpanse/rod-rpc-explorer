@@ -213,7 +213,7 @@ function onRpcConnectionVerified(getnetworkinfo, getblockchaininfo) {
 
 	global.getnetworkinfo = getnetworkinfo;
 
-	var bitcoinCoreVersionRegex = /^.*\/Xaya\:(.*)\/.*$/;
+	var bitcoinCoreVersionRegex = /^.*\/SpaceXpanse\:(.*)\/.*$/;
 
 	var match = bitcoinCoreVersionRegex.exec(getnetworkinfo.subversion);
 	if (match) {

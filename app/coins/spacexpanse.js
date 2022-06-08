@@ -59,12 +59,12 @@ module.exports = {
 		"signet":"./img/logo/signet.svg"
 	},
 	siteTitlesByNetwork: {
-		"main":"ROD Explorer",
-		"test":"ROD Testnet Explorer",
-		"regtest":"ROD Regtest Explorer",
-		"signet":"ROD Signet Explorer",
+		"main":"SpaceXpanse ROD Explorer",
+		"test":"SpaceXpanse ROD Testnet Explorer",
+		"regtest":"SpaceXpanse OD Regtest Explorer",
+		"signet":"SpaceXpanse ROD Signet Explorer",
 	},
-	siteDescriptionHtml:"<b>ROD Explorer</b>",
+	siteDescriptionHtml:"<b>SpaceXpanse ROD Explorer</b>",
 	nodeTitle:"ROD Full Node",
 	nodeUrl:"",
 	demoSiteUrl: "",

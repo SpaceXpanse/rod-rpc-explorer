@@ -217,7 +217,23 @@ function shouldCacheTransaction(tx) {
 	return true;
 }
 
+function getHistoryNameList(name) {
+	return tryCacheThenRpcApi(miscCache, "getNameList", 5 * ONE_SEC, function() {
+		return rpcApi.getNameHistoryInfo(name);
+	});
+}
 
+function getNameList(name) {
+	return tryCacheThenRpcApi(miscCache, "getNameList-" + name, 20 * ONE_SEC, function() {
+		return rpcApi.getNameListInfo(name);
+	});
+}
+
+function getNameScanList(start,count,optional) {
+	return tryCacheThenRpcApi(miscCache, "getNameScanList-", 2 * ONE_SEC, function() {
+		return rpcApi.getNameScanListInfo(start,count,optional);
+	});
+}
 
 function getBlockchainInfo() {
 	return tryCacheThenRpcApi(miscCache, "getBlockchainInfo", 10 * ONE_SEC, rpcApi.getBlockchainInfo);
@@ -2239,6 +2255,9 @@ module.exports = {
 	buildBlockAnalysisData: buildBlockAnalysisData,
 	getBlockHeaderByHeight: getBlockHeaderByHeight,
 	getBlockHeadersByHeight: getBlockHeadersByHeight,
+	getNameList:getNameList,
+	getNameScanList:getNameScanList,
+	getHistoryNameList:getHistoryNameList,
 	getTxOut: getTxOut,
 	buildMempoolSummary: buildMempoolSummary,
 	buildPredictedBlocks: buildPredictedBlocks,

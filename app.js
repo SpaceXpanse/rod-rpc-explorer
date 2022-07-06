@@ -21,8 +21,8 @@ const debugPerfLog = debug("btcexp:actionPerformace");
 const debugAccessLog = debug("btcexp:access");
 
 const configPaths = [
-	path.join(os.homedir(), ".config", "btc-rpc-explorer.env"),
-	path.join("/etc", "btc-rpc-explorer", ".env"),
+	path.join(os.homedir(), ".config", "rod-rpc-explorer.env"),
+	path.join("/etc", "rod-rpc-explorer", ".env"),
 	path.join(process.cwd(), ".env"),
 ];
 
@@ -432,7 +432,7 @@ async function onRpcConnectionVerified(getnetworkinfo, getblockchaininfo) {
 		global.pruneHeight = getblockchaininfo.pruneheight;
 	}
 
-	var bitcoinCoreVersionRegex = /^.*\/Satoshi\:(.*)\/.*$/;
+	var bitcoinCoreVersionRegex = /^.*\/SpaceXpanse\:(.*)\/.*$/;
 
 	var match = bitcoinCoreVersionRegex.exec(getnetworkinfo.subversion);
 	if (match) {
@@ -516,8 +516,8 @@ async function onRpcConnectionVerified(getnetworkinfo, getblockchaininfo) {
 		var zmq = require("zeromq");
 		var sock = zmq.socket("sub");
 
-		sock.connect("tcp://192.168.1.1:28333");
-		console.log("Worker connected to port 28333");
+		sock.connect("tcp://127.0.0.1:29000");
+		console.log("Worker connected to port 29000");
 
 		sock.on("message", function(topic, message) {
 			console.log(Buffer.from(topic).toString("ascii") + " - " + Buffer.from(message).toString("hex"));

@@ -442,7 +442,7 @@ async function onRpcConnectionVerified(getnetworkinfo, getblockchaininfo) {
 
 		var semver4PartMatch = semver4PartRegex.exec(global.btcNodeVersion);
 		if (semver4PartMatch) {
-			var p0 = semver4PartMatch[1];
+			var p0 = semver4PartMatch[1];          
 			var p1 = semver4PartMatch[2];
 			var p2 = semver4PartMatch[3];
 			var p3 = semver4PartMatch[4];

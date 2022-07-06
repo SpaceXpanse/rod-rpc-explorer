@@ -194,7 +194,7 @@ block content
 									| 1
 
 						+summaryItem("Difficulty")
-							- var difficultyData = utils.formatLargeNumber(result.getblock.difficulty, 3);
+							- var difficultyData = utils.formatLargeNumber(result.getblock.powdata.difficulty, 3);
 							
 							if (result.getblock.difficulty > 1000)
 								span.border-dotted(title=parseFloat(result.getblock.difficulty).toLocaleString(), data-bs-toggle="tooltip")

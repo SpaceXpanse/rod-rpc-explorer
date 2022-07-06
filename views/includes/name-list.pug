@@ -1,0 +1,66 @@
+div.table-responsive
+	table.table.table-striped.mb-0
+		thead
+			tr
+				//th
+				th
+				th.data-header.text-center
+					span.border-dotted(title="This is the block height of the last transaction for this name.", data-toggle="tooltip") Height
+				th.data-header.text-right Age
+				th.data-header.text-center Transaction
+				th.data-header.text-center Operation
+
+				th.data-header.text-center Names
+				th.data-header.text-center Value
+
+		tbodys
+			each name, nameIndex in nameList
+				if (name && ((sort == "desc" && (nameIndex < nameList.length - 1 || name.height == 0)) || (sort == "asc" && (name.height == 0 || nameIndex > 0))))
+					tr
+						td
+							if (sort == "desc")
+								small.text-muted #{(nameIndex + offset + 1).toLocaleString()}
+							else
+								small.text-muted #{(nameIndex + offset).toLocaleString()}
+						td.data-cell.text-monospace.text-right
+							a(href=("./block-height/" + name.height)) #{name.height.toLocaleString()}
+
+						- var timeAgoTime = moment.utc(new Date()).diff(moment.utc(new Date(parseInt(name.transaction.time) * 1000)));
+						- var timeAgo = moment.duration(timeAgoTime);
+						- var timeDiff = null;
+
+						if (sort == "asc")
+							if (nameIndex > 0)
+								- var timeDiff = moment.duration(moment.utc(new Date(parseInt(name.transaction.time) * 1000)).diff(moment.utc(new Date(parseInt(nameList[nameIndex - 1].transaction.time) * 1000))));
+						else
+							if (nameIndex < nameList.length - 1)
+								- var timeDiff = moment.duration(moment.utc(new Date(parseInt(name.transaction.time) * 1000)).diff(moment.utc(new Date(parseInt(nameList[nameIndex + 1].transaction.time) * 1000))));
+
+
+						td.data-cell.text-monospace.text-right
+							if (sort != "asc" && nameIndex == 0 && offset == 0 && timeAgoTime > (15 * 60 * 1000))
+								- var timeAgoTime = name.transaction.time;
+								span.text-danger.border-dotted(title="It's been > 15 min since this latest block.", data-toggle="tooltip")
+									include ./time-ago-text.pug
+							else
+								- var timeAgoTime = name.transaction.time;
+								include ./time-ago-text.pug
+						td.data-cell.text-monospace.text-right
+							a(href=("./tx/" + name.txid)) #{name.txid.toLocaleString()}
+
+						td.data-cell.text-monospace.text-right
+							if (name.operation)
+								span  #{name.operation.toLocaleString()}
+							else
+								span  ""
+
+
+						td.data-cell.text-monospace.text-right
+							a(href=("./name?name=" + name.name)) #{name.name.toLocaleString()}
+						td.data-cell.text-monospace.text-center(style="max-width: 500px;overflow:auto;display:block")
+							if (name.value)
+								span  #{name.value.toLocaleString()}
+							else
+								span  ""
+
+						- var lastBlock = block;

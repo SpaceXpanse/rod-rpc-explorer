@@ -105,7 +105,7 @@ if (exchangeRates)
 						| )
 
 		+summaryItem("Difficulty", null, null, null, "icon:bi-clock-history", "./difficulty-history", "View difficulty history")
-			- var difficultyData = utils.formatLargeNumber(getblockchaininfo.difficulty, 3);
+			- var difficultyData = utils.formatLargeNumber(miningInfo.difficulty.sha256d, 3);
 			
 			if (getblockchaininfo.difficulty > 1000)
 				span.border-dotted(title=parseFloat(getblockchaininfo.difficulty).toLocaleString(), data-bs-toggle="tooltip")
@@ -167,10 +167,10 @@ if (exchangeRates)
 			- var maxSupply = coinConfig.maxSupplyByNetwork[activeBlockchain];
 
 			if (utxoSetSummary)
-				span #{parseFloat(utxoSetSummary.total_amount).toLocaleString()}
+				span #{parseFloat(utxoSetSummary.amount.total).toLocaleString()}
 				span.text-tiny.ms-2.text-muted
 					| (
-					span.border-dotted(title=`${new Decimal(utxoSetSummary.total_amount).dividedBy(maxSupply).times(100).toDP(5)}% have been mined into circulation`, data-bs-toggle="tooltip") #{new Decimal(utxoSetSummary.total_amount).dividedBy(maxSupply).times(100).toDP(2, Decimal.ROUND_DOWN)}%
+					span.border-dotted(title=`${new Decimal(utxoSetSummary.amount.total).dividedBy(maxSupply).times(100).toDP(5)}% have been mined into circulation`, data-bs-toggle="tooltip") #{new Decimal(utxoSetSummary.total_amount).dividedBy(maxSupply).times(100).toDP(2, Decimal.ROUND_DOWN)}%
 					| )
 
 			else

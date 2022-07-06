@@ -1,0 +1,39 @@
+extends layout
+
+block headContent
+	title Names
+
+block content
+	h1.h3 Names
+	hr
+
+	div.mb-3
+		form.form.form-inline(method="get", action="./names-scan")
+			input(type="hidden", name="_csrf", value=csrfToken)
+
+			div.input-group
+				input.form-control(id="input-value", type="text", name="query", placeholder="search name", value=(query), style="width: 400px;")
+
+				div.input-group-append
+					button.btn.btn-primary(type="submit") Go
+
+	if (nameList)
+
+		div.card.shadow-sm.mb-3
+			div.card-body
+				include includes/names-list.pug
+
+				if (nameCount > limit)
+					- var pageNumber = offset / limit + 1;
+					- var pageCount = Math.floor(nameCount / limit);
+					- if (pageCount * limit < nameCount) {
+						- pageCount++;
+					- }
+					- var paginationUrlFunction = function(x) {
+						- return paginationBaseUrl + "?limit=" + limit + "&offset=" + ((x - 1) * limit + "&sort=" + sort);
+					- }
+
+					div.pt-5
+						include includes/pagination.pug
+	else
+		p No Names found

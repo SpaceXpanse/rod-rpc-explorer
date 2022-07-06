@@ -1,20 +1,27 @@
-var debug = require("debug");
+"use strict";
 
-var debugLog = debug("btcexp:utils");
-var debugErrorLog = debug("btcexp:error");
-var debugErrorVerboseLog = debug("btcexp:errorVerbose");
+const fs = require("fs");
 
-var Decimal = require("decimal.js");
-var request = require("request");
-var qrcode = require("qrcode");
+const debug = require("debug");
+const debugLog = debug("btcexp:utils");
+const debugErrorLog = debug("btcexp:error");
+const debugErrorVerboseLog = debug("btcexp:errorVerbose");
 
-var config = require("./config.js");
-var coins = require("./coins.js");
-var coinConfig = coins[config.coin];
-var redisCache = require("./redisCache.js");
+const Decimal = require("decimal.js");
+const axios = require("axios");
+const qrcode = require("qrcode");
+const bs58check = require("bs58check");
+const bip32 = require('bip32');
+const bitcoinjs = require('bitcoinjs-lib');
+
+const config = require("./config.js");
+const coins = require("./coins.js");
+const coinConfig = coins[config.coin];
+const redisCache = require("./redisCache.js");
+const statTracker = require("./statTracker.js");
 
 
-var exponentScales = [
+const exponentScales = [
 	{val:1000000000000000000000000000000000, name:"?", abbreviation:"V", exponent:"33"},
 	{val:1000000000000000000000000000000, name:"?", abbreviation:"W", exponent:"30"},
 	{val:1000000000000000000000000000, name:"?", abbreviation:"X", exponent:"27"},
@@ -28,11 +35,30 @@ var exponentScales = [
 	{val:1000, name:"kilo", abbreviation:"K", exponent:"3", textDesc:"thou"}
 ];
 
-var ipMemoryCache = {};
+const crawlerBotUserAgentStrings = {
+	"google": new RegExp("adsbot-google|Googlebot|mediapartners-google", "i"),
+	"microsoft": new RegExp("Bingbot|bingpreview|msnbot", "i"),
+	"yahoo": new RegExp("Slurp", "i"),
+	"duckduckgo": new RegExp("DuckDuckBot", "i"),
+	"baidu": new RegExp("Baidu", "i"),
+	"yandex": new RegExp("YandexBot", "i"),
+	"teoma": new RegExp("teoma", "i"),
+	"sogou": new RegExp("Sogou", "i"),
+	"exabot": new RegExp("Exabot", "i"),
+	"facebook": new RegExp("facebot", "i"),
+	"alexa": new RegExp("ia_archiver", "i"),
+	"aol": new RegExp("aolbuild", "i"),
+	"moz": new RegExp("dotbot", "i"),
+	"semrush": new RegExp("SemrushBot", "i"),
+	"majestic": new RegExp("MJ12bot", "i"),
+	"python-requests": new RegExp("python-requests", "i")
+};
 
-var ipRedisCache = null;
+const ipMemoryCache = {};
+
+let ipRedisCache = null;
 if (redisCache.active) {
-	var onRedisCacheEvent = function(cacheType, eventType, cacheKey) {
+	const onRedisCacheEvent = function(cacheType, eventType, cacheKey) {
 		global.cacheStats.redis[eventType]++;
 		//debugLog(`cache.${cacheType}.${eventType}: ${cacheKey}`);
 	}
@@ -40,7 +66,43 @@ if (redisCache.active) {
 	ipRedisCache = redisCache.createCache("v0", onRedisCacheEvent);
 }
 
-var ipCache = {
+let ipMemoryCacheNewItems = false;
+const ipCacheFile = `${config.filesystemCacheDir}/ip-address-cache.json`;
+
+if (fs.existsSync(ipCacheFile)) {
+	try {
+		let rawData = fs.readFileSync(ipCacheFile);
+
+		ipMemoryCache = JSON.parse(rawData);
+
+		debugLog(`Loaded ip address cache (${rawData.length.toLocaleString()} bytes)`);
+
+	} catch (err) {
+		// failed to read cache file, delete it in case it's corrupted
+		fs.unlinkSync(ipCacheFile);
+	}
+}
+
+setInterval(() => {
+	if (ipMemoryCacheNewItems) {
+		try {
+			if (!fs.existsSync(config.filesystemCacheDir)){
+				fs.mkdirSync(config.filesystemCacheDir);
+			}
+
+			debugLog(`Saved updated ip address cache`);
+
+			fs.writeFileSync(ipCacheFile, JSON.stringify(ipMemoryCache, null, 4));
+
+		} catch (e) {
+			utils.logError("24308tew7hgde", e);
+		}
+
+		ipMemoryCacheNewItems = false;
+	}
+}, 60000);
+
+const ipCache = {
 	get:function(key) {
 		return new Promise(function(resolve, reject) {
 			if (ipMemoryCache[key] != null) {
@@ -68,6 +130,8 @@ var ipCache = {
 	set:function(key, value, expirationMillis) {
 		ipMemoryCache[key] = value;
 
+		ipMemoryCacheNewItems = true;
+
 		if (ipRedisCache != null) {
 			ipRedisCache.set("ip-" + key, value, expirationMillis);
 		}
@@ -89,13 +153,8 @@ function redirectToConnectPageIfNeeded(req, res) {
 	return false;
 }
 
-function hex2ascii(hex) {
-	var str = "";
-	for (var i = 0; i < hex.length; i += 2) {
-		str += String.fromCharCode(parseInt(hex.substr(i, 2), 16));
-	}
-	
-	return str;
+function formatHex(hex, outputFormat="utf8") {
+	return Buffer.from(hex, "hex").toString(outputFormat);
 }
 
 function splitArrayIntoChunks(array, chunkSize) {
@@ -154,92 +213,79 @@ function getRandomString(length, chars) {
 	return result;
 }
 
-var formatCurrencyCache = {};
-
-function getCurrencyFormatInfo(formatType) {
-	if (formatCurrencyCache[formatType] == null) {
-		for (var x = 0; x < coins[config.coin].currencyUnits.length; x++) {
-			var currencyUnit = coins[config.coin].currencyUnits[x];
-
-			for (var y = 0; y < currencyUnit.values.length; y++) {
-				var currencyUnitValue = currencyUnit.values[y];
-
-				if (currencyUnitValue == formatType) {
-					formatCurrencyCache[formatType] = currencyUnit;
-				}
-			}
-		}
-	}
-
-	if (formatCurrencyCache[formatType] != null) {
-		return formatCurrencyCache[formatType];
-	}
-
-	return null;
-}
-
 function formatCurrencyAmountWithForcedDecimalPlaces(amount, formatType, forcedDecimalPlaces) {
-	var formatInfo = getCurrencyFormatInfo(formatType);
-	if (formatInfo != null) {
-		var dec = new Decimal(amount);
+	formatType = formatType.toLowerCase();
 
-		var decimalPlaces = formatInfo.decimalPlaces;
-		//if (decimalPlaces == 0 && dec < 1) {
-		//	decimalPlaces = 5;
-		//}
+	var currencyType = global.currencyTypes[formatType];
+
+	if (currencyType == null) {
+		throw `Unknown currency type: ${formatType}`;
+	}
+
+	var dec = new Decimal(amount);
+
+	var decimalPlaces = currencyType.decimalPlaces;
+	//if (decimalPlaces == 0 && dec < 1) {
+	//	decimalPlaces = 5;
+	//}
+
+	if (forcedDecimalPlaces >= 0) {
+		decimalPlaces = forcedDecimalPlaces;
+	}
+
+	if (currencyType.type == "native") {
+		dec = dec.times(currencyType.multiplier);
 
 		if (forcedDecimalPlaces >= 0) {
-			decimalPlaces = forcedDecimalPlaces;
-		}
+			// toFixed will keep trailing zeroes
+			var baseStr = addThousandsSeparators(dec.toFixed(decimalPlaces));
 
-		if (formatInfo.type == "native") {
-			dec = dec.times(formatInfo.multiplier);
+			return {val:baseStr, currencyUnit:currencyType.name, simpleVal:baseStr, intVal:parseInt(dec)};
 
-			if (forcedDecimalPlaces >= 0) {
-				// toFixed will keep trailing zeroes
-				var baseStr = addThousandsSeparators(dec.toFixed(decimalPlaces));
+		} else {
+			// toDP excludes trailing zeroes but doesn't "fix" numbers like 1e-8
+			// instead, we use toFixed and manually strip trailing zeroes
+			// old method is kept for reference since this is sensitive, high-volume code
+			var baseStr = addThousandsSeparators(dec.toFixed(decimalPlaces).replace(/0+$/, "").replace(/\.$/, ""));
+			//var baseStr = addThousandsSeparators(dec.toDP(decimalPlaces)); // old version, failed to properly format "1e-8" (left unchanged)
 
-				return {val:baseStr, currencyUnit:formatInfo.name, simpleVal:baseStr};
+			var returnVal = {currencyUnit:currencyType.name, simpleVal:baseStr, intVal:parseInt(dec)};
 
+			// max digits in "val"
+			var maxValDigits = config.site.valueDisplayMaxLargeDigits;
+
+			// todo: make this section locale-aware (don't hardcode ".")
+
+			if (baseStr.indexOf(".") == -1) {
+				returnVal.val = baseStr;
+				
 			} else {
-				// toDP will strip trailing zeroes
-				var baseStr = addThousandsSeparators(dec.toDP(decimalPlaces));
+				if (baseStr.length - baseStr.indexOf(".") - 1 > maxValDigits) {
+					returnVal.val = baseStr.substring(0, baseStr.indexOf(".") + maxValDigits + 1);
+					returnVal.lessSignificantDigits = baseStr.substring(baseStr.indexOf(".") + maxValDigits + 1);
 
-				var returnVal = {currencyUnit:formatInfo.name, simpleVal:baseStr};
-
-				// max digits in "val"
-				var maxValDigits = config.site.valueDisplayMaxLargeDigits;
-
-				if (baseStr.indexOf(".") == -1) {
-					returnVal.val = baseStr;
-					
 				} else {
-					if (baseStr.length - baseStr.indexOf(".") - 1 > maxValDigits) {
-						returnVal.val = baseStr.substring(0, baseStr.indexOf(".") + maxValDigits + 1);
-						returnVal.lessSignificantDigits = baseStr.substring(baseStr.indexOf(".") + maxValDigits + 1);
-
-					} else {
-						returnVal.val = baseStr;
-					}
+					returnVal.val = baseStr;
 				}
-
-				return returnVal;
 			}
-		} else if (formatInfo.type == "exchanged") {
-			if (global.exchangeRates != null && global.exchangeRates[formatInfo.multiplier] != null) {
-				dec = dec.times(global.exchangeRates[formatInfo.multiplier]);
 
-				var baseStr = addThousandsSeparators(dec.toDecimalPlaces(decimalPlaces));
-
-				return {val:baseStr, currencyUnit:formatInfo.name, simpleVal:baseStr};
-
-			} else {
-				return formatCurrencyAmountWithForcedDecimalPlaces(amount, coinConfig.defaultCurrencyUnit.name, forcedDecimalPlaces);
-			}
+			return returnVal;
 		}
+	} else if (currencyType.type == "exchanged") {
+		//console.log(JSON.stringify(global.exchangeRates) + " - " + currencyType.name);
+		if (global.exchangeRates != null && global.exchangeRates[currencyType.id] != null) {
+			dec = dec.times(global.exchangeRates[currencyType.id]);
+
+			var baseStr = addThousandsSeparators(dec.toDecimalPlaces(decimalPlaces));
+
+			return {val:baseStr, currencyUnit:currencyType.name, simpleVal:baseStr, intVal:parseInt(dec)};
+
+		} else {
+			return formatCurrencyAmountWithForcedDecimalPlaces(amount, coinConfig.defaultCurrencyUnit.name, forcedDecimalPlaces);
+		}
+	} else {
+		throw `Unknown currency type: ${currencyType.type}`;
 	}
-	
-	return amount;
 }
 
 function formatCurrencyAmount(amount, formatType) {
@@ -258,32 +304,11 @@ function addThousandsSeparators(x) {
 	return parts.join(".");
 }
 
-function formatValueInActiveCurrency(amount) {
-	if (global.currencyFormatType && global.exchangeRates[global.currencyFormatType.toLowerCase()]) {
-		return formatExchangedCurrency(amount, global.currencyFormatType);
+function satoshisPerUnitOfLocalCurrency(localCurrency) {
+	if (global.exchangeRates != null) {
+		var exchangeType = localCurrency;
 
-	} else {
-		return formatExchangedCurrency(amount, "usd");
-	}
-}
-
-
-function formatValueInGold(amount) {
-	var currencyFormat = global.currencyFormatType.toLowerCase() || "usd";
-
-	if (global.exchangeRates[currencyFormat] && global.goldExchangeRates[currencyFormat]) {
-		return formatExchangedCurrency(amount, "au");
-
-	} else {
-		return formatExchangedCurrency(amount, "usd");
-	}
-}
-
-function satoshisPerUnitOfActiveCurrency() {
-	if (global.currencyFormatType != null && global.exchangeRates != null) {
-		var exchangeType = global.currencyFormatType.toLowerCase();
-
-		if (!global.exchangeRates[global.currencyFormatType.toLowerCase()]) {
+		if (!global.exchangeRates[localCurrency]) {
 			// if current display currency is a native unit, default to USD for exchange values
 			exchangeType = "usd";
 		}
@@ -296,43 +321,30 @@ function satoshisPerUnitOfActiveCurrency() {
 		dec = one.dividedBy(dec);
 
 		var unitName = coins[config.coin].baseCurrencyUnit.name;
-		var formatInfo = getCurrencyFormatInfo(unitName);
+		var satCurrencyType = global.currencyTypes["sat"];
+		var localCurrencyType = global.currencyTypes[localCurrency];
 
 		// BTC/USD -> sat/USD
-		dec = dec.times(formatInfo.multiplier);
+		dec = dec.times(satCurrencyType.multiplier);
 
 		var exchangedAmt = parseInt(dec);
 
-		if (exchangeType == "eur") {
-			return {amt:addThousandsSeparators(exchangedAmt), unit:`${unitName}/€`};
-
-		} else {
-			return {amt:addThousandsSeparators(exchangedAmt), unit:`${unitName}/$`};
-		}
-		
+		return {amt:addThousandsSeparators(exchangedAmt),amtRaw:exchangedAmt, unit:`sat/${localCurrencyType.symbol}`}
 	}
 
 	return null;
-
-	if (global.currencyFormatType) {
-		return formatExchangedCurrency(amount, global.currencyFormatType);
-
-	} else {
-		return formatExchangedCurrency(amount, "usd");
-	}
 }
 
-function formatExchangedCurrency(amount, exchangeType) {
+function getExchangedCurrencyFormatData(amount, exchangeType, includeUnit=true) {
 	if (global.exchangeRates != null && global.exchangeRates[exchangeType.toLowerCase()] != null) {
 		var dec = new Decimal(amount);
 		dec = dec.times(global.exchangeRates[exchangeType.toLowerCase()]);
 		var exchangedAmt = parseFloat(Math.round(dec * 100) / 100).toFixed(2);
 
-		if (exchangeType == "eur") {
-			return "€" + addThousandsSeparators(exchangedAmt);
-
-		} else {
-			return "$" + addThousandsSeparators(exchangedAmt);
+		return {
+			symbol: global.currencySymbols[exchangeType],
+			value: addThousandsSeparators(exchangedAmt),
+			unit: exchangeType
 		}
 		
 	} else if (exchangeType == "au") {
@@ -341,7 +353,41 @@ function formatExchangedCurrency(amount, exchangeType) {
 			dec = dec.times(global.exchangeRates.usd).dividedBy(global.goldExchangeRates.usd);
 			var exchangedAmt = parseFloat(Math.round(dec * 100) / 100).toFixed(2);
 
-			return addThousandsSeparators(exchangedAmt) + "oz";
+			return {
+				symbol: "AU",
+				value: addThousandsSeparators(exchangedAmt),
+				unit: "oz"
+			}
+		}
+	}
+
+	return "";
+}
+
+function formatExchangedCurrency(amount, exchangeType, decimals=2) {
+	if (global.exchangeRates != null && global.exchangeRates[exchangeType.toLowerCase()] != null) {
+		var dec = new Decimal(amount);
+		dec = dec.times(global.exchangeRates[exchangeType.toLowerCase()]);
+		var exchangedAmt = parseFloat(Math.round(dec * 100) / 100).toFixed(decimals);
+
+		return {
+			val: addThousandsSeparators(exchangedAmt),
+			symbol: global.currencyTypes[exchangeType].symbol,
+			unit: exchangeType,
+			valRaw: exchangedAmt
+		};
+	} else if (exchangeType == "au") {
+		if (global.exchangeRates != null && global.goldExchangeRates != null) {
+			var dec = new Decimal(amount);
+			dec = dec.times(global.exchangeRates.usd).dividedBy(global.goldExchangeRates.usd);
+			var exchangedAmt = parseFloat(Math.round(dec * 100) / 100).toFixed(decimals);
+
+			return {
+				val: addThousandsSeparators(exchangedAmt),
+				unit: "oz",
+				symbol: "AU",
+				valRaw: exchangedAmt
+			};
 		}
 	}
 
@@ -358,12 +404,40 @@ function seededRandomIntBetween(seed, min, max) {
 	return (min + (max - min) * rand);
 }
 
+function randomInt(min, max) {
+	return min + Math.floor(Math.random() * max);
+}
+
 function ellipsize(str, length, ending="…") {
 	if (str.length <= length) {
 		return str;
 
 	} else {
 		return str.substring(0, length - ending.length) + ending;
+	}
+}
+
+function ellipsizeMiddle(str, length, replacement="…", extraCharAtStart=true) {
+	if (str.length <= length) {
+		return str;
+
+	} else {
+		//"abcde"(3)->"a…e"
+		//"abcdef"(3)->"a…f"
+		//"abcdef"(5)->"ab…ef"
+		//"abcdef"(4)->"ab…f"
+		if ((length - replacement.length) % 2 == 0) {
+			return str.substring(0, (length - replacement.length) / 2) + replacement + str.slice(-(length - replacement.length) / 2);
+
+		} else {
+			if (extraCharAtStart) {
+				return str.substring(0, Math.ceil((length - replacement.length) / 2)) + replacement + str.slice(-Math.floor((length - replacement.length) / 2));
+
+			} else {
+				return str.substring(0, Math.floor((length - replacement.length) / 2)) + replacement + str.slice(-Math.ceil((length - replacement.length) / 2));
+			}
+			
+		}
 	}
 }
 
@@ -399,8 +473,8 @@ function logMemoryUsage() {
 	//debugLog("memoryUsage: heapUsed=" + mbUsed + ", heapTotal=" + mbTotal + ", ratio=" + parseInt(mbUsed / mbTotal * 100));
 }
 
-function getMinerFromCoinbaseTx(tx) {
-	if (tx == null || tx.vin == null || tx.vin.length == 0) {
+function identifyMiner(coinbaseTx, blockHeight) {
+	if (coinbaseTx == null || coinbaseTx.vin == null || coinbaseTx.vin.length == 0) {
 		return null;
 	}
 	
@@ -410,8 +484,8 @@ function getMinerFromCoinbaseTx(tx) {
 
 			for (var payoutAddress in miningPoolsConfig.payout_addresses) {
 				if (miningPoolsConfig.payout_addresses.hasOwnProperty(payoutAddress)) {
-					if (tx.vout && tx.vout.length > 0 && tx.vout[0].scriptPubKey && tx.vout[0].scriptPubKey.addresses && tx.vout[0].scriptPubKey.addresses.length > 0) {
-						if (tx.vout[0].scriptPubKey.addresses[0] == payoutAddress) {
+					if (coinbaseTx.vout && coinbaseTx.vout.length > 0) {
+						if (getVoutAddresses(coinbaseTx.vout[0]).includes(payoutAddress)) {
 							var minerInfo = miningPoolsConfig.payout_addresses[payoutAddress];
 							minerInfo.identifiedBy = "payout address " + payoutAddress;
 
@@ -423,7 +497,7 @@ function getMinerFromCoinbaseTx(tx) {
 
 			for (var coinbaseTag in miningPoolsConfig.coinbase_tags) {
 				if (miningPoolsConfig.coinbase_tags.hasOwnProperty(coinbaseTag)) {
-					if (hex2ascii(tx.vin[0].coinbase).indexOf(coinbaseTag) != -1) {
+					if (formatHex(coinbaseTx.vin[0].coinbase, "utf8").indexOf(coinbaseTag) != -1) {
 						var minerInfo = miningPoolsConfig.coinbase_tags[coinbaseTag];
 						minerInfo.identifiedBy = "coinbase tag '" + coinbaseTag + "'";
 
@@ -433,11 +507,43 @@ function getMinerFromCoinbaseTx(tx) {
 			}
 
 			for (var blockHash in miningPoolsConfig.block_hashes) {
-				if (blockHash == tx.blockhash) {
+				if (blockHash == coinbaseTx.blockhash) {
 					var minerInfo = miningPoolsConfig.block_hashes[blockHash];
 					minerInfo.identifiedBy = "known block hash '" + blockHash + "'";
 
 					return minerInfo;
+				}
+			}
+
+			if (global.activeBlockchain == "main" && miningPoolsConfig.block_heights) {
+				for (var minerName in miningPoolsConfig.block_heights) {
+					var minerInfo = miningPoolsConfig.block_heights[minerName];
+					minerInfo.name = minerName;
+
+					if (minerInfo.heights.includes(blockHeight)) {
+						minerInfo.identifiedBy = "known block height #" + blockHeight;
+
+						return minerInfo;
+					}
+				}
+			}
+		}
+	}
+
+	if (coinbaseTx.vout && coinbaseTx.vout.length > 0) {
+		for (var i = 0; i < coinbaseTx.vout.length; i++) {
+			const vout = coinbaseTx.vout[i];
+
+			const voutValue = new Decimal(vout.value);
+			if (voutValue > 0) {
+				const address = getVoutAddress(vout);
+
+				if (address) {
+					return {
+						name: address,
+						type: "address-only",
+						identifiedBy: "payout address " + address,
+					};
 				}
 			}
 		}
@@ -451,29 +557,34 @@ function getTxTotalInputOutputValues(tx, txInputs, blockHeight) {
 	var totalOutputValue = new Decimal(0);
 
 	try {
-		for (var i = 0; i < tx.vin.length; i++) {
-			if (tx.vin[i].coinbase) {
-				totalInputValue = totalInputValue.plus(new Decimal(coinConfig.blockRewardFunction(blockHeight, global.activeBlockchain)));
+		if (txInputs) {
+			for (var i = 0; i < tx.vin.length; i++) {
+				if (tx.vin[i].coinbase) {
+					totalInputValue = totalInputValue.plus(new Decimal(coinConfig.blockRewardFunction(blockHeight, global.activeBlockchain)));
 
-			} else {
-				var txInput = txInputs[i];
+				} else {
+					var txInput = txInputs[i];
 
-				if (txInput) {
-					try {
-						var vout = txInput;
-						if (vout.value) {
-							totalInputValue = totalInputValue.plus(new Decimal(vout.value));
+					if (txInput) {
+						try {
+							var vout = txInput;
+
+							if (vout.value) {
+								totalInputValue = totalInputValue.plus(new Decimal(vout.value));
+							}
+						} catch (err) {
+							logError("2397gs0gsse", err, {txid:tx.txid, vinIndex:i});
 						}
-					} catch (err) {
-						logError("2397gs0gsse", err, {txid:tx.txid, vinIndex:i});
 					}
 				}
 			}
+		} else {
+			totalInputValue = null
 		}
-		
+
 		for (var i = 0; i < tx.vout.length; i++) {
-			totalOutputValue = totalOutputValue.plus(new Decimal(tx.vout[i].value));
-		}
+				totalOutputValue = totalOutputValue.plus(new Decimal(tx.vout[i].value));
+			}
 	} catch (err) {
 		logError("2308sh0sg44", err, {tx:tx, txInputs:txInputs, blockHeight:blockHeight});
 	}
@@ -504,38 +615,79 @@ function getBlockTotalFeesFromCoinbaseTxAndBlockHeight(coinbaseTx, blockHeight) 
 	}
 }
 
-function refreshExchangeRates() {
-	if (!config.queryExchangeRates || config.privacyMode) {
+function estimatedSupply(height) {
+	const checkpoint = coinConfig.utxoSetCheckpointsByNetwork[global.activeBlockchain];
+
+	let checkpointHeight = 0;
+	let checkpointSupply = new Decimal(50);
+
+	if (checkpoint && checkpoint.height <= height) {
+		//console.log("using checkpoint");
+		checkpointHeight = checkpoint.height;
+		checkpointSupply = new Decimal(checkpoint.total_amount);
+	}
+
+	let halvingBlockInterval = coinConfig.halvingBlockIntervalsByNetwork[global.activeBlockchain];
+
+	let supply = checkpointSupply;
+
+	let i = checkpointHeight;
+	while (i < height) {
+		let nextHalvingHeight = halvingBlockInterval * Math.floor(i / halvingBlockInterval) + halvingBlockInterval;
+		
+		if (height < nextHalvingHeight) {
+			let heightDiff = height - i;
+
+			//console.log(`adding(${heightDiff}): ` + new Decimal(heightDiff).times(coinConfig.blockRewardFunction(i, global.activeBlockchain)));
+			return supply.plus(new Decimal(heightDiff).times(coinConfig.blockRewardFunction(i, global.activeBlockchain)));
+		}
+
+		let heightDiff = nextHalvingHeight - i;
+
+		supply = supply.plus(new Decimal(heightDiff).times(coinConfig.blockRewardFunction(i, global.activeBlockchain)));
+		
+		i += heightDiff;
+	}
+
+	return supply;
+}
+
+async function refreshExchangeRates() {
+	if (!config.queryExchangeRates) {
 		return;
 	}
 
 	if (coins[config.coin].exchangeRateData) {
-		request(coins[config.coin].exchangeRateData.jsonUrl, function(error, response, body) {
-			if (error == null && response && response.statusCode && response.statusCode == 200) {
-				var responseBody = JSON.parse(body);
+		try {
+			const response = await axios.get(coins[config.coin].exchangeRateData.jsonUrl);
 
-				var exchangeRates = coins[config.coin].exchangeRateData.responseBodySelectorFunction(responseBody);
-				if (exchangeRates != null) {
-					global.exchangeRates = exchangeRates;
-					global.exchangeRatesUpdateTime = new Date();
+			var exchangeRates = coins[config.coin].exchangeRateData.responseBodySelectorFunction(response.data);
+			if (exchangeRates != null) {
+				global.exchangeRates = exchangeRates;
+				global.exchangeRatesUpdateTime = new Date();
 
-					debugLog("Using exchange rates: " + JSON.stringify(global.exchangeRates) + " starting at " + global.exchangeRatesUpdateTime);
+				debugLog("Using exchange rates: " + JSON.stringify(global.exchangeRates) + " starting at " + global.exchangeRatesUpdateTime);
 
-				} else {
-					debugLog("Unable to get exchange rate data");
-				}
 			} else {
-				logError("39r7h2390fgewfgds", {error:error, response:response, body:body});
+				debugLog("Unable to get exchange rate data");
 			}
-		});
+		} catch (err) {
+			logError("39r7h2390fgewfgds", err);
+		}
 	}
 
 	if (coins[config.coin].goldExchangeRateData) {
-		request(coins[config.coin].goldExchangeRateData.jsonUrl, function(error, response, body) {
-			if (error == null && response && response.statusCode && response.statusCode == 200) {
-				var responseBody = JSON.parse(body);
+		if (process.env.NODE_ENV == "local") {
+			global.goldExchangeRates = {usd: 1731.2};
+			global.goldExchangeRatesUpdateTime = new Date();
 
-				var exchangeRates = coins[config.coin].goldExchangeRateData.responseBodySelectorFunction(responseBody);
+			debugLog("Using DEBUG gold exchange rates: " + JSON.stringify(global.goldExchangeRates) + " starting at " + global.goldExchangeRatesUpdateTime);
+
+		} else {
+			try {
+				const response = await axios.get(coins[config.coin].goldExchangeRateData.jsonUrl);
+
+				var exchangeRates = coins[config.coin].goldExchangeRateData.responseBodySelectorFunction(response.data);
 				if (exchangeRates != null) {
 					global.goldExchangeRates = exchangeRates;
 					global.goldExchangeRatesUpdateTime = new Date();
@@ -545,10 +697,10 @@ function refreshExchangeRates() {
 				} else {
 					debugLog("Unable to get gold exchange rate data");
 				}
-			} else {
-				logError("34082yt78yewewe", {error:error, response:response, body:body});
+			} catch (err) {
+				logError("34082yt78yewewe", err);
 			}
-		});
+		}
 	}
 }
 
@@ -566,45 +718,54 @@ function geoLocateIpAddresses(ipAddresses, provider) {
 		var promises = [];
 		for (var i = 0; i < ipAddresses.length; i++) {
 			var ipStr = ipAddresses[i];
+
+			if (ipStr.endsWith(".onion")) {
+				// tor, no location possible
+				continue;
+			}
+
+			if (ipStr == "127.0.0.1") {
+				// skip
+				continue;
+			}
+
+			if (!ipStr.match(/^(?:[0-9]{1,3}\.){3}[0-9]{1,3}$/)) {
+				// non-IPv4, skip it
+				continue;
+			}
 			
 			promises.push(new Promise(function(resolve2, reject2) {
-				ipCache.get(ipStr).then(function(result) {
+				ipCache.get(ipStr).then(async function(result) {
 					if (result.value == null) {
 						var apiUrl = "http://api.ipstack.com/" + result.key + "?access_key=" + config.credentials.ipStackComApiAccessKey;
 						
-						request(apiUrl, function(error, response, body) {
-							if (error) {
-								debugLog("Failed IP-geo-lookup: " + result.key);
+						try {
+							const response = await axios.get(apiUrl);
 
-								logError("39724gdge33a", error, {ip: result.key});
+							var ip = response.data.ip;
 
-								// we failed to get what we wanted, but there's no meaningful recourse,
-								// so we log the failure and continue without objection
-								resolve2();
+							ipDetails.detailsByIp[ip] = response.data;
+
+							if (response.data.latitude && response.data.longitude) {
+								debugLog(`Successful IP-geo-lookup: ${ip} -> (${response.data.latitude}, ${response.data.longitude})`);
 
 							} else {
-								if (response != null && response.statusCode == 200) {
-									var resBody = JSON.parse(response.body);
-									var ip = resBody.ip;
+								debugLog(`Unknown location for IP-geo-lookup: ${ip}`);
+							}									
 
-									ipDetails.detailsByIp[ip] = resBody;
+							ipCache.set(ip, response.data, 1000 * 60 * 60 * 24 * 365);
 
-									if (resBody.latitude && resBody.longitude) {
-										debugLog(`Successful IP-geo-lookup: ${ip} -> (${resBody.latitude}, ${resBody.longitude})`);
+							resolve2();
 
-									} else {
-										debugLog(`Unknown location for IP-geo-lookup: ${ip}`);
-									}									
+						} catch (err) {
+							debugLog("Failed IP-geo-lookup: " + result.key);
 
-									ipCache.set(ip, resBody, 1000 * 60 * 60 * 24 * 365);
+							logError("39724gdge33a", err, {ip: result.key});
 
-								} else {
-									debugLog("Unsuccessful IP-geo-lookup: " + result.key);
-								}
-
-								resolve2();
-							}
-						});
+							// we failed to get what we wanted, but there's no meaningful recourse,
+							// so we log the failure and continue without objection
+							resolve2();
+						}
 
 					} else {
 						ipDetails.detailsByIp[result.key] = result.value;
@@ -634,16 +795,43 @@ function parseExponentStringDouble(val) {
 }
 
 function formatLargeNumber(n, decimalPlaces) {
-	for (var i = 0; i < exponentScales.length; i++) {
-		var item = exponentScales[i];
+	try {
+		for (var i = 0; i < exponentScales.length; i++) {
+			var item = exponentScales[i];
 
-		var fraction = new Decimal(n / item.val);
-		if (fraction >= 1) {
-			return [fraction.toDecimalPlaces(decimalPlaces), item];
+			var fraction = new Decimal(n / item.val);
+			if (fraction >= 1) {
+				return [fraction.toDP(decimalPlaces), item];
+			}
 		}
-	}
 
-	return [new Decimal(n).toDecimalPlaces(decimalPlaces), {}];
+		return [new Decimal(n).toDP(decimalPlaces), {}];
+
+	} catch (err) {
+		logError("ru92huefhew", err, { n:n, decimalPlaces:decimalPlaces });
+
+		throw err;
+	}
+}
+
+function formatLargeNumberSignificant(n, significantDigits) {
+	try {
+		for (var i = 0; i < exponentScales.length; i++) {
+			var item = exponentScales[i];
+
+			var fraction = new Decimal(n / item.val);
+			if (fraction >= 1) {
+				return [fraction.toDP(Math.max(0, significantDigits - `${Math.floor(fraction)}`.length)), item];
+			}
+		}
+
+		return [new Decimal(n).toDP(significantDigits), {}];
+
+	} catch (err) {
+		logError("38fhcdugdeogwe", err, { n:n, significantDigits:significantDigits });
+
+		throw err;
+	}
 }
 
 function rgbToHsl(r, g, b) {
@@ -692,9 +880,17 @@ function colorHexToHsl(hex) {
 const reflectPromise = p => p.then(v => ({v, status: "resolved" }),
 							e => ({e, status: "rejected" }));
 
+
 global.errorStats = {};
 
-function logError(errorId, err, optionalUserData = null) {
+function logError(errorId, err, optionalUserData = {}, logStacktrace=true) {
+	debugErrorLog("Error " + errorId + ": " + err + ", json: " + JSON.stringify(err) + (optionalUserData != null ? (", userData: " + optionalUserData + " (json: " + JSON.stringify(optionalUserData) + ")") : ""));
+	
+	if (err && err.stack && logStacktrace) {
+		debugErrorVerboseLog("Stack: " + err.stack);
+	}
+
+
 	if (!global.errorLog) {
 		global.errorLog = [];
 	}
@@ -702,9 +898,31 @@ function logError(errorId, err, optionalUserData = null) {
 	if (!global.errorStats[errorId]) {
 		global.errorStats[errorId] = {
 			count: 0,
-			firstSeen: new Date().getTime()
+			firstSeen: new Date().getTime(),
+			properties: {}
 		};
 	}
+
+	if (optionalUserData && err.message) {
+		optionalUserData.errorMsg = err.message;
+	}
+
+	if (optionalUserData) {
+		for (const [key, value] of Object.entries(optionalUserData)) {
+			if (!global.errorStats[errorId].properties[key]) {
+				global.errorStats[errorId].properties[key] = {};
+			}
+
+			if (!global.errorStats[errorId].properties[key][value]) {
+				global.errorStats[errorId].properties[key][value] = 0;
+			}
+
+			global.errorStats[errorId].properties[key][value]++;
+		}
+	}
+
+	statTracker.trackEvent(`errors.${errorId}`);
+	statTracker.trackEvent(`errors.*`);
 
 	global.errorStats[errorId].count++;
 	global.errorStats[errorId].lastSeen = new Date().getTime();
@@ -714,12 +932,7 @@ function logError(errorId, err, optionalUserData = null) {
 		global.errorLog.splice(0, 1);
 	}
 
-	debugErrorLog("Error " + errorId + ": " + err + ", json: " + JSON.stringify(err) + (optionalUserData != null ? (", userData: " + optionalUserData + " (json: " + JSON.stringify(optionalUserData) + ")") : ""));
 	
-	if (err && err.stack) {
-		debugErrorVerboseLog("Stack: " + err.stack);
-	}
-
 	var returnVal = {errorId:errorId, error:err};
 	if (optionalUserData) {
 		returnVal.userData = optionalUserData;
@@ -773,12 +986,12 @@ function buildQrCodeUrl(str, results) {
 
 function outputTypeAbbreviation(outputType) {
 	var map = {
-		"pubkey": "p2pk",
-		"pubkeyhash": "p2pkh",
-		"scripthash": "p2sh",
-		"witness_v0_keyhash": "v0_p2wpkh",
-		"witness_v0_scripthash": "v0_p2wsh",
-		"witness_v1_taproot": "v1_p2tr",
+		"pubkey": "P2PK",
+		"pubkeyhash": "P2PKH",
+		"scripthash": "P2SH",
+		"witness_v0_keyhash": "P2WPKH",
+		"witness_v0_scripthash": "P2WSH",
+		"witness_v1_taproot": "P2TR",
 		"nonstandard": "nonstandard",
 		"nulldata": "nulldata"
 	};
@@ -826,30 +1039,329 @@ function asAddress(value) {
 const arrayFromHexString = hexString =>
 	new Uint8Array(hexString.match(/.{1,2}/g).map(byte => parseInt(byte, 16)));
 
+const getCrawlerFromUserAgentString = userAgentString => {
+	for (const [name, regex] of Object.entries(crawlerBotUserAgentStrings)) {
+		if (regex.test(userAgentString)) {
+			return name;
+		}
+	}
+
+	return null;
+};
+
+const safePromise = async (uid, promise) => {
+	try {
+		const response = await promise();
+
+		return response;
+
+	} catch (e) {
+		logError(uid, e);
+	}
+};
+
+const timePromise = async (name, promise, perfResults=null) => {
+	const startTime = startTimeNanos();
+
+	try {
+		const response = await promise();
+
+		const responseTimeMillis = dtMillis(startTime);
+
+		statTracker.trackPerformance(name, responseTimeMillis);
+
+		if (perfResults) {
+			perfResults[name] = Math.max(1, parseInt(responseTimeMillis));
+		}
+
+		return response;
+
+	} catch (e) {
+		const responseTimeMillis = dtMillis(startTime);
+
+		statTracker.trackPerformance(`${name}_error`, responseTimeMillis);
+
+		if (perfResults) {
+			perfResults[`${name}_error`] = Math.max(1, parseInt(responseTimeMillis));
+		}
+
+		throw e;
+	}
+};
+
+const timeFunction = (uid, f, perfResults=null) => {
+	const startTime = startTimeNanos();
+
+	f();
+
+	const responseTimeMillis = dtMillis(startTime);
+
+	statTracker.trackPerformance(uid, responseTimeMillis);
+
+	if (perfResults) {
+		perfResults[uid] = responseTimeMillis;
+	}
+};
+
+const fileCache = (cacheDir, cacheName, cacheVersion=1) => {
+	const filename = (version) => { return ((version > 1) ? [cacheName, `v${version}`].join("-") : cacheName) + ".json"; };
+	const filepath = `${cacheDir}/${filename(cacheVersion)}`;
+
+	if (cacheVersion > 1) {
+		// remove old versions
+		for (let i = 1; i < cacheVersion; i++) {
+			if (fs.existsSync(`${cacheDir}/${filename(i)}`)) {
+				fs.unlinkSync(`${cacheDir}/${filename(i)}`);
+			}
+		}
+	}
+
+	return {
+		tryLoadJson: () => {
+			if (fs.existsSync(filepath)) {
+				let rawData = fs.readFileSync(filepath);
+
+				try {
+					return JSON.parse(rawData);
+
+				} catch (e) {
+					logError("378y43edewe", e);
+
+					fs.unlinkSync(filepath);
+
+					return null;
+				}
+			}
+
+			return null;
+		},
+		writeJson: (obj) => {
+			if (!fs.existsSync(cacheDir)) {
+				fs.mkdirSync(cacheDir);
+			}
+
+			fs.writeFileSync(filepath, JSON.stringify(obj, null, 4));
+		}
+	};
+};
+
+const startTimeNanos = () => {
+	return process.hrtime.bigint();
+};
+
+const dtMillis = (startTimeNanos) => {
+	const dtNanos = process.hrtime.bigint() - startTimeNanos;
+
+	return parseInt(dtNanos) * 1e-6;
+};
+
+function objectProperties(obj) {
+	const props = [];
+	for (const prop in obj) {
+		if (Object.prototype.hasOwnProperty.call(obj, prop)) {
+			props.push(prop);
+		}
+	}
+
+	return props;
+}
+
+function objHasProperty(obj, name) {
+	return Object.prototype.hasOwnProperty.call(obj, name);
+}
+
+function iterateProperties(obj, action) {
+	for (const [key, value] of Object.entries(obj)) {
+		action([key, value]);
+	}
+}
+
+function stringifySimple(object) {
+	var simpleObject = {};
+	for (var prop in object) {
+			if (!object.hasOwnProperty(prop)) {
+					continue;
+			}
+
+			if (typeof(object[prop]) == 'object') {
+					continue;
+			}
+
+			if (typeof(object[prop]) == 'function') {
+					continue;
+			}
+
+			simpleObject[prop] = object[prop];
+	}
+
+	return JSON.stringify(simpleObject); // returns cleaned up JSON
+}
+
+function getVoutAddress(vout) {
+	if (vout && vout.scriptPubKey) {
+		if (vout.scriptPubKey.address) {
+			return vout.scriptPubKey.address;
+
+		} else if (vout.scriptPubKey.addresses && vout.scriptPubKey.addresses.length > 0) {
+			return vout.scriptPubKey.addresses[0];
+		}
+	}
+
+	return null;
+}
+
+function getVoutAddresses(vout) {
+	if (vout && vout.scriptPubKey) {
+		if (vout.scriptPubKey.address) {
+			return [vout.scriptPubKey.address];
+
+		} else if (vout.scriptPubKey.addresses) {
+			return vout.scriptPubKey.addresses;
+		}
+	}
+
+	return [];
+}
+
+const xpubPrefixes = new Map([
+	['xpub', '0488b21e'],
+	['ypub', '049d7cb2'],
+	['Ypub', '0295b43f'],
+	['zpub', '04b24746'],
+	['Zpub', '02aa7ed3'],
+	['tpub', '043587cf'],
+	['upub', '044a5262'],
+	['Upub', '024289ef'],
+	['vpub', '045f1cf6'],
+	['Vpub', '02575483'],
+]);
+
+const bip32TestnetNetwork = {
+	messagePrefix: '\x18Bitcoin Signed Message:\n',
+	bech32: 'tb',
+	bip32: {
+		public: 0x043587cf,
+		private: 0x04358394,
+	},
+	pubKeyHash: 0x6f,
+	scriptHash: 0xc4,
+	wif: 0xEF,
+};
+
+// ref: https://github.com/ExodusMovement/xpub-converter/blob/master/src/index.js
+function xpubChangeVersionBytes(xpub, targetFormat) {
+	if (!xpubPrefixes.has(targetFormat)) {
+		throw new Error("Invalid target version");
+	}
+
+	// trim whitespace
+	xpub = xpub.trim();
+
+	var data = bs58check.decode(xpub);
+	data = data.slice(4);
+	data = Buffer.concat([Buffer.from(xpubPrefixes.get(targetFormat), 'hex'), data]);
+
+	return bs58check.encode(data);
+}
+
+// HD wallet addresses
+function bip32Addresses(extPubkey, addressType, account, limit=10, offset=0) {
+	let network = null;
+	if (!extPubkey.match(/^(xpub|ypub|zpub|Ypub|Zpub).*$/)) {
+		network = bip32TestnetNetwork;
+	}
+
+	let bip32object = bip32.fromBase58(extPubkey, network);
+
+	let addresses = [];
+	for (let i = offset; i < (offset + limit); i++) {
+		let bip32Child = bip32object.derive(account).derive(i);
+		let publicKey = bip32Child.publicKey;
+
+		if (addressType == "p2pkh") {
+			addresses.push(bitcoinjs.payments.p2pkh({ pubkey: publicKey, network: network }).address);
+
+		} else if (addressType == "p2sh(p2wpkh)") {
+			addresses.push(bitcoinjs.payments.p2sh({ redeem: bitcoinjs.payments.p2wpkh({ pubkey: publicKey, network: network })}).address);
+
+		} else if (addressType == "p2wpkh") {
+			addresses.push(bitcoinjs.payments.p2wpkh({ pubkey: publicKey, network: network }).address);
+
+		} else {
+			throw new Error(`Unknown address type: "${addressType}" (should be one of ["p2pkh", "p2sh(p2wpkh)", "p2wpkh"])`)
+		}
+	}
+
+	return addresses;
+}
+
+
+const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+
+const awaitPromises = async (promises) => {
+	const promiseResults = await Promise.allSettled(promises);
+
+	promiseResults.forEach(x => {
+		if (x.status == "rejected") {
+			if (x.reason) {
+				logError("awaitPromises_rejected", x.reason);
+			}
+		}
+	});
+
+	return promiseResults;
+};
+
+const perfLog = [];
+let perfLogItemCount = 0;
+const perfLogMaxItems = 100;
+const perfLogNewItem = (tags) => {
+	const newItem = tags;
+
+	newItem.id = getRandomString(12, "aA#");
+	newItem.date = new Date();
+	newItem.results = {};
+	newItem.index = perfLogItemCount;
+
+	perfLogItemCount++;
+
+	perfLog.splice(0, 0, newItem);
+
+	while (perfLog.length > perfLogMaxItems) {
+		perfLog.splice(perfLog.length - 1, 1);
+	}
+
+	return {
+		perfId:newItem.id,
+		perfResults:newItem.results
+	};
+};
+
 module.exports = {
 	reflectPromise: reflectPromise,
 	redirectToConnectPageIfNeeded: redirectToConnectPageIfNeeded,
-	hex2ascii: hex2ascii,
+	formatHex: formatHex,
 	splitArrayIntoChunks: splitArrayIntoChunks,
 	splitArrayIntoChunksByChunkCount: splitArrayIntoChunksByChunkCount,
 	getRandomString: getRandomString,
-	getCurrencyFormatInfo: getCurrencyFormatInfo,
 	formatCurrencyAmount: formatCurrencyAmount,
 	formatCurrencyAmountWithForcedDecimalPlaces: formatCurrencyAmountWithForcedDecimalPlaces,
 	formatExchangedCurrency: formatExchangedCurrency,
-	formatValueInActiveCurrency: formatValueInActiveCurrency,
-	formatValueInGold: formatValueInGold,
-	satoshisPerUnitOfActiveCurrency: satoshisPerUnitOfActiveCurrency,
+	getExchangedCurrencyFormatData: getExchangedCurrencyFormatData,
+	satoshisPerUnitOfLocalCurrency: satoshisPerUnitOfLocalCurrency,
 	addThousandsSeparators: addThousandsSeparators,
 	formatCurrencyAmountInSmallestUnits: formatCurrencyAmountInSmallestUnits,
 	seededRandom: seededRandom,
 	seededRandomIntBetween: seededRandomIntBetween,
+	randomInt: randomInt,
 	logMemoryUsage: logMemoryUsage,
-	getMinerFromCoinbaseTx: getMinerFromCoinbaseTx,
+	identifyMiner: identifyMiner,
 	getBlockTotalFeesFromCoinbaseTxAndBlockHeight: getBlockTotalFeesFromCoinbaseTxAndBlockHeight,
+	estimatedSupply: estimatedSupply,
 	refreshExchangeRates: refreshExchangeRates,
 	parseExponentStringDouble: parseExponentStringDouble,
 	formatLargeNumber: formatLargeNumber,
+	formatLargeNumberSignificant: formatLargeNumberSignificant,
 	geoLocateIpAddresses: geoLocateIpAddresses,
 	getTxTotalInputOutputValues: getTxTotalInputOutputValues,
 	rgbToHsl: rgbToHsl,
@@ -858,11 +1370,30 @@ module.exports = {
 	logError: logError,
 	buildQrCodeUrls: buildQrCodeUrls,
 	ellipsize: ellipsize,
+	ellipsizeMiddle: ellipsizeMiddle,
 	shortenTimeDiff: shortenTimeDiff,
 	outputTypeAbbreviation: outputTypeAbbreviation,
 	outputTypeName: outputTypeName,
 	asHash: asHash,
 	asHashOrHeight: asHashOrHeight,
 	asAddress: asAddress,
-	arrayFromHexString: arrayFromHexString
+	arrayFromHexString: arrayFromHexString,
+	getCrawlerFromUserAgentString: getCrawlerFromUserAgentString,
+	timePromise: timePromise,
+	timeFunction: timeFunction,
+	startTimeNanos: startTimeNanos,
+	dtMillis: dtMillis,
+	objectProperties: objectProperties,
+	objHasProperty: objHasProperty,
+	stringifySimple: stringifySimple,
+	safePromise: safePromise,
+	getVoutAddress: getVoutAddress,
+	getVoutAddresses: getVoutAddresses,
+	xpubChangeVersionBytes: xpubChangeVersionBytes,
+	bip32Addresses: bip32Addresses,
+	sleep: sleep,
+	awaitPromises: awaitPromises,
+	perfLogNewItem: perfLogNewItem,
+	perfLog: perfLog,
+	fileCache: fileCache
 };

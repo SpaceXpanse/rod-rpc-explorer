@@ -97,7 +97,7 @@ const markdown = require("markdown-it")();
 const v8 = require("v8");
 var compression = require("compression");
 
-const appUtils = require("@janoside/app-utils");
+const appUtils = require("@spaceexpanse/app-utils");
 const s3Utils = appUtils.s3Utils;
 
 let cdnS3Bucket = null;
@@ -314,7 +314,7 @@ function loadMiningPoolConfigs() {
 
 async function getSourcecodeProjectMetadata() {
 	var options = {
-		url: "https://api.github.com/repos/janoside/btc-rpc-explorer",
+		url: "https://api.github.com/repos/spacexpanse/rod-rpc-explorer",
 		headers: {
 			'User-Agent': 'request'
 		}

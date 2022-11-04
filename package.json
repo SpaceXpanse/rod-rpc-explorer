@@ -28,7 +28,7 @@
 		"url": "git+https://github.com/spacexpanse/rod-rpc-explorer.git"
 	},
 	"dependencies": {
-		"@janoside/app-utils": "github:spacexpanse/app-utils#ed4c9740804e660dd4475cd36d6c1daf0c8e2d9d",
+		"@spaceexpanse/app-utils": "github:spaceexpanse/app-utils#ed4c9740804e660dd4475cd36d6c1daf0c8e2d9d",
 		"async": "^3.2.2",
 		"axios": "^0.27.2",
 		"basic-auth": "^2.0.1",

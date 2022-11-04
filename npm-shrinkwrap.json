@@ -9,7 +9,7 @@
 			"version": "3.3.0",
 			"license": "MIT",
 			"dependencies": {
-				"@janoside/app-utils": "github:spacexpanse/app-utils#ed4c9740804e660dd4475cd36d6c1daf0c8e2d9d",
+				"@spaceexpanse/app-utils": "github:spaceexpanse/app-utils#ed4c9740804e660dd4475cd36d6c1daf0c8e2d9d",
 				"async": "^3.2.2",
 				"axios": "^0.27.2",
 				"basic-auth": "^2.0.1",
@@ -123,9 +123,9 @@
 				"node": ">=6.9.0"
 			}
 		},
-		"node_modules/@janoside/app-utils": {
+		"node_modules/@spaceexpanse/app-utils": {
 			"version": "1.0.0",
-			"resolved": "git+ssh://git@github.com/janoside/app-utils.git#ed4c9740804e660dd4475cd36d6c1daf0c8e2d9d",
+			"resolved": "git+ssh://git@github.com/spaceexpanse/app-utils.git#ed4c9740804e660dd4475cd36d6c1daf0c8e2d9d",
 			"integrity": "sha512-+1yJTHb8qMrF6gtw0sueaRWco9WKbzJLETFGYZL8V/O02C0O7esjpJQU1rJcOtFaDTmhijuK8BZBVmwaNkQJCw==",
 			"license": "MIT",
 			"dependencies": {
@@ -139,7 +139,7 @@
 				"simple-git": "^3.7.1"
 			}
 		},
-		"node_modules/@janoside/app-utils/node_modules/axios": {
+		"node_modules/@spaceexpanse/app-utils/node_modules/axios": {
 			"version": "0.26.1",
 			"resolved": "https://registry.npmjs.org/axios/-/axios-0.26.1.tgz",
 			"integrity": "sha512-fPwcX4EvnSHuInCMItEhAGnaSEXRBjtzh9fOtsE6E1G6p7vl7edEeZe11QHf18+6+9gR5PbKV/sGKNaD8YaMeA==",
@@ -147,7 +147,7 @@
 				"follow-redirects": "^1.14.8"
 			}
 		},
-		"node_modules/@janoside/app-utils/node_modules/dotenv": {
+		"node_modules/@spaceexpanse/app-utils/node_modules/dotenv": {
 			"version": "16.0.2",
 			"resolved": "https://registry.npmjs.org/dotenv/-/dotenv-16.0.2.tgz",
 			"integrity": "sha512-JvpYKUmzQhYoIFgK2MOnF3bciIZoItIIoryihy0rIA+H4Jy0FmgyKYAHCTN98P5ybGSJcIFbh6QKeJdtZd1qhA==",
@@ -1469,7 +1469,7 @@
 		},
 		"node_modules/electrum-client": {
 			"version": "1.1.7",
-			"resolved": "git+ssh://git@github.com/janoside/electrum-client.git#d98e929028d2b05c88a41fe37652737912bead79",
+			"resolved": "git+ssh://git@github.com/spaceexpanse/electrum-client.git#d98e929028d2b05c88a41fe37652737912bead79",
 			"license": "MIT",
 			"engines": {
 				"node": ">=6"
@@ -5235,10 +5235,10 @@
 				"to-fast-properties": "^2.0.0"
 			}
 		},
-		"@janoside/app-utils": {
-			"version": "git+ssh://git@github.com/janoside/app-utils.git#ed4c9740804e660dd4475cd36d6c1daf0c8e2d9d",
+		"@spaceexpanse/app-utils": {
+			"version": "git+ssh://git@github.com/spaceexpanse/app-utils.git#ed4c9740804e660dd4475cd36d6c1daf0c8e2d9d",
 			"integrity": "sha512-+1yJTHb8qMrF6gtw0sueaRWco9WKbzJLETFGYZL8V/O02C0O7esjpJQU1rJcOtFaDTmhijuK8BZBVmwaNkQJCw==",
-			"from": "@janoside/app-utils@github:janoside/app-utils#ed4c9740804e660dd4475cd36d6c1daf0c8e2d9d",
+			"from": "@janoside/app-utils@github:spaceexpanse/app-utils#ed4c9740804e660dd4475cd36d6c1daf0c8e2d9d",
 			"requires": {
 				"aws-sdk": "^2.987.0",
 				"axios": "^0.26.1",
@@ -6284,8 +6284,8 @@
 			"integrity": "sha512-WMwm9LhRUo+WUaRN+vRuETqG89IgZphVSNkdFgeb6sS/E4OrDIN7t48CAewSHXc6C8lefD8KKfr5vY61brQlow=="
 		},
 		"electrum-client": {
-			"version": "git+ssh://git@github.com/janoside/electrum-client.git#d98e929028d2b05c88a41fe37652737912bead79",
-			"from": "electrum-client@github:janoside/electrum-client"
+			"version": "git+ssh://git@github.com/spaceexpanse/electrum-client.git#d98e929028d2b05c88a41fe37652737912bead79",
+			"from": "electrum-client@github:spaceexpanse/electrum-client"
 		},
 		"elliptic": {
 			"version": "6.5.4",

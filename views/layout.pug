@@ -35,12 +35,21 @@ html(lang="en")
 		if (!network.endsWith("net") && network != "regtest")
 			- network = (network + "net"); // handles "main" -> "mainnet" and "test" -> "testnet"
 
+<<<<<<< HEAD
 		link(rel="apple-touch-icon", sizes="180x180", href=`./img/logo/${network}/apple-touch-icon.png`)
 		link(rel="icon", type="image/png", sizes="32x32", href=`./img/logo/${network}/favicon-32x32.png`)
 		link(rel="icon", type="image/png", sizes="16x16", href=`./img/logo/${network}/favicon-16x16.png`)
 		link(rel="manifest", href=`./img/logo/${network}/site.webmanifest`)
 		link(rel="mask-icon", href=`./img/logo/${network}/safari-pinned-tab.svg`, color="#f7931a")
 		link(rel="shortcut icon", href=`./img/logo/${network}/favicon.ico`)
+=======
+		link(rel="apple-touch-icon", sizes="180x180", href=assetUrl(`./img/network-${network}/apple-touch-icon.png`))
+		link(rel="icon", type="image/png", sizes="32x32", href=assetUrl(`./img/network-${network}/favicon-32x32.png`))
+		link(rel="icon", type="image/png", sizes="16x16", href=assetUrl(`./img/network-${network}/favicon-16x16.png`))
+		link(rel="manifest", href=`./img/network-${network}/site.webmanifest`)
+		link(rel="mask-icon", href=`./img/network-${network}/safari-pinned-tab.svg`, color="#f7931a")
+		link(rel="shortcut icon", href=assetUrl(`./img/network-${network}/favicon.ico`))
+>>>>>>> parent of a1e2e61 (Update)
 		meta(name="apple-mobile-web-app-title", content="BTC Explorer")
 		meta(name="application-name", content="BTC Explorer")
 		meta(name="msapplication-TileColor", content="#022e70")
@@ -262,7 +271,11 @@ html(lang="en")
 							h6 Project
 
 							.ms-2
+<<<<<<< HEAD
 								a.footer-link(href="https://github.com/janoside/btc-rpc-explorer") github.com/janoside/btc-rpc-explorer
+=======
+								a.footer-link(href="https://github.com/jspacexpanse/rod-rpc-explorer") github.com/spacexpanse/rod-rpc-explorer
+>>>>>>> parent of a1e2e61 (Update)
 									
 								if (global.sourcecodeProjectMetadata)
 									div.mt-2

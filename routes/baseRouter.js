@@ -29,7 +29,7 @@ const addressApi = require("./../app/api/addressApi.js");
 const rpcApi = require("./../app/api/rpcApi.js");
 const btcQuotes = require("./../app/coins/btcQuotes.js");
 
-const forceCsrf = csurf({ignoreMethods: []});
+const forceCsrf = csurf({ ignoreMethods: [] });
 
 var noTxIndexMsg = "\n\nYour node does not have **txindex** enabled. Without it, you can only lookup wallet, mempool, and recently confirmed transactions by their **txid**. Searching for non-wallet transactions that were confirmed more than "+config.noTxIndexSearchDepth+" blocks ago is only possible if the confirmed block height is available.";
 
@@ -69,9 +69,7 @@ router.get("/", asyncHandler(async (req, res, next) => {
 
 		var feeConfTargets = [1, 6, 144, 1008];
 		res.locals.feeConfTargets = feeConfTargets;
-        
-        console.log('exchangeRates:', res.locals.exchangeRates)
-        console.log('networkVolume:', res.locals.networkVolume)
+
 
 		var promises = [];
 
@@ -175,7 +173,7 @@ router.get("/", asyncHandler(async (req, res, next) => {
 				resolve();
 			}));*/
 
-			var chainTxStatsIntervals = [[targetBlocksPerDay, "24 hours"], [7 * targetBlocksPerDay, "7 days"], [30 * targetBlocksPerDay, "30 days"]]
+			var chainTxStatsIntervals = [ [targetBlocksPerDay, "24 hours"], [7 * targetBlocksPerDay, "7 days"], [30 * targetBlocksPerDay, "30 days"] ]
 				.filter(dat => dat[0] <= getblockchaininfo.blocks);
 
 			res.locals.chainTxStats = {};

@@ -170,7 +170,7 @@ if (exchangeRates)
 				span #{parseFloat(utxoSetSummary.amount.total).toLocaleString()}
 				span.text-tiny.ms-2.text-muted
 					| (
-					span.border-dotted(title=`${new Decimal(utxoSetSummary.amount.total).dividedBy(maxSupply).times(100).toDP(5)}% have been mined into circulation`, data-bs-toggle="tooltip") #{new Decimal(utxoSetSummary.amount.total).dividedBy(maxSupply).times(100).toDP(2, Decimal.ROUND_DOWN)}%
+					span.border-dotted(title=`${new Decimal(utxoSetSummary.amount.total).dividedBy(maxSupply).times(100).toDP(5)}% have been mined into circulation`, data-bs-toggle="tooltip") #{new Decimal(utxoSetSummary.total_amount).dividedBy(maxSupply).times(100).toDP(2, Decimal.ROUND_DOWN)}%
 					| )
 
 			else

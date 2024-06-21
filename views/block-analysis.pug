@@ -1,7 +1,10 @@
 extends layout
 
 block headContent
+	if (result.getblock && result.getblock.length > 0)
 	title Block Analysis ##{result.getblock.height.toLocaleString()}, #{result.getblock.hash}
+	else
+	title Block Analysis No Block
 
 block content
 	

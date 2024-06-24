@@ -266,7 +266,7 @@ module.exports = {
 
 	/* 18 */	{name:"UTXO Set", url:"./utxo-set", desc:"View the latest UTXO Set.", iconClass:"bi-list-columns"},   
 
-	/* 19 */	/*{name:"Holidays", url:"./holidays", desc:"Curated list of Bitcoin 'Holidays'.", iconClass:"bi-calendar-heart"},*/ 
+	/* 19 */	{name:"Holidays", url:"./holidays", desc:"Curated list of Bitcoin 'Holidays'.", iconClass:"bi-calendar-heart"}, 
     
 	/* 20 */	{name:"Name List", url:"./names", desc:"Name transaction list.", iconClass:"bi-list-columns"},            
 	]

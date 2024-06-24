@@ -125,10 +125,22 @@ mixin toolSections(sectionsData)
 
 						.mb-5
 							.mb-3
-								+summaryTitle(section)
+								+summaryTitle(section.name)
 								hr
                         
+							each itemIndex in section.items
+								- var item = config.siteTools[itemIndex];
+								
+								.clearfix
+									div.float-start(style="width: 38px;")
+										i.fs-5(class=item.iconClass, style="width: 20px; margin-right: 10px;")
 
+									.float-start
+										div
+											a(href=item.url) #{item.name}
+
+								.mt-n1(style="padding-left: 39px;")
+									p #{item.desc}
 
 
 

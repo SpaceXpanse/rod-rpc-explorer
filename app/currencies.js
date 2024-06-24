@@ -1,5 +1,20 @@
 global.currencyTypes = {
-	"btc": {
+	"rod": {
+		id: "rod",
+		type:"native",
+		name:"ROD",
+		multiplier:1,
+		default:true,
+		decimalPlaces:8
+	},
+	"bar": {
+		id: "bar",
+		type:"native",
+		name:"bar",
+		multiplier:100000000,
+		decimalPlaces:0
+	},
+   	"btc": {
 		id: "btc",
 		type:"native",
 		name:"BTC",
@@ -41,6 +56,7 @@ global.currencyTypes = {
 };
 
 global.currencySymbols = {
+	"rod": "Ɍ",
 	"btc": "₿",
 	"usd": "$",
 	"eur": "€",

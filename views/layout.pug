@@ -42,7 +42,7 @@ html(lang="en")
 		link(rel="mask-icon", href=`./img/network-${network}/safari-pinned-tab.svg`, color="#f7931a")
 		link(rel="shortcut icon", href=assetUrl(`./img/network-${network}/favicon.ico`))
 		meta(name="apple-mobile-web-app-title", content="ROD Explorer")
-		meta(name="application-name", content="BTC Explorer")
+		meta(name="application-name", content="ROD Explorer")
 		meta(name="msapplication-TileColor", content="#022e70")
 		meta(name="msapplication-config", content=`./img/network-${network}/browserconfig.xml`)
 		meta(name="theme-color" content="#022e70")
@@ -135,7 +135,7 @@ html(lang="en")
 								.dropdown-menu.dropdown-menu-end.shadow(aria-labelledby="navbarDropdown")
 									span.dropdown-header Display Currency
 
-									- var items = ["BTC", "sat"];
+									- var items = ["ROD", "bar"];
 									if (config.queryExchangeRates && global.exchangeRates)
 										- items.push("local");
 

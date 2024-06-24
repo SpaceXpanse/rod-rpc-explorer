@@ -14,21 +14,6 @@ global.currencyTypes = {
 		multiplier:100000000,
 		decimalPlaces:0
 	},
-   	"btc": {
-		id: "btc",
-		type:"native",
-		name:"BTC",
-		multiplier:1,
-		default:true,
-		decimalPlaces:8
-	},
-	"sat": {
-		id: "sat",
-		type:"native",
-		name:"sat",
-		multiplier:100000000,
-		decimalPlaces:0
-	},
 	"usd": {
 		id: "usd",
 		type:"exchanged",
@@ -57,7 +42,6 @@ global.currencyTypes = {
 
 global.currencySymbols = {
 	"rod": "Ɍ",
-	"btc": "₿",
 	"usd": "$",
 	"eur": "€",
 	"gbp": "£"

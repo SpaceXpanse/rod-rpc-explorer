@@ -1884,7 +1884,7 @@ router.post("/rpc-terminal", asyncHandler(async (req, res, next) => {
 }));
 
 router.get("/rpc-browser", asyncHandler(async (req, res, next) => {
-	if (!config.demoSite && !req.authenticated) {
+	if (!config.demoSite && req.authenticated) { //
 		res.send("RPC Terminal / Browser require authentication. Set an authentication password via the 'BTCEXP_BASIC_AUTH_PASSWORD' environment variable (see .env-sample file for more info).");
 
 		next();

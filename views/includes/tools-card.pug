@@ -127,7 +127,7 @@ mixin toolSections(sectionsData)
 							.mb-3
 								+summaryTitle(section)
 								hr
-
+                        if section && Array.isArray(section)
 							each itemIndex in section
 								- var item = config.siteTools[itemIndex];
 								

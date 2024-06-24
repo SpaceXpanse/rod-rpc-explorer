@@ -65,6 +65,13 @@ block content
 								br
 								small.text-muted (headers: #{getblockchaininfo.headers.toLocaleString()})
 
+						+summaryItem("Difficulty")
+							- var difficultyData = utils.formatLargeNumber(miningInfo.difficulty.sha256d, 3);
+							span.border-dotted(title=parseFloat(miningInfo.difficulty.sha256d).toLocaleString(), data-bs-toggle="tooltip")
+								span #{difficultyData[0]}
+								span  x 10
+								sup #{difficultyData[1].exponent}
+
 						if (getblockchaininfo.size_on_disk)
 							+summaryItem("Data Size")
 								- var sizeData = utils.formatLargeNumber(getblockchaininfo.size_on_disk, 1);

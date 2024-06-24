@@ -229,7 +229,7 @@ module.exports = {
 			{name: "Mempool", items: [4, 16, 5]},
 			{name: "Analysis", items: [9, 18, 10, 11, 12, 3]},
 			{name: "Technical", items: [15, 6, 7, 1, 20]},
-			{name: "Fun", items: [8, 17, 19, 13]},
+			/* {name: "Fun", items: [8, 17, 19, 13]}, */
 		]
 	},
 
@@ -246,7 +246,7 @@ module.exports = {
 	/* 5 */		{name:"Browse Mempool", url:"./mempool-transactions", desc:"Browse unconfirmed/pending transactions.", iconClass:"bi-book"},
 
 	/* 6 */		{name:"RPC Browser", url:"./rpc-browser", desc:"Browse the RPC functionality of this node. See docs and execute commands.", iconClass:"bi-journal-text"},
-	/* 7 */		{name:"RPC Terminal", url:"./rpc-terminal", desc:"Directly execute RPCs against this node.", iconClass:"bi-terminal"},
+	/* 7 */		/*{name:"RPC Terminal", url:"./rpc-terminal", desc:"Directly execute RPCs against this node.", iconClass:"bi-terminal"},*/
 
 	/* 8 */		{name:(coins[currentCoin].name + " Fun"), url:"./fun", desc:"Curated fun/interesting historical blockchain data.", iconClass:"bi-flag"},
 
@@ -255,7 +255,7 @@ module.exports = {
 	/* 11 */	{name:"Block Analysis", url:"./block-analysis", desc:"Summary analysis for all transactions in a block.", iconClass:"bi-chevron-double-down"},
 	/* 12 */	{name:"Difficulty History", url:"./difficulty-history", desc:"Details of difficulty changes over time.", iconClass:"bi-clock-history"},
 
-	/* 13 */	{name:"Whitepaper Extractor", url:"./bitcoin-whitepaper", desc:"Extract the Bitcoin whitepaper from data embedded within the blockchain.", iconClass:"bi-file-earmark-text"},
+	/* 13 */	/*{name:"Whitepaper Extractor", url:"./bitcoin-whitepaper", desc:"Extract the Bitcoin whitepaper from data embedded within the blockchain.", iconClass:"bi-file-earmark-text"},*/
 	
 	/* 14 */	{name:"Predicted Blocks", url:"./predicted-blocks", desc:"View predicted future blocks based on the current mempool.", iconClass:"bi-arrow-right-circle"},
 
@@ -266,7 +266,7 @@ module.exports = {
 
 	/* 18 */	{name:"UTXO Set", url:"./utxo-set", desc:"View the latest UTXO Set.", iconClass:"bi-list-columns"},   
 
-	/* 19 */	{name:"Holidays", url:"./holidays", desc:"Curated list of Bitcoin 'Holidays'.", iconClass:"bi-calendar-heart"}, 
+	/* 19 */	/*{name:"Holidays", url:"./holidays", desc:"Curated list of Bitcoin 'Holidays'.", iconClass:"bi-calendar-heart"},*/ 
     
 	/* 20 */	{name:"Name List", url:"./names", desc:"Name transaction list.", iconClass:"bi-list-columns"},            
 	]

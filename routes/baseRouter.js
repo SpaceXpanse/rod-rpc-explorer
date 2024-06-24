@@ -70,6 +70,8 @@ router.get("/", asyncHandler(async (req, res, next) => {
 		var feeConfTargets = [1, 6, 144, 1008];
 		res.locals.feeConfTargets = feeConfTargets;
 
+        console.log('exchangeRates:', res.locals.exchangeRates)
+        console.log('networkVolume:', res.locals.networkVolume)
 
 		var promises = [];
 
@@ -88,7 +90,7 @@ router.get("/", asyncHandler(async (req, res, next) => {
 		promises.push(utils.timePromise("homepage.getSmartFeeEstimates", async () => {
 			const rawSmartFeeEstimates = await coreApi.getSmartFeeEstimates("CONSERVATIVE", feeConfTargets);
 
-			var smartFeeEstimates = {};
+			var smartFeeEstimates = {};  
 
 			for (var i = 0; i < feeConfTargets.length; i++) {
 				var rawSmartFeeEstimate = rawSmartFeeEstimates[i];
@@ -105,11 +107,11 @@ router.get("/", asyncHandler(async (req, res, next) => {
 		}, perfResults));
 
 		promises.push(utils.timePromise("homepage.getNetworkHashrate", async () => {
-			res.locals.hashrate7d = await coreApi.getNetworkHashrate(1008);
+			res.locals.hashrate7d = await coreApi.getNetworkHashrate(1008)['sha256d'];
 		}, perfResults));
 
 		promises.push(utils.timePromise("homepage.getNetworkHashrate", async () => {
-			res.locals.hashrate30d = await coreApi.getNetworkHashrate(4320);
+			res.locals.hashrate30d = await coreApi.getNetworkHashrate(4320)['sha256d'];
 		}, perfResults));
 
 
@@ -125,7 +127,10 @@ router.get("/", asyncHandler(async (req, res, next) => {
 			
 
 		var blockHeights = [];
-		if (getblockchaininfo.blocks) {
+		
+        console.log('getblockchaininfo:', getblockchaininfo)
+        
+        if (getblockchaininfo.blocks) {
 			// +1 to page size here so we have the next block to calculate T.T.M.
 			for (var i = 0; i < (config.site.homepage.recentBlocksCount + 1); i++) {
 				blockHeights.push(getblockchaininfo.blocks - i);

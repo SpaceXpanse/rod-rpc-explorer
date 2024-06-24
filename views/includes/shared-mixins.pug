@@ -301,10 +301,10 @@ mixin pageTab(name, defaultActive=false)
 
 mixin valueDisplay(val, options={})
 	if (val > 0)
-		if (userSettings.displayCurrency == "btc")
+		if (userSettings.displayCurrency == "rod")
 			+_valueDisplayBtc(val, options)
 
-		else if (userSettings.displayCurrency == "sat")
+		else if (userSettings.displayCurrency == "bar")
 			+_valueDisplaySat(val, 1000000)
 
 		else if (userSettings.displayCurrency == "local")

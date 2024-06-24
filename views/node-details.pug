@@ -67,7 +67,7 @@ block content
 
 						+summaryItem("Difficulty")
 							- var difficultyData = utils.formatLargeNumber(miningInfo.difficulty.sha256d, 3);
-							span.border-dotted(title=parseFloat(getblockchaininfo.difficulty).toLocaleString(), data-bs-toggle="tooltip")
+							span.border-dotted(title=parseFloat(miningInfo.difficulty.sha256d).toLocaleString(), data-bs-toggle="tooltip")
 								span #{difficultyData[0]}
 								span  x 10
 								sup #{difficultyData[1].exponent}

@@ -127,20 +127,8 @@ mixin toolSections(sectionsData)
 							.mb-3
 								+summaryTitle(section)
 								hr
-                        if section && Array.isArray(section)
-							each itemIndex in section
-								- var item = config.siteTools[itemIndex];
-								
-								.clearfix
-									div.float-start(style="width: 38px;")
-										i.fs-5(class=item, style="width: 20px; margin-right: 10px;")
+                        
 
-									.float-start
-										div
-											a(href=item) #{item}
-
-								.mt-n1(style="padding-left: 39px;")
-									p #{item}
 
 
 

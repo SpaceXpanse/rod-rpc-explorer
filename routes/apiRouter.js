@@ -179,7 +179,7 @@ router.get("/tx/:txid", function(req, res, next) {
 
 		outJson.fee = {
 			"amount": (inputBtc - outputBtc) / global.coinConfig.baseCurrencyUnit.multiplier,
-			"unit": "BTC"
+			"unit": "ROD"
 		};
 
 		if (global.specialTransactions && global.specialTransactions[txid]) {

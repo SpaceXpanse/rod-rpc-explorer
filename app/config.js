@@ -19,7 +19,7 @@ if (!baseUrl.endsWith("/")) {
 const coins = require("./coins.js");
 const credentials = require("./credentials.js");
 
-const currentCoin = process.env.BTCEXP_COIN || "BTC";
+const currentCoin = process.env.BTCEXP_COIN || "ROD";
 
 const rpcCred = credentials.rpc;
 

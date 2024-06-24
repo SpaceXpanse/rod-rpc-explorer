@@ -223,7 +223,7 @@ module.exports = {
 			txOutputMaxDefaultDisplay:10
 		},
 		valueDisplayMaxLargeDigits: 4,
-		prioritizedToolIdsList: [0, 10, 11, 9, 3, 4, 16, 12, 2, 5, 15, 1, 6, 7, 8],
+		prioritizedToolIdsList: [10, 11, 9, 3],
 		toolSections: [
 			{name: "Basics", items: [2, 20]},
 			{name: "Mempool", items: [5]},

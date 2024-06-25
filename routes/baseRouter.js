@@ -1128,7 +1128,7 @@ router.get("/block-height/:blockHeight", asyncHandler(async (req, res, next) => 
 				res.locals.metaDesc = "";
 			}
 		} else {
-			res.locals.metaTitle = `Bitcoin Block #${blockHeight.toLocaleString()}`;
+			res.locals.metaTitle = `ROD Block #${blockHeight.toLocaleString()}`;
 			res.locals.metaDesc = "";
 		}
 		
@@ -1230,7 +1230,7 @@ router.get("/block/:blockHash", asyncHandler(async (req, res, next) => {
 			}
 
 		} else {
-			res.locals.metaTitle = `Bitcoin Block ${utils.ellipsizeMiddle(res.locals.result.getblock.hash, 16)}`;
+			res.locals.metaTitle = `ROD Block ${utils.ellipsizeMiddle(res.locals.result.getblock.hash, 16)}`;
 			res.locals.metaDesc = "";
 		}
 
@@ -1477,7 +1477,7 @@ router.get("/tx/:transactionId", asyncHandler(async (req, res, next) => {
 				res.locals.metaDesc = "";
 			}
 		} else {
-			res.locals.metaTitle = `Bitcoin Transaction ${utils.ellipsizeMiddle(txid, 16)}`;
+			res.locals.metaTitle = `ROD Transaction ${utils.ellipsizeMiddle(txid, 16)}`;
 			res.locals.metaDesc = "";
 		}
 
@@ -1550,7 +1550,7 @@ router.get("/address/:address", asyncHandler(async (req, res, next) => {
 
 		var address = utils.asAddress(req.params.address);
 
-		res.locals.metaTitle = `Bitcoin Address ${address}`;
+		res.locals.metaTitle = `ROD Address ${address}`;
 
 		res.locals.address = address;
 		res.locals.limit = limit;

@@ -76,7 +76,7 @@ module.exports = {
 		{
 			"category":"blockchain",
 			"url":"/api/blockchain/coins",
-			"desc":"Returns the current supply of Bitcoin. An estimate using a checkpoint can be returned in 2 cases: on 'slow' devices, and before the UTXO Set snapshot is loaded.",
+			"desc":"Returns the current supply of ROD. An estimate using a checkpoint can be returned in 2 cases: on 'slow' devices, and before the UTXO Set snapshot is loaded.",
 			"returnType":"number"
 		},
 		{
@@ -199,7 +199,7 @@ module.exports = {
 		{
 			"category":"mempool",
 			"url":"/api/mempool/count",
-			"desc":"Returns the number of transactions in Bitcoin Core's mempool.",
+			"desc":"Returns the number of transactions in ROD Core's mempool.",
 			"returnType":"integer"
 		},
 		{
@@ -230,7 +230,7 @@ module.exports = {
 		{
 			"category":"price",
 			"url":"/api/price/:currency/marketcap",
-			"desc":"Returns the market cap of Bitcoin, in one of USD, EUR, GBP, XAU",
+			"desc":"Returns the market cap of ROD, in one of USD, EUR, GBP, XAU",
 			"params":[{name: "currency", "options": ["usd", "eur", "gbp", "xau"]}],
 			"returnType":"number",
 			"testUrl": "/api/price/usd/marketcap"

@@ -116,7 +116,7 @@ if (exchangeRates)
 
 			else
 				span #{new Decimal(miningInfo.difficulty.neoscrypt).toDP(3)}
-                span.text-tiny.text-muted.ms-2 |
+                span.text-tiny.text-muted.ms-2 test
 
 			if (miningInfo.difficulty.sha256d > 1000)
 				span.border-dotted(title=parseFloat(miningInfo.difficulty.sha256d).toLocaleString(), data-bs-toggle="tooltip")

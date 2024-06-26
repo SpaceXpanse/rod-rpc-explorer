@@ -107,13 +107,13 @@ router.get("/", asyncHandler(async (req, res, next) => {
 		}, perfResults));
 
 		promises.push(utils.timePromise("homepage.getNetworkHashrate", async () => {
-			res.locals.hashrate7d = await coreApi.getNetworkHashrate(20016)['neoscrypt'];
-			res.locals.hashrate7d = await coreApi.getNetworkHashrate(20016)['sha256d'];
+			res.locals.hashrate7dn = await coreApi.getNetworkHashrate(20016)['neoscrypt'];
+			res.locals.hashrate7ds = await coreApi.getNetworkHashrate(20016)['sha256d'];
 		}, perfResults));
 
 		promises.push(utils.timePromise("homepage.getNetworkHashrate", async () => {
-			res.locals.hashrate30d = await coreApi.getNetworkHashrate(80640)['neoscrypt'];
-			res.locals.hashrate30d = await coreApi.getNetworkHashrate(80640)['sha256d'];
+			res.locals.hashrate30dn = await coreApi.getNetworkHashrate(80640)['neoscrypt'];
+			res.locals.hashrate30ds = await coreApi.getNetworkHashrate(80640)['sha256d'];
 		}, perfResults));
 
 

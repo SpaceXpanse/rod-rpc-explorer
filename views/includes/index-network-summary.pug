@@ -110,21 +110,13 @@ if (exchangeRates)
 			
 			if (miningInfo.difficulty.neoscrypt > 1000)
 				span.border-dotted(title=parseFloat(miningInfo.difficulty.neoscrypt).toLocaleString(), data-bs-toggle="tooltip")
-					span #{difficultyDatna[0]}
+					span #{difficultyDatan[0]}
 					span  x 10
 					sup #{difficultyDatan[1].exponent}
 
 			else
 				span #{new Decimal(miningInfo.difficulty.neoscrypt).toDP(3)}
-
-			if (miningInfo.difficulty.sha256d > 1000)
-				span.border-dotted(title=parseFloat(miningInfo.difficulty.sha256d).toLocaleString(), data-bs-toggle="tooltip")
-					span #{difficultyDatas[0]}
-					span  x 10
-					sup #{difficultyDatas[1].exponent}
-
-			else
-				span #{new Decimal(miningInfo.difficulty.sha256d).toDP(3)}
+                span #{new Decimal(miningInfo.difficulty.sha256d).toDP(3)}
 
 			if (global.athDifficulty)
 				span.text-tiny.text-muted.ms-2

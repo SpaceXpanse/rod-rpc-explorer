@@ -604,9 +604,9 @@ async function assessTxindexAvailability() {
 
 			} catch (e) {
 				// here we were unable to query by txid, so we believe txindex is unavailable
-				global.txindexAvailable = true;  //changed to true by spacexpanse because we can query by txid
+				global.txindexAvailable = false;
 
-				debugLog("txindex check: available");
+				debugLog("txindex check: unavailable");
 			}
 		} else {
 			// here getindexinfo is available (i.e. we're on v0.21+), but txindex is NOT available

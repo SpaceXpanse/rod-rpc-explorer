@@ -225,7 +225,7 @@ module.exports = {
 		valueDisplayMaxLargeDigits: 4,
 		prioritizedToolIdsList: [2, 5, 9, 11, 3, 15, 6, 1, 0],
 		toolSections: [
-			{name: "Basics", items: [2]},
+			{name: "Basics", items: [2, 18]},
 			{name: "Mempool", items: [5]},
 			{name: "Analysis", items: [9, 11, 3]},
 			{name: "Technical", items: [15, 6, 1, 0]},

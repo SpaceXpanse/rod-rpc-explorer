@@ -604,7 +604,7 @@ async function assessTxindexAvailability() {
 
 			} catch (e) {
 				// here we were unable to query by txid, so we believe txindex is unavailable
-				global.txindexAvailable = true;
+				global.txindexAvailable = true;  //changed to true by spacexpanse because we can query by txid
 
 				debugLog("txindex check: available");
 			}

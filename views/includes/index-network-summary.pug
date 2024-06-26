@@ -83,7 +83,7 @@ if (exchangeRates)
 	+summaryRow(2 + (hashrate7dn ? 1 : 0) + (chainTxStats && chainTxStats[7 * targetBlocksPerDay] ? 1 : 0) + (difficultyAdjustmentData ? 1 : 0))
 		if (hashrate7dn)
 			+summaryItem("7d Hashrate", "The average hashrate of the global mining network over the last 7 days. A comparison to the 30-day average is included to help gauge the rate of change.")
-				- var hashrate7dayData = utils.formatLargeNumber(getNetworkHashrate(20016), 1);
+				- var hashrate7dayData = utils.formatLargeNumber(getNetworkHashrate(20016).neoscrypt, 1);
 
 				span.me-1 #{hashrate7dayData[0]}
 				span.small.text-muted.border-dotted(title=`${hashrate7dayData[1].abbreviation}H = ${hashrate7dayData[1].name}-hash (x10^${hashrate7dayData[1].exponent})` data-bs-toggle='tooltip') #{hashrate7dayData[1].abbreviation}H/s

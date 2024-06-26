@@ -80,88 +80,121 @@ if (exchangeRates)
 
 
 +contentSection
-	+summaryItem("7d Hashrate", "The average hashrate of the global mining network over the last 7 days. A comparison to the 30-day average is included to help gauge the rate of change.")
-		- var hashrate7dayData = utils.formatLargeNumber(await getNetworkHashrate(20016).neoscrypt, 1);
-		span #{hashrate7dayData[0]}
+	+summaryRow(2 + (hashrate7dn ? 1 : 0) + (chainTxStats && chainTxStats[7 * targetBlocksPerDay] ? 1 : 0) + (difficultyAdjustmentData ? 1 : 0))
+		if (hashrate7dn)
+			+summaryItem("7d Hashrate", "The average hashrate of the global mining network over the last 7 days. A comparison to the 30-day average is included to help gauge the rate of change.")
+				- var hashrate7dayData = utils.formatLargeNumber(hashrate7dn, 1);
 
-	+summaryItem("Difficulty", null, null, null, "icon:bi-clock-history", "./difficulty-history", "View difficulty history")
-		- var difficultyDatan = utils.formatLargeNumber(miningInfo.difficulty.neoscrypt, 3);
-		- var difficultyDatas = utils.formatLargeNumber(miningInfo.difficulty.sha256d, 3);
+				span.me-1 #{hashrate7dayData[0]}
+				span.small.text-muted.border-dotted(title=`${hashrate7dayData[1].abbreviation}H = ${hashrate7dayData[1].name}-hash (x10^${hashrate7dayData[1].exponent})` data-bs-toggle='tooltip') #{hashrate7dayData[1].abbreviation}H/s
 
-		if (miningInfo.difficulty.neoscrypt > 1000)
-			span.border-dotted(title=parseFloat(miningInfo.difficulty.neoscrypt).toLocaleString(), data-bs-toggle="tooltip") Neoscrypt:
-				span #{difficultyDatan[0]}
-				span x 10
-				sup #{difficultyDatan[1].exponent}
-		else
-			span Neoscrypt: #{new Decimal(miningInfo.difficulty.neoscrypt).toDP(3)} x 10 |
+				if (hashrate30dn)
+					- var ratio = hashrate7dn / hashrate30dn;
 
-		if (miningInfo.difficulty.sha256d > 1000)
-			span.border-dotted(title=parseFloat(miningInfo.difficulty.sha256d).toLocaleString(), data-bs-toggle="tooltip") SHA256d:
-				span #{difficultyDatas[0]}
-				span x 10
-				sup #{difficultyDatas[1].exponent}
-		else
-			span SHA256d: #{new Decimal(miningInfo.difficulty.sha256d).toDP(3)}
+					span.text-tiny.text-muted.ms-2
+						| (
+						span.border-dotted(title='7d hashrate vs 30d hashrate.' data-bs-toggle='tooltip')
+							if (ratio > 1)
+								- var ratioPercent = new Decimal(ratio).times(100).minus(100);
+								span.text-success +#{ratioPercent.toDP(2)}%
 
-		if (global.athDifficulty)
-			span.text-tiny.text-muted.ms-2
-				| (
-				- var diffX = miningInfo.difficulty.neoscrypt;
-				if (global.athDifficulty == diffX)
-					span.border-dotted(title='The current difficulty is an All-Time High!' data-bs-toggle='tooltip')
-						span.text-success ATH
-				else
-					- var diffDrop = new Decimal(global.athDifficulty).minus(diffX).dividedBy(global.athDifficulty).times(100).toDP(2);
-					span.border-dotted(title=`The current difficulty is ${diffDrop}% lower than the All-Time High.` data-bs-toggle='tooltip')
-						span.text-danger -#{diffDrop}%
-				| )
+							else
+								- var ratioPercent = new Decimal(100).minus(new Decimal(ratio).times(100));
+								span.text-danger -#{ratioPercent.toDP(2)}%
 
-	if (chainTxStats && chainTxStats[7 * targetBlocksPerDay])
-		+summaryItem("7d Transactions", "The total number of transactions that have been confirmed in the blockchain over the last 7 days.")
-			| #{chainTxStats[7 * targetBlocksPerDay].window_tx_count.toLocaleString()}
+						| )
 
-	if (difficultyAdjustmentData)
-		- var desc = `Estimate for the difficulty adjustment that will occur in ${difficultyAdjustmentData.blocksLeft.toLocaleString()} block${difficultyAdjustmentData.blocksLeft == 1 ? "" : "s"} (${difficultyAdjustmentData.timeLeftStr}). This is calculated using the average block time during the current difficulty epoch (currently, the last ${difficultyAdjustmentData.calculationBlockCount.toLocaleString()} block${difficultyAdjustmentData.calculationBlockCount == 1 ? "" : "s"}). Note: This estimate becomes more reliable as the difficulty epoch nears its end.`;
-		
-		if (false)
-			pre
-				code.json #{JSON.stringify(difficultyAdjustmentData, null, 4)}
+		+summaryItem("Difficulty", null, null, null, "icon:bi-clock-history", "./difficulty-history", "View difficulty history")
+			- var difficultyDatan = utils.formatLargeNumber(miningInfo.difficulty.neoscrypt, 3);
+			- var difficultyDatas = utils.formatLargeNumber(miningInfo.difficulty.sha256d, 3);
+			
+			if (miningInfo.difficulty.neoscrypt > 1000)
+				span.border-dotted(title=parseFloat(miningInfo.difficulty.neoscrypt).toLocaleString(), data-bs-toggle="tooltip") Neoscrypt: 
+					span #{difficultyDatan[0]}
+					span  x 10 
+					sup #{difficultyDatan[1].exponent}
 
-		+summaryItem("Difficulty Δ", difficultyAdjustmentData.estimateAvailable ? desc : null)
-			if (difficultyAdjustmentData.estimateAvailable)
-				span(class=(difficultyAdjustmentData.delta >= 0 ? "text-success" : "text-danger"))
-					if (difficultyAdjustmentData.sign == "+")
-						| +
-					| #{difficultyAdjustmentData.delta.toDP(2)}
-					small.ms-1 %
+			else
+				span Neoscrypt: #{new Decimal(miningInfo.difficulty.neoscrypt).toDP(3)} x 10 | 
 
+			if (miningInfo.difficulty.sha256d > 1000)
+				span.border-dotted(title=parseFloat(miningInfo.difficulty.sha256d).toLocaleString(), data-bs-toggle="tooltip") SHA256d: 
+					span #{difficultyDatas[0]}
+					span  x 10
+					sup #{difficultyDatas[1].exponent}
+
+			else
+				span SHA256d: #{new Decimal(miningInfo.difficulty.sha256d).toDP(3)}
+
+			if (global.athDifficulty)
 				span.text-tiny.text-muted.ms-2
 					| (
-					span.border-dotted(title=`${difficultyAdjustmentData.blocksLeft.toLocaleString()} block(s)`, data-bs-toggle="tooltip") #{difficultyAdjustmentData.timeLeftStr}
+
+					- var diffX = miningInfo.difficulty.neoscrypt;
+					if (global.athDifficulty == diffX)
+						span.border-dotted(title='The current difficulty is an All-Time High!' data-bs-toggle='tooltip')
+							span.text-success ATH
+					else
+						- var diffDrop = new Decimal(global.athDifficulty).minus(diffX).dividedBy(global.athDifficulty).times(100).toDP(2);
+
+						span.border-dotted(title=`The current difficulty is ${diffDrop}% lower than the All-Time High.` data-bs-toggle='tooltip')
+							span.text-danger -#{diffDrop}%
+
 					| )
+				
+
+
+		if (chainTxStats && chainTxStats[7 * targetBlocksPerDay])
+			+summaryItem("7d Transactions", "The total number of transactions that have been confirmed in the blockchain over the last 7 days.")
+				| #{chainTxStats[7 * targetBlocksPerDay].window_tx_count.toLocaleString()}
+
+		if (difficultyAdjustmentData)
+			- var desc = `Estimate for the difficulty adjustment that will occur in ${difficultyAdjustmentData.blocksLeft.toLocaleString()} block${difficultyAdjustmentData.blocksLeft == 1 ? "" : "s"} (${difficultyAdjustmentData.timeLeftStr}). This is calculated using the average block time during the current difficulty epoch (currently, the last ${difficultyAdjustmentData.calculationBlockCount.toLocaleString()} block${difficultyAdjustmentData.calculationBlockCount == 1 ? "" : "s"}). Note: This estimate becomes more reliable as the difficulty epoch nears its end.`;
+			
+			if (false)
+				pre
+					code.json #{JSON.stringify(difficultyAdjustmentData, null, 4)}
+
+			+summaryItem("Difficulty Δ", difficultyAdjustmentData.estimateAvailable ? desc : null)
+				if (difficultyAdjustmentData.estimateAvailable)
+					span(class=(difficultyAdjustmentData.delta >= 0 ? "text-success" : "text-danger"))
+						if (difficultyAdjustmentData.sign == "+")
+							| +
+
+						| #{difficultyAdjustmentData.delta.toDP(2)}
+						small.ms-1 %
+
+					span.text-tiny.text-muted.ms-2
+						| (
+						span.border-dotted(title=`${difficultyAdjustmentData.blocksLeft.toLocaleString()} block(s)`, data-bs-toggle="tooltip") #{difficultyAdjustmentData.timeLeftStr}
+						| )
+
+				else
+					small.border-dotted.text-muted(title="Estimate pending...<br/>A new difficulty epoch just started. Difficulty adjustment estimates made with too little data can be very unreliable, so are not calculated.", data-bs-toggle="tooltip", data-bs-html="true")
+						i.bi-hourglass-split
+
+		+summaryItem("Coins", utxoSetSummary ? null : (config.slowDeviceMode ? `Because this app is configured to conserve resources (SLOW_DEVICE_MODE=true), this value is estimated, using a checkpoint.` : `This value is estimated, using a checkpoint.`))
+			- var maxSupply = coinConfig.maxSupplyByNetwork[activeBlockchain];
+
+			if (utxoSetSummary)
+				span #{parseFloat(utxoSetSummary.amount.total).toLocaleString()}
+				span.text-tiny.ms-2.text-muted
+					| (
+					span.border-dotted(title=`${new Decimal(utxoSetSummary.amount.total).dividedBy(maxSupply).times(100).toDP(5)}% have been mined into circulation`, data-bs-toggle="tooltip") #{new Decimal(utxoSetSummary.amount.total).dividedBy(maxSupply).times(100).toDP(2, Decimal.ROUND_DOWN)}%
+					| )
+
 			else
-				small.border-dotted.text-muted(title="Estimate pending...<br/>A new difficulty epoch just started. Difficulty adjustment estimates made with too little data can be very unreliable, so are not calculated.", data-bs-toggle="tooltip", data-bs-html="true")
-					i.bi-hourglass-split
+				- var estimatedSupply = utxoSetSummary;
 
-	+summaryItem("Coins", utxoSetSummary ? null : (config.slowDeviceMode ? `Because this app is configured to conserve resources (SLOW_DEVICE_MODE=true), this value is estimated, using a checkpoint.` : `This value is estimated, using a checkpoint.`))
-		- var maxSupply = coinConfig.maxSupplyByNetwork[activeBlockchain];
+				span #{parseInt(estimatedSupply).toLocaleString()}
+				span.text-tiny.ms-2.text-muted
+					| (
+					span.border-dotted(title=`${estimatedSupply}% have been mined into circulation`, data-bs-toggle="tooltip") #{estimatedSupply}%
+					| )
 
-		if (utxoSetSummary)
-			span #{parseFloat(utxoSetSummary.amount.total).toLocaleString()}
-			span.text-tiny.ms-2.text-muted
-				| (
-				span.border-dotted(title=`${new Decimal(utxoSetSummary.amount.total).dividedBy(maxSupply).times(100).toDP(5)}% have been mined into circulation`, data-bs-toggle="tooltip") #{new Decimal(utxoSetSummary.amount.total).dividedBy(maxSupply).times(100).toDP(2, Decimal.ROUND_DOWN)}%
-				| )
-		else
-			- var estimatedSupply = utxoSetSummary;
-			span #{parseInt(estimatedSupply).toLocaleString()}
-			span.text-tiny.ms-2.text-muted
-				| (
-				span.border-dotted(title=`${estimatedSupply}% have been mined into circulation`, data-bs-toggle="tooltip") #{estimatedSupply}%
-				| )
+		
 
-    hr.mt-3.mb-3
+	hr.mt-3.mb-3
 
 	- var smartFeeEstimateBlocks = [];
 	- var smartFeeEstimateStrings = [];

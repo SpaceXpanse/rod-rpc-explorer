@@ -115,7 +115,7 @@ if (exchangeRates)
 					sup #{difficultyDatan[1].exponent}
 
 			else
-				span Neoscrypt: #{new Decimal(miningInfo.difficulty.neoscrypt).toDP(3)}
+				span Neoscrypt: #{new Decimal(miningInfo.difficulty.neoscrypt).toDP(3)} | 
 
 			if (miningInfo.difficulty.sha256d > 1000)
 				span.border-dotted(title=parseFloat(miningInfo.difficulty.sha256d).toLocaleString(), data-bs-toggle="tooltip") SHA256d: 
@@ -124,7 +124,7 @@ if (exchangeRates)
 					sup #{difficultyDatas[1].exponent}
 
 			else
-				span / SHA256d: #{new Decimal(miningInfo.difficulty.sha256d).toDP(3)}
+				span SHA256d: #{new Decimal(miningInfo.difficulty.sha256d).toDP(3)}
 
 			if (global.athDifficulty)
 				span.text-tiny.text-muted.ms-2

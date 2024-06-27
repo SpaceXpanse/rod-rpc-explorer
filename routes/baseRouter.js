@@ -70,8 +70,10 @@ router.get("/", asyncHandler(async (req, res, next) => {
 		var feeConfTargets = [1, 6, 144, 1008];
 		res.locals.feeConfTargets = feeConfTargets;
 
-        console.log('exchangeRates:', res.locals.exchangeRates)
-        console.log('networkVolume:', res.locals.networkVolume)
+    	console.log('exchangeRates:',res.locals.exchangeRates)
+    	console.log('utxoSetSummary:',res.locals.utxoSetSummary)
+    	console.log('utxoSetSummaryPending:',res.locals.utxoSetSummaryPending)
+    	console.log('networkVolume:',res.locals.networkVolume)
 
 		var promises = [];
 
@@ -86,8 +88,6 @@ router.get("/", asyncHandler(async (req, res, next) => {
 		promises.push(utils.timePromise("homepage.getMiningInfo", async () => {
 			res.locals.miningInfo = await coreApi.getMiningInfo();
 		}, perfResults));
-        
-        console.log('getBlocksByHeight perfResults: ',perfResults)
 
 		promises.push(utils.timePromise("homepage.getSmartFeeEstimates", async () => {
 			const rawSmartFeeEstimates = await coreApi.getSmartFeeEstimates("CONSERVATIVE", feeConfTargets);
@@ -118,7 +118,10 @@ router.get("/", asyncHandler(async (req, res, next) => {
 			res.locals.hashrate30ds = await coreApi.getNetworkHashrate(80640)['sha256d'];
 		}, perfResults));
 
-
+        console.log('hashrate7dn:',res.locals.hashrate7dn)
+        console.log('hashrate7ds:',res.locals.hashrate7ds)
+        console.log('hashrate30dn:',res.locals.hashrate30dn)
+        console.log('hashrate30ds:',res.locals.hashrate30ds)
 
 		const getblockchaininfo = await utils.timePromise("homepage.getBlockchainInfo", async () => {
 			return await coreApi.getBlockchainInfo();

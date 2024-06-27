@@ -328,7 +328,7 @@ router.get("/node-details", asyncHandler(async (req, res, next) => {
 
 		promises.push(utils.timePromise("node-details.getNetworkInfo", async () => {
 			res.locals.getnetworkinfo = await coreApi.getNetworkInfo();
-            console.log('getnetworkinfo: ',res.locals.getNetworkInfo)
+            console.log('getnetworkinfo:',res.locals.getNetworkInfo)
 		}, perfResults));
 
 		promises.push(utils.timePromise("node-details.getUptimeSeconds", async () => {
@@ -339,10 +339,10 @@ router.get("/node-details", asyncHandler(async (req, res, next) => {
 			res.locals.getnettotals = await coreApi.getNetTotals();
 		}, perfResults));
 
-		promises.push(utils.timePromise("node-details.getMiningInfo", async () => {
-			res.locals.getmininginfo = await coreApi.getMiningInfo();
+		promises.push(utils.timePromise("homepage.getMiningInfo", async () => {
+			res.locals.miningInfo = await coreApi.getMiningInfo();
 		}, perfResults));
-
+        
 		await utils.awaitPromises(promises);
 
 

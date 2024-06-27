@@ -671,6 +671,95 @@ router.get("/blocks", asyncHandler(async (req, res, next) => {
 	}
 }));
 
+router.get("/names", function(req, res, next) {
+	var limit = config.site.browseBlocksPageSize;
+	var offset = 0;
+	var sort = "desc";
+
+	if (req.query.limit) {
+		limit = parseInt(req.query.limit);
+	}
+
+	if (req.query.offset) {
+		offset = parseInt(req.query.offset);
+	}
+
+	if (req.query.sort) {
+		sort = req.query.sort;
+	}
+
+	res.locals.limit = 10;
+	res.locals.offset = 0;
+	res.locals.sort = sort;
+	res.locals.paginationBaseUrl = "./blocks";
+
+	coreApi.getNameScanList("",10).then(function(nameList) {
+		res.locals.blockCount = 0;
+		res.locals.blockOffset = 0;
+		res.locals.nameCount = nameList.length;
+
+
+
+		console.log('getNameList:',nameList)
+
+		let blockHeights = [];
+		// if (sort == "desc") {
+		// 	for (let i = (nameList.length - offset); i > (nameList.length - offset - limit - 1); i--) {
+		// 		if (i >= 0) {
+		// 			blockHeights.push(nameList[i].height);
+		// 		}
+		// 	}
+		// } else {
+		// 	for (var i = offset - 1; i < (offset + limit); i++) {
+		// 		if (i >= 0) {
+		// 			blockHeights.push(nameList[i].height);
+		// 		}
+		// 	}
+		// }
+
+		for (let i = 0; i< nameList.length ; i++) {
+			blockHeights.push(nameList[i].height);
+		}
+
+		console.log('blockHeights:',blockHeights)
+
+		res.locals.nameList = [];
+		coreApi.getBlocksByHeight(blockHeights).then(function(blocks) {
+
+			res.locals.blocks = blocks;
+			console.log('blocks',blocks)
+
+
+			for (let i = 0; i < nameList.length; i++) {
+				let name = nameList[i];
+				let block = blocks.find(item => item.height = name.height)
+				name.block = block;
+			}
+
+			res.locals.nameList = nameList;
+
+			res.render("names");
+
+			next();
+
+		})
+			.catch(function(err) {
+				res.locals.pageErrors.push(utils.logError("32974hrbfbvc", err));
+
+				res.render("names");
+
+				next();
+			});
+
+	}).catch(function(err) {
+		res.locals.userMessage = "Error: " + err;
+
+		res.render("names");
+
+		next();
+	});
+});
+
 router.get("/mining-summary", asyncHandler(async (req, res, next) => {
 	try {
 		var getblockchaininfo = await utils.timePromise("mining-summary.getBlockchainInfo", coreApi.getBlockchainInfo);

@@ -86,6 +86,8 @@ router.get("/", asyncHandler(async (req, res, next) => {
 		promises.push(utils.timePromise("homepage.getMiningInfo", async () => {
 			res.locals.miningInfo = await coreApi.getMiningInfo();
 		}, perfResults));
+        
+        console.log('getBlocksByHeight perfResults: ',perfResults)
 
 		promises.push(utils.timePromise("homepage.getSmartFeeEstimates", async () => {
 			const rawSmartFeeEstimates = await coreApi.getSmartFeeEstimates("CONSERVATIVE", feeConfTargets);
@@ -126,11 +128,12 @@ router.get("/", asyncHandler(async (req, res, next) => {
 		res.locals.getblockchaininfo = getblockchaininfo;
 
 		res.locals.difficultyPeriod = parseInt(Math.floor(getblockchaininfo.blocks / coinConfig.difficultyAdjustmentBlockCount));
+        
+        
+		console.log('difficultyPeriod:',res.locals.difficultyPeriod)
 			
 
 		var blockHeights = [];
-		
-        console.log('getblockchaininfo:', getblockchaininfo)
         
         if (getblockchaininfo.blocks) {
 			// +1 to page size here so we have the next block to calculate T.T.M.
@@ -142,6 +145,8 @@ router.get("/", asyncHandler(async (req, res, next) => {
 			// hack this to display the genesis block
 			blockHeights.push(0);
 		}
+        
+        console.log('blockHeight',blockHeights)
 
 		promises.push(utils.timePromise("homepage.getBlocksStatsByHeight", async () => {
 			const rawblockstats = await coreApi.getBlocksStatsByHeight(blockHeights);
@@ -168,12 +173,13 @@ router.get("/", asyncHandler(async (req, res, next) => {
 			res.locals.latestBlocks = latestBlocks;
 			res.locals.blocksUntilDifficultyAdjustment = ((res.locals.difficultyPeriod + 1) * coinConfig.difficultyAdjustmentBlockCount) - latestBlocks[0].height;
 		}));
-
+        
 		
 		var targetBlocksPerDay = 24 * 60 * 60 / global.coinConfig.targetBlockTimeSeconds;
 		res.locals.targetBlocksPerDay = targetBlocksPerDay;
 
-		if (false && getblockchaininfo.chain !== 'regtest') {
+		console.log('Blockchain info:',getblockchaininfo)
+        if (false && getblockchaininfo.chain !== 'regtest') {
 			/*promises.push(new Promise(async (resolve, reject) => {
 				res.locals.txStats = await utils.timePromise("homepage.getTxStats", coreApi.getTxStats(targetBlocksPerDay / 4, -targetBlocksPerDay, "latest"));
 				

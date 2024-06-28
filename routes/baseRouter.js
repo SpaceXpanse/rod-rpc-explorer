@@ -58,20 +58,19 @@ router.get("/", asyncHandler(async (req, res, next) => {
 		res.locals.perfId = perfId;
 
 		res.locals.homepage = true;
-		
-		// don't need timestamp on homepage "blocks-list", this flag disables
-		res.locals.hideTimestampColumn = true;
 
 
-		// variables used by blocks-list.pug
-		res.locals.offset = 0;
-		res.locals.sort = "desc";
+        // don't need timestamp on homepage "blocks-list", this flag disables
+        res.locals.hideTimestampColumn = true;
 
-		var feeConfTargets = [1, 6, 144, 1008];
-		res.locals.feeConfTargets = feeConfTargets;
+        // variables used by blocks-list.pug
+        res.locals.offset = 0;
+        res.locals.sort = "desc";
 
-        console.log('exchangeRates:', res.locals.exchangeRates)
-        console.log('networkVolume:', res.locals.networkVolume)
+    	console.log('exchangeRates:',res.locals.exchangeRates)
+    	console.log('utxoSetSummary:',res.locals.utxoSetSummary)
+    	console.log('utxoSetSummaryPending:',res.locals.utxoSetSummaryPending)
+    	console.log('networkVolume:',res.locals.networkVolume)
 
 		var promises = [];
 
@@ -116,7 +115,10 @@ router.get("/", asyncHandler(async (req, res, next) => {
 			res.locals.hashrate30ds = await coreApi.getNetworkHashrate(80640)['sha256d'];
 		}, perfResults));
 
-
+        console.log('hashrate7dn:',res.locals.hashrate7dn)
+        console.log('hashrate7ds:',res.locals.hashrate7ds)
+        console.log('hashrate30dn:',res.locals.hashrate30dn)
+        console.log('hashrate30ds:',res.locals.hashrate30ds)
 
 		const getblockchaininfo = await utils.timePromise("homepage.getBlockchainInfo", async () => {
 			return await coreApi.getBlockchainInfo();
@@ -126,11 +128,12 @@ router.get("/", asyncHandler(async (req, res, next) => {
 		res.locals.getblockchaininfo = getblockchaininfo;
 
 		res.locals.difficultyPeriod = parseInt(Math.floor(getblockchaininfo.blocks / coinConfig.difficultyAdjustmentBlockCount));
+        
+        
+		console.log('difficultyPeriod:',res.locals.difficultyPeriod)
 			
 
 		var blockHeights = [];
-		
-        console.log('getblockchaininfo:', getblockchaininfo)
         
         if (getblockchaininfo.blocks) {
 			// +1 to page size here so we have the next block to calculate T.T.M.
@@ -142,6 +145,8 @@ router.get("/", asyncHandler(async (req, res, next) => {
 			// hack this to display the genesis block
 			blockHeights.push(0);
 		}
+        
+        console.log('blockHeight: ',blockHeights)
 
 		promises.push(utils.timePromise("homepage.getBlocksStatsByHeight", async () => {
 			const rawblockstats = await coreApi.getBlocksStatsByHeight(blockHeights);
@@ -168,12 +173,13 @@ router.get("/", asyncHandler(async (req, res, next) => {
 			res.locals.latestBlocks = latestBlocks;
 			res.locals.blocksUntilDifficultyAdjustment = ((res.locals.difficultyPeriod + 1) * coinConfig.difficultyAdjustmentBlockCount) - latestBlocks[0].height;
 		}));
-
+        
 		
 		var targetBlocksPerDay = 24 * 60 * 60 / global.coinConfig.targetBlockTimeSeconds;
 		res.locals.targetBlocksPerDay = targetBlocksPerDay;
 
-		if (false && getblockchaininfo.chain !== 'regtest') {
+		console.log('Blockchain info:',getblockchaininfo)
+        if (false && getblockchaininfo.chain !== 'regtest') {
 			/*promises.push(new Promise(async (resolve, reject) => {
 				res.locals.txStats = await utils.timePromise("homepage.getTxStats", coreApi.getTxStats(targetBlocksPerDay / 4, -targetBlocksPerDay, "latest"));
 				
@@ -319,6 +325,7 @@ router.get("/node-details", asyncHandler(async (req, res, next) => {
 
 		promises.push(utils.timePromise("node-details.getNetworkInfo", async () => {
 			res.locals.getnetworkinfo = await coreApi.getNetworkInfo();
+            console.log('getnetworkinfo:',res.locals.getNetworkInfo)
 		}, perfResults));
 
 		promises.push(utils.timePromise("node-details.getUptimeSeconds", async () => {
@@ -329,7 +336,10 @@ router.get("/node-details", asyncHandler(async (req, res, next) => {
 			res.locals.getnettotals = await coreApi.getNetTotals();
 		}, perfResults));
 
-
+		promises.push(utils.timePromise("homepage.getMiningInfo", async () => {
+			res.locals.miningInfo = await coreApi.getMiningInfo();
+		}, perfResults));
+        
 		await utils.awaitPromises(promises);
 
 
@@ -472,7 +482,7 @@ router.get("/disconnect", function(req, res, next) {
 	req.session.username = "";
 
 	debugLog("destroyed rpc client.");
-
+                                    
 	global.rpcClient = null;
 
 	req.session.userMessage = "Disconnected from node.";
@@ -657,6 +667,95 @@ router.get("/blocks", asyncHandler(async (req, res, next) => {
 		next();
 	}
 }));
+
+router.get("/names", function(req, res, next) {
+	var limit = config.site.browseBlocksPageSize;
+	var offset = 0;
+	var sort = "desc";
+
+	if (req.query.limit) {
+		limit = parseInt(req.query.limit);
+	}
+
+	if (req.query.offset) {
+		offset = parseInt(req.query.offset);
+	}
+
+	if (req.query.sort) {
+		sort = req.query.sort;
+	}
+
+	res.locals.limit = 10;
+	res.locals.offset = 0;
+	res.locals.sort = sort;
+	res.locals.paginationBaseUrl = "./blocks";
+
+	coreApi.getNameScanList("",10).then(function(nameList) {
+		res.locals.blockCount = 0;
+		res.locals.blockOffset = 0;
+		res.locals.nameCount = nameList.length;
+
+
+
+		console.log('getNameList:',nameList)
+
+		let blockHeights = [];
+		// if (sort == "desc") {
+		// 	for (let i = (nameList.length - offset); i > (nameList.length - offset - limit - 1); i--) {
+		// 		if (i >= 0) {
+		// 			blockHeights.push(nameList[i].height);
+		// 		}
+		// 	}
+		// } else {
+		// 	for (var i = offset - 1; i < (offset + limit); i++) {
+		// 		if (i >= 0) {
+		// 			blockHeights.push(nameList[i].height);
+		// 		}
+		// 	}
+		// }
+
+		for (let i = 0; i< nameList.length ; i++) {
+			blockHeights.push(nameList[i].height);
+		}
+
+		console.log('blockHeights:',blockHeights)
+
+		res.locals.nameList = [];
+		coreApi.getBlocksByHeight(blockHeights).then(function(blocks) {
+
+			res.locals.blocks = blocks;
+			console.log('blocks',blocks)
+
+
+			for (let i = 0; i < nameList.length; i++) {
+				let name = nameList[i];
+				let block = blocks.find(item => item.height = name.height)
+				name.block = block;
+			}
+
+			res.locals.nameList = nameList;
+
+			res.render("names");
+
+			next();
+
+		})
+			.catch(function(err) {
+				res.locals.pageErrors.push(utils.logError("32974hrbfbvc", err));
+
+				res.render("names");
+
+				next();
+			});
+
+	}).catch(function(err) {
+		res.locals.userMessage = "Error: " + err;
+
+		res.render("names");
+
+		next();
+	});
+});
 
 router.get("/mining-summary", asyncHandler(async (req, res, next) => {
 	try {

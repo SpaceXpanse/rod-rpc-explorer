@@ -115,9 +115,9 @@ router.get("/", asyncHandler(async (req, res, next) => {
 			res.locals.hashrate30ds = await coreApi.getNetworkHashrate(80640)['sha256d'];
 		}, perfResults));
 
-        console.log('hashrate7dn:',res.locals.hashrate7dn)
+        console.log('hashrate7d:',res.locals.hashrate7d)
         console.log('hashrate7ds:',res.locals.hashrate7ds)
-        console.log('hashrate30dn:',res.locals.hashrate30dn)
+        console.log('hashrate30dn:',res.locals.hashrate30d)
         console.log('hashrate30ds:',res.locals.hashrate30ds)
 
 		const getblockchaininfo = await utils.timePromise("homepage.getBlockchainInfo", async () => {

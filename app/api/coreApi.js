@@ -281,7 +281,6 @@ function getChainTxStats(blockCount, blockhashEnd) {
 function getNetworkHashrate(blockCount) {
 	return tryCacheThenRpcApi(miscCache, "getNetworkHashrate-" + blockCount, FIFTEEN_MIN, function() {
 		return rpcApi.getNetworkHashrate(blockCount);
-        console.log(rpcApi.getNetworkHashrate(blockCount))
 	});
 }
 

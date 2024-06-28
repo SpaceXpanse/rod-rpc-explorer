@@ -86,7 +86,8 @@ router.get("/", asyncHandler(async (req, res, next) => {
 			res.locals.miningInfo = await coreApi.getMiningInfo();
 		}, perfResults));
 
-		promises.push(utils.timePromise("homepage.getSmartFeeEstimates", async () => {
+		var feeConfTargets = [1, 3, 6, 144];
+        promises.push(utils.timePromise("homepage.getSmartFeeEstimates", async () => {
 			const rawSmartFeeEstimates = await coreApi.getSmartFeeEstimates("CONSERVATIVE", feeConfTargets);
 
 			var smartFeeEstimates = {};  

@@ -361,7 +361,7 @@ mixin pageTab(name, defaultActive=false)
 
 mixin valueDisplay(val, options={})
 	if (val > 0)
-		if (userSettings.displayCurrency == "btc")
+		if (userSettings.displayCurrency == "rod" || userSettings.displayCurrency == coinConfig.ticker.toLowerCase())
 			+_valueDisplayBtc(val, options)
 
 		else if (userSettings.displayCurrency == "sat")
@@ -369,13 +369,21 @@ mixin valueDisplay(val, options={})
 
 		else if (userSettings.displayCurrency == "local")
 			+_valueDisplayLocal(val, 1000000)
-				
+		
+		else
+			// Default: display in coin's default currency unit (uses coin ticker like "btc" for BTC, "rod" for ROD)
+			+_valueDisplayBtc(val, options)
+		
 	else
 		span 0
 
 
 mixin _valueDisplayBtc(val, options={})
-	- var parts = utils.formatCurrencyAmount(val, userSettings.displayCurrency);
+	- var formatType = userSettings.displayCurrency;
+	// For default case ("btc"), use the coin's default currency unit so ROD displays as "ROD" instead of "BTC"
+	if (formatType == "btc")
+		- formatType = coinConfig.defaultCurrencyUnit.name.toLowerCase();
+	- var parts = utils.formatCurrencyAmount(val, formatType);
 
 	//span #{JSON.stringify(parts)}
 
@@ -408,7 +416,9 @@ mixin _valueDisplaySat(val, summarizeMin=Infinity, summarizeDecimals=3)
 		span #{largeNumberData[1].abbreviation}
 		
 	else
-		span(class=(localCurrencyDisplay ? "border-dotted" : false), title=(localCurrencyDisplay ? `${utils.formatCurrencyAmount(val, coinConfig.defaultCurrencyUnit.name.toLowerCase()).simpleVal} BTC` : false), data-bs-toggle=(localCurrencyDisplay ? "tooltip" : false)) #{parts.intVal.toLocaleString()}
+		- var currencyUnitLower = coinConfig.defaultCurrencyUnit.name.toLowerCase();
+		- var currencyUnit = coinConfig.defaultCurrencyUnit.name;
+		span(class=(localCurrencyDisplay ? "border-dotted" : false), title=(localCurrencyDisplay ? `${utils.formatCurrencyAmount(val, currencyUnitLower).simpleVal} ${currencyUnit}` : false), data-bs-toggle=(localCurrencyDisplay ? "tooltip" : false)) #{parts.intVal.toLocaleString()}
 
 
 	if (exchangeRates)
@@ -431,12 +441,16 @@ mixin _valueDisplayLocal(val, summarizeMin=Infinity, summarizeDecimals=3)
 	if (Math.abs(parts.intVal) >= summarizeMin)
 		- var largeNumberData = utils.formatLargeNumberSignificant(parts.intVal, summarizeDecimals >= 0 ? summarizeDecimals : 3);
 		//span #{JSON.stringify(largeNumberData)} #{parts.intVal}
-		span.border-dotted(title=`${global.currencySymbols[userSettings.localCurrency]}${parts.intVal.toLocaleString()}<br/>${utils.formatCurrencyAmount(val, coinConfig.defaultCurrencyUnit.name.toLowerCase()).simpleVal} BTC`, data-bs-toggle="tooltip", data-bs-html="true")
+		- var currencyUnitLower = coinConfig.defaultCurrencyUnit.name.toLowerCase();
+		- var currencyUnit = coinConfig.defaultCurrencyUnit.name;
+		span.border-dotted(title=`${global.currencySymbols[userSettings.localCurrency]}${parts.intVal.toLocaleString()}<br/>${utils.formatCurrencyAmount(val, currencyUnitLower).simpleVal} ${currencyUnit}`, data-bs-toggle="tooltip", data-bs-html="true")
 			span #{largeNumberData[0]}
 			span.ms-1 #{largeNumberData[1].textDesc}
 
 	else
-		span.border-dotted(title=`${utils.formatCurrencyAmount(val, coinConfig.defaultCurrencyUnit.name.toLowerCase()).simpleVal} BTC`, data-bs-toggle="tooltip") #{parts.val}
+		- var currencyUnitLower = coinConfig.defaultCurrencyUnit.name.toLowerCase();
+		- var currencyUnit = coinConfig.defaultCurrencyUnit.name;
+		span.border-dotted(title=`${utils.formatCurrencyAmount(val, currencyUnitLower).simpleVal} ${currencyUnit}`, data-bs-toggle="tooltip") #{parts.val}
 	
 
 mixin valueDisplaySpecial(val, maxDecimals=-1, summarizeAlways=false, summarizeMin=Infinity, summarizeDecimals=-1)
@@ -462,16 +476,18 @@ mixin valueDisplaySpecial(val, maxDecimals=-1, summarizeAlways=false, summarizeM
 				//span #{JSON.stringify(parts)}
 				- var largeNumberData = utils.formatLargeNumberSignificant(parts.intVal, summarizeDecimals >= 0 ? summarizeDecimals : 2);
 				//span #{JSON.stringify(largeNumberData)} #{parts.intVal}
-				span(class=(localCurrencyDisplay ? "border-dotted" : false), title=(localCurrencyDisplay ? `${utils.formatCurrencyAmount(val, coinConfig.defaultCurrencyUnit.name.toLowerCase()).simpleVal} BTC` : false), data-bs-toggle=(localCurrencyDisplay ? "tooltip" : false)) #{largeNumberData[0]} #{largeNumberData[1].textDesc}
+				- var currencyUnitLower = coinConfig.defaultCurrencyUnit.name.toLowerCase();
+				- var currencyUnit = coinConfig.defaultCurrencyUnit.name;
+				span(class=(localCurrencyDisplay ? "border-dotted" : false), title=(localCurrencyDisplay ? `${utils.formatCurrencyAmount(val, currencyUnitLower).simpleVal} ${currencyUnit}` : false), data-bs-toggle=(localCurrencyDisplay ? "tooltip" : false)) #{largeNumberData[0]} #{largeNumberData[1].textDesc}
 			
 			else if (maxDecimals == 0)
-				span(class=(localCurrencyDisplay ? "border-dotted" : false), title=(localCurrencyDisplay ? `${utils.formatCurrencyAmount(val, coinConfig.defaultCurrencyUnit.name.toLowerCase()).simpleVal} BTC` : false), data-bs-toggle=(localCurrencyDisplay ? "tooltip" : false)) #{parts.intVal.toLocaleString()}
+				span(class=(localCurrencyDisplay ? "border-dotted" : false), title=(localCurrencyDisplay ? `${utils.formatCurrencyAmount(val, currencyUnitLower).simpleVal} ${currencyUnit}` : false), data-bs-toggle=(localCurrencyDisplay ? "tooltip" : false)) #{parts.intVal.toLocaleString()}
 
 			else if (maxDecimals > 0)
-				span(class=(localCurrencyDisplay ? "border-dotted" : false), title=(localCurrencyDisplay ? `${utils.formatCurrencyAmount(val, coinConfig.defaultCurrencyUnit.name.toLowerCase()).simpleVal} BTC` : false), data-bs-toggle=(localCurrencyDisplay ? "tooltip" : false)) #{parts.val}
+				span(class=(localCurrencyDisplay ? "border-dotted" : false), title=(localCurrencyDisplay ? `${utils.formatCurrencyAmount(val, currencyUnitLower).simpleVal} ${currencyUnit}` : false), data-bs-toggle=(localCurrencyDisplay ? "tooltip" : false)) #{parts.val}
 			
 			else
-				span(class=(localCurrencyDisplay ? "border-dotted" : false), title=(localCurrencyDisplay ? `${utils.formatCurrencyAmount(val, coinConfig.defaultCurrencyUnit.name.toLowerCase()).simpleVal} BTC` : false), data-bs-toggle=(localCurrencyDisplay ? "tooltip" : false)) #{parts.val}
+				span(class=(localCurrencyDisplay ? "border-dotted" : false), title=(localCurrencyDisplay ? `${utils.formatCurrencyAmount(val, currencyUnitLower).simpleVal} ${currencyUnit}` : false), data-bs-toggle=(localCurrencyDisplay ? "tooltip" : false)) #{parts.val}
 					if (parts.lessSignificantDigits)
 						span.text-small.text-muted.ms-1 #{parts.lessSignificantDigits}
 
@@ -1026,3 +1042,5 @@ mixin quote(quote, quoteIndex=-1, options={fontSize: 3, align:"start", includeQu
 			if (quote.context)
 				div
 					i.fs-6.text-muted.ms-2 (#{quote.context})
+
+

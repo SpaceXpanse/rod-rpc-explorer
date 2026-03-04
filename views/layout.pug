@@ -9,7 +9,7 @@ html(lang="en")
 		meta(name="csrf-token", content=csrfToken)
 		meta(name="viewport", content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0, shrink-to-fit=no")
 
-		meta(name="description" content="Open-source, easy-to-use, educational Bitcoin explorer whose only dependency is your Bitcoin Core node.")
+		meta(name="description" content=`Open-source, easy-to-use, educational ${coinConfig.ticker} explorer whose only dependency is your ${coinConfig.name} node.`)
 		
 		if (!homepage)
 			link(rel="stylesheet", href=assetUrl(`./style/highlight.min.css`), integrity=assetIntegrity("highlight.min.css"), crossorigin="anonymous")
@@ -20,15 +20,15 @@ html(lang="en")
 
 		link(id="canonical" rel="canonical" href="https://bitcoinexplorer.org")
 
-		meta(property="og:title" content=(metaTitle != undefined ? metaTitle : "BitcoinExplorer.org - Open-Source Bitcoin Explorer"))
-		meta(property="og:description" content=(metaDesc != undefined ? metaDesc : "Open-source, easy-to-use, educational Bitcoin explorer whose only dependency is your Bitcoin Core node."))
+		meta(property="og:title" content=(metaTitle != undefined ? metaTitle : `${coinConfig.ticker} Explorer - Open-Source ${coinConfig.ticker} Explorer`))
+		meta(property="og:description" content=(metaDesc != undefined ? metaDesc : `Open-source, easy-to-use, educational ${coinConfig.ticker} explorer whose only dependency is your ${coinConfig.name} node.`))
 		meta(property="og:image" content="https://bitcoinexplorer.org/img/preview.png")
 
 		meta(property="twitter:card" content="summary_large_image")
 		meta(property="twitter:site" content="@BitcoinExplorer")
 		meta(property="twitter:creator" content="@BitcoinExplorer")
-		meta(property="twitter:title" content=(metaTitle != undefined ? metaTitle : "BitcoinExplorer.org"))
-		meta(property="twitter:description" content=(metaDesc != undefined ? metaDesc : "Open-source, easy-to-use, educational Bitcoin explorer whose only dependency is your Bitcoin Core node."))
+		meta(property="twitter:title" content=(metaTitle != undefined ? metaTitle : `${coinConfig.ticker} Explorer`))
+		meta(property="twitter:description" content=(metaDesc != undefined ? metaDesc : `Open-source, easy-to-use, educational ${coinConfig.ticker} explorer whose only dependency is your ${coinConfig.name} node.`))
 		meta(property="twitter:image:src" content=(metaImgUrl != undefined ? metaImgUrl : "https://bitcoinexplorer.org/img/preview.png"))
 		meta(property="twitter:domain" content="bitcoinexplorer.org")
 
@@ -42,8 +42,8 @@ html(lang="en")
 		link(rel="manifest", href=`./img/network-${network}/site.webmanifest`)
 		link(rel="mask-icon", href=`./img/network-${network}/safari-pinned-tab.svg`, color="#f7931a")
 		link(rel="shortcut icon", href=assetUrl(`./img/network-${network}/favicon.ico`))
-		meta(name="apple-mobile-web-app-title", content="BTC Explorer")
-		meta(name="application-name", content="BTC Explorer")
+		meta(name="apple-mobile-web-app-title", content=`${coinConfig.ticker} Explorer`)
+		meta(name="application-name", content=`${coinConfig.ticker} Explorer`)
 		meta(name="msapplication-TileColor", content="#022e70")
 		meta(name="msapplication-config", content=`./img/network-${network}/browserconfig.xml`)
 		meta(name="theme-color" content="#022e70")
@@ -66,7 +66,7 @@ html(lang="en")
 						if (coinConfig.siteTitlesByNetwork && coinConfig.siteTitlesByNetwork[activeBlockchain])
 							span.fw-light #{coinConfig.siteTitlesByNetwork[activeBlockchain]}
 						else
-							span.fw-light Bitcoin Explorer
+							span.fw-light #{coinConfig.ticker} Explorer
 
 				if (false && config.demoSite)
 					- var networkNameMap = {"main": "Mainnet", "test": "Testnet", "signet": "Signet"};
@@ -108,7 +108,7 @@ html(lang="en")
 											a.dropdown-item(href=coinConfig.demoSiteUrlsByNetwork[demoSite])
 												img.align-text-top.me-2(src=assetUrl(coinConfig.coinIconUrlsByNetwork[demoSite]), style="width: 20px;")
 												
-												| #{coinConfig.siteTitlesByNetwork[demoSite].replace("Explorer", "").replace("Bitcoin", "Mainnet")}
+												| #{coinConfig.siteTitlesByNetwork[demoSite].replace("Explorer", "").replace(coinConfig.ticker, "Mainnet")}
 
 							if (config.siteTools)
 								li.nav-item.dropdown.me-0.me-md-2.mt-2.mt-md-0.text-center.text-md-start
@@ -136,7 +136,7 @@ html(lang="en")
 								.dropdown-menu.dropdown-menu-end.shadow(aria-labelledby="navbarDropdown")
 									span.dropdown-header Display Currency
 
-									- var items = ["BTC", "sat"];
+									- var items = [coinConfig.ticker, coinConfig.baseCurrencyUnit.name];
 									if (config.queryExchangeRates && global.exchangeRates)
 										- items.push("local");
 
@@ -250,7 +250,7 @@ html(lang="en")
 			.container
 				if (!crawlerBot && global.rpcConnected)
 					.mb-4.mx-6
-						iframe(id="quoteIframe", title="A Bitcoin Quote of the Day", src="./snippet/quote/random", onload="iframeLoaded('quoteIframe');", scrolling="no", height="0", style="width: 100%;")
+						iframe(id="quoteIframe", title=`A ${coinConfig.ticker} Quote of the Day`, src="./snippet/quote/random", onload="iframeLoaded('quoteIframe');", scrolling="no", height="0", style="width: 100%;")
 
 					hr
 

@@ -100,11 +100,49 @@ router.get("/", asyncHandler(async (req, res, next) => {
 		}, perfResults));
 
 		promises.push(utils.timePromise("homepage.getNetworkHashrate", async () => {
-			res.locals.hashrate7d = await coreApi.getNetworkHashrate(1008);
+			let rawHashrate = await coreApi.getNetworkHashrate(1008);
+			// Handle ROD multi-algorithm hashrate format
+			if (typeof rawHashrate === 'object' && rawHashrate !== null) {
+				// For ROD, use the primary algorithm (sha256d) if available, otherwise use neoscrypt
+				if (rawHashrate.sha256d !== undefined) {
+					res.locals.hashrate7d = rawHashrate.sha256d;
+				} else if (rawHashrate.neoscrypt !== undefined) {
+					res.locals.hashrate7d = rawHashrate.neoscrypt;
+				} else {
+					// If neither is available, use the first available property or default to 0
+					const keys = Object.keys(rawHashrate);
+					if (keys.length > 0) {
+						res.locals.hashrate7d = rawHashrate[keys[0]];
+					} else {
+						res.locals.hashrate7d = 0;
+					}
+				}
+			} else {
+				res.locals.hashrate7d = rawHashrate;
+			}
 		}, perfResults));
 
 		promises.push(utils.timePromise("homepage.getNetworkHashrate", async () => {
-			res.locals.hashrate30d = await coreApi.getNetworkHashrate(4320);
+			let rawHashrate = await coreApi.getNetworkHashrate(4320);
+			// Handle ROD multi-algorithm hashrate format
+			if (typeof rawHashrate === 'object' && rawHashrate !== null) {
+				// For ROD, use the primary algorithm (sha256d) if available, otherwise use neoscrypt
+				if (rawHashrate.sha256d !== undefined) {
+					res.locals.hashrate30d = rawHashrate.sha256d;
+				} else if (rawHashrate.neoscrypt !== undefined) {
+					res.locals.hashrate30d = rawHashrate.neoscrypt;
+				} else {
+					// If neither is available, use the first available property or default to 0
+					const keys = Object.keys(rawHashrate);
+					if (keys.length > 0) {
+						res.locals.hashrate30d = rawHashrate[keys[0]];
+					} else {
+						res.locals.hashrate30d = 0;
+					}
+				}
+			} else {
+				res.locals.hashrate30d = rawHashrate;
+			}
 		}, perfResults));
 
 
@@ -1101,7 +1139,7 @@ router.get("/block-height/:blockHeight", asyncHandler(async (req, res, next) => 
 				res.locals.metaDesc = "";
 			}
 		} else {
-			res.locals.metaTitle = `Bitcoin Block #${blockHeight.toLocaleString()}`;
+			res.locals.metaTitle = `ROD Block #${blockHeight.toLocaleString()}`;
 			res.locals.metaDesc = "";
 		}
 		
@@ -1203,7 +1241,7 @@ router.get("/block/:blockHash", asyncHandler(async (req, res, next) => {
 			}
 
 		} else {
-			res.locals.metaTitle = `Bitcoin Block ${utils.ellipsizeMiddle(res.locals.result.getblock.hash, 16)}`;
+			res.locals.metaTitle = `ROD Block ${utils.ellipsizeMiddle(res.locals.result.getblock.hash, 16)}`;
 			res.locals.metaDesc = "";
 		}
 
@@ -1449,7 +1487,7 @@ router.get("/tx/:transactionId", asyncHandler(async (req, res, next) => {
 				res.locals.metaDesc = "";
 			}
 		} else {
-			res.locals.metaTitle = `Bitcoin Transaction ${utils.ellipsizeMiddle(txid, 16)}`;
+			res.locals.metaTitle = `ROD Transaction ${utils.ellipsizeMiddle(txid, 16)}`;
 			res.locals.metaDesc = "";
 		}
 
@@ -1522,7 +1560,7 @@ router.get("/address/:address", asyncHandler(async (req, res, next) => {
 		}
 
 
-		res.locals.metaTitle = `Bitcoin Address ${address}`;
+		res.locals.metaTitle = `ROD Address ${address}`;
 
 		res.locals.address = address;
 		res.locals.limit = limit;
@@ -1580,6 +1618,9 @@ router.get("/address/:address", asyncHandler(async (req, res, next) => {
 
 				if (addressDetails) {
 					res.locals.addressDetails = addressDetails;
+					
+					console.log("[DEBUG TEMPLATE] addressDetails.balanceSat:", addressDetails.balanceSat);
+					console.log("[DEBUG TEMPLATE] addressDetails:", JSON.stringify(addressDetails));
 
 					if (addressDetails.balanceSat == 0) {
 						// make sure zero balances pass the falsey check in the UI

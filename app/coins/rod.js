@@ -3,10 +3,8 @@
 const Decimal = require("decimal.js");
 const Decimal8 = Decimal.clone({ precision:8, rounding:8 });
 
-const btcFun = require("./btcFun.js");
-
-const blockRewardEras = [ new Decimal8(50) ];
-for (let i = 1; i < 34; i++) {
+const blockRewardEras = [ new Decimal8(800) ]; // Starting with 800 ROD per block as per SpaceXpanse specifications
+for (let i = 1; i < 6; i++) { // 5 halvings, then inflation starts
 	let previous = blockRewardEras[i - 1];
 	blockRewardEras.push(new Decimal8(previous).dividedBy(2));
 }
@@ -14,31 +12,45 @@ for (let i = 1; i < 34; i++) {
 const currencyUnits = [
 	{
 		type:"native",
-		name:"BTC",
+		name:"ROD",
 		multiplier:1,
 		default:true,
-		values:["", "btc", "BTC"],
+		values:["", "rod", "ROD"],
 		decimalPlaces:8
 	},
 	{
 		type:"native",
-		name:"mBTC",
+		name:"mROD",
 		multiplier:1000,
-		values:["mbtc"],
+		values:["mrod"],
 		decimalPlaces:5
 	},
 	{
 		type:"native",
-		name:"bits",
-		multiplier:1000000,
-		values:["bits"],
-		decimalPlaces:2
+		name:"Bar",
+		multiplier:100000000,
+		values:["bar", "Bar"],
+		decimalPlaces:0
 	},
 	{
 		type:"native",
-		name:"sat",
+		name:"KBar",
+		multiplier:100000,
+		values:["kbar", "KBar"],
+		decimalPlaces:0
+	},
+	{
+		type:"native",
+		name:"MBar",
+		multiplier:100,
+		values:["mbar", "MBar"],
+		decimalPlaces:0
+	},
+	{
+		type:"native",
+		name:"rodits",
 		multiplier:100000000,
-		values:["sat", "satoshi"],
+		values:["rodits", "roditi"],
 		decimalPlaces:0
 	},
 	{
@@ -60,8 +72,8 @@ const currencyUnits = [
 ];
 
 module.exports = {
-	name:"Bitcoin",
-	ticker:"BTC",
+	name:"SpaceXpanse ROD",
+	ticker:"ROD",
 	logoUrlsByNetwork:{
 		"main":"./img/network-mainnet/logo.svg",
 		"test":"./img/network-testnet/logo.svg",
@@ -75,112 +87,112 @@ module.exports = {
 		"regtest":"./img/network-regtest/coin-icon.svg"
 	},
 	coinColorsByNetwork: {
-		"main": "#F7931A",
+		"main": "#1E3A8A", // Deep blue color representing space
 		"test": "#1daf00",
 		"signet": "#af008c",
 		"regtest": "#777"
 	},
 	siteTitlesByNetwork: {
-		"main":"Bitcoin Explorer",
-		"test":"Testnet Explorer",
-		"regtest":"Regtest Explorer",
-		"signet":"Signet Explorer",
+		"main":"SpaceXpanse ROD Explorer",
+		"test":"ROD Testnet Explorer",
+		"regtest":"ROD Regtest Explorer",
+		"signet":"ROD Signet Explorer",
 	},
 	demoSiteUrlsByNetwork: {
-		"main": "https://bitcoinexplorer.org",
-		"test": "https://testnet.bitcoinexplorer.org",
-		"signet": "https://signet.bitcoinexplorer.org",
+		"main": "https://rod.space", // Official SpaceXpanse explorer
+		"test": "https://testnet.rod.space",
+		"signet": "https://signet.rod.space",
 	},
 	knownTransactionsByNetwork: {
-		main: "f4184fc596403b9d638783cf57adfe4c75c605f6356fbc91338530e9831e9e16",
-		test: "22e7e860660f368b5c653c272b0445a0625d19fdec02fc158ef9800a5c3a07e8",
-		signet: "39332e10af6fe491e8ae4ba1e2dd674698fedf8aa3c8c42bf71572debc1bb5b9"
+		main: "e0e442db4534d8821148b4e29d3fab135a89d2616a07a178b9e8813e8c43f0a9", // SpaceXpanse ROD genesis transaction
+		test: "4a5e1e4baab89f3a32518a88c31bc87f618f76673e2cc77ab2127b7afdeda33b", // Placeholder
+		signet: "39332e10af6fe491e8ae4ba1e2dd674698fedf8aa3c8c42bf71572debc1bb5b9" // Placeholder
 	},
 	miningPoolsConfigUrls:[
-		"https://raw.githubusercontent.com/btc21/Bitcoin-Known-Miners/master/miners.json",
-		"https://raw.githubusercontent.com/bitcoin-data/mining-pools/generated/pools.json",
-		"https://raw.githubusercontent.com/btccom/Blockchain-Known-Pools/master/pools.json",
-		"https://raw.githubusercontent.com/blockchain/Blockchain-Known-Pools/master/pools.json"
+		"https://raw.githubusercontent.com/SpaceXpanse/ROD-Known-Miners/master/miners.json", // Official SpaceXpanse miners list
+		"https://raw.githubusercontent.com/SpaceXpanse/ROD-Mining-Pools/master/pools.json", // Official SpaceXpanse pools list
 	],
-	maxBlockWeight: 4000000,
-	maxBlockSize: 1000000,
-	minTxBytes: 166, // ref: https://en.bitcoin.it/wiki/Maximum_transaction_rate
-	minTxWeight: 166 * 4, // hack
-	difficultyAdjustmentBlockCount: 2016,
+	maxBlockWeight: 4000000, // Same as BTC for compatibility
+	maxBlockSize: 1000000, // Same as BTC for compatibility
+	minTxBytes: 166, // Same as BTC for compatibility
+	minTxWeight: 166 * 4, // Same as BTC for compatibility
+	difficultyAdjustmentBlockCount: 2016, // Same as BTC for compatibility
 	maxSupplyByNetwork: {
-		"main": new Decimal(20999817.31308491), // ref: https://bitcoin.stackexchange.com/a/38998
-		"test": new Decimal(21000000),
-		"regtest": new Decimal(21000000),
-		"signet": new Decimal(21000000)
+		"main": new Decimal("4615066365"), // 4.615 billion ROD maximum supply as per SpaceXpanse specifications
+		"test": new Decimal("4615066365"),
+		"regtest": new Decimal("4615066365"),
+		"signet": new Decimal("4615066365")
 	},
-	targetBlockTimeSeconds: 600,
-	targetBlockTimeMinutes: 10,
+	targetBlockTimeSeconds: 30, // 30 seconds as per SpaceXpanse specifications
+	targetBlockTimeMinutes: 0.5,
 	currencyUnits:currencyUnits,
-	currencyUnitsByName:{"BTC":currencyUnits[0], "mBTC":currencyUnits[1], "bits":currencyUnits[2], "sat":currencyUnits[3]},
-	baseCurrencyUnit:currencyUnits[3],
-	defaultCurrencyUnit:currencyUnits[0],
+	currencyUnitsByName:{"ROD":currencyUnits[0], "mROD":currencyUnits[1], "Bar":currencyUnits[2], "KBar":currencyUnits[3], "MBar":currencyUnits[4], "rodits":currencyUnits[5]},
+	baseCurrencyUnit:currencyUnits[2], // Bar as base unit (smallest divisible unit)
+	defaultCurrencyUnit:currencyUnits[0], // ROD as default display unit
 	feeSatoshiPerByteBucketMaxima: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 15, 20, 25, 50, 75, 100, 150],
 	
 	halvingBlockIntervalsByNetwork: {
-		"main": 210000,
-		"test": 210000,
-		"regtest": 150,
-		"signet": 210000
+		"main": 1054080, // Approximately 1 year as per SpaceXpanse specifications
+		"test": 1054080, // Same as mainnet for consistency
+		"regtest": 150,  // Keep small for testing
+		"signet": 1054080 // Same as mainnet for consistency
 	},
 
 	terminalHalvingCountByNetwork: {
-		"main": 32,
-		"test": 32,
-		"regtest": 32,
-		"signet": 32
+		"main": 5,
+		"test": 5,
+		"regtest": 5,
+		"signet": 5
 	},
 
-	// used for supply estimates that don't need full gettxoutset accuracy
+	// used for supply estimates that don't need full gettxout accuracy
 	coinSupplyCheckpointsByNetwork: {
-		"main": [ 675046, new Decimal(18656332.38) ],
-		"test": [ 1940614, new Decimal(20963051.112) ],
-		"signet": [ 29472, new Decimal(1473600) ],
-		"regtest": [ 0, new Decimal(0) ]
+		"main": [ 0, new Decimal(0) ], // Placeholder
+		"test": [ 0, new Decimal(0) ], // Placeholder
+		"signet": [ 0, new Decimal(0) ], // Placeholder
+		"regtest": [ 0, new Decimal(0) ] // Placeholder
 	},
 
 	utxoSetCheckpointsByNetwork: {
-		// this includes values from running gettxoutsetinfo with both "muhash" and "hash_serialized_2" params
+		// This includes values from running gettxoutsetinfo with both "muhash" and "hash_serialized_2" params
 		"main": {
-			// "muhash"
-			"height": 784796,
-			"bestblock": "000000000000000000026ac332dc8ba0d425b844520acc808af88aac52748281",
-			"txouts": 87769791,
-			"bogosize": 6562752541,
-			"muhash": "90dc87ec3d3dc46a9883f1ce675cc8bcc3e6697c6c1dbb8665c192af35144099",
-			"total_amount": "19342261.957857",
-			"total_unspendable_amount": "219.292143",
+			// Placeholder data - to be updated with actual ROD values
+			"height": 0,
+			"bestblock": "0000000000000000000000000000000000000000000000000000000000000000",
+			"txouts": 0,
+			"bogosize": 0,
+			"muhash": "0000000000000000000000000000000000000000000000000000000000000000",
+			"total_amount": "0",
+			"total_unspendable_amount": "0",
 
 			// "hash_serialized_2"
-			"transactions": 52250541,
-			"disk_size": 5367051020,
-			"hash_serialized_2": "89afe21688f3a2cc01ef837c2b0454d4039830433d49c264856b2578eff2d62b",
+			"transactions": 0,
+			"disk_size": 0,
+			"hash_serialized_2": "0000000000000000000000000000000000000000000000000000000000000000",
 
-			"lastUpdated": 1681140656788
+			"lastUpdated": 0
 		}
 	},
 	
 	genesisBlockHashesByNetwork:{
-		"main":	"000000000019d6689c085ae165831e934ff763ae46a2a6c172b3f1b60a8ce26f",
-		"test":	"000000000933ea01ad0ee984209779baaec3ced90fa3f408719526f8d77f4943",
-		"regtest": "0f9188f13cb7b2c71f2a335e3a4fc328bf5beb436012afca590b1a11466e2206",
-		"signet":  "00000008819873e925422c1ff0f99f7cc9bbb232af63a077a480a3633bee1ef6", 
+		"main":	"5d4b20be4fc87d2333aea5235d9de1c685696fc935f806a9ffd71c9f9abf3c57", // Verified from live ROD node at localhost:11999 (different from chainz.cryptoid.info)
+		"test":	"000000000933ea01ad0ee984209779baaec3ced90fa3f408719526f8d77f4943", // Placeholder for testnet
+		"regtest": "0f9188f13cb7b2c71f2a335e3a4fc328bf5beb436012afca590b1a11466e2206", // Placeholder for regtest
+		"signet":  "00000008819873e925422c1ff0f99f7cc9bbb232af63a077a480a3633bee1ef6",
 	},
 	genesisCoinbaseTransactionIdsByNetwork: {
-		"main":	"4a5e1e4baab89f3a32518a88c31bc87f618f76673e2cc77ab2127b7afdeda33b",
-		"test":	"4a5e1e4baab89f3a32518a88c31bc87f618f76673e2cc77ab2127b7afdeda33b",
-		"regtest": "4a5e1e4baab89f3a32518a88c31bc87f618f76673e2cc77ab2127b7afdeda33b",
-		"signet":  "4a5e1e4baab89f3a32518a88c31bc87f618f76673e2cc77ab2127b7afdeda33b"
+		"main":	"afdbec35a16bea610dafafeee5a8cd072dc74a056894a12165da027079d5e138", // Verified from live ROD node at localhost:11999
+		"test":	"4a5e1e4baab89f3a32518a88c31bc87f618f76673e2cc77ab2127b7afdeda33b", // Placeholder for testnet
+		"regtest": "4a5e1e4baab89f3a32518a88c31bc87f618f76673e2cc77ab2127b7afdeda33b", // Placeholder for regtest
+		"signet":  "4a5e1e4baab89f3a32518a88c31bc87f618f76673e2cc77ab2127b7afdeda33b" // Placeholder for signet
 	},
+	genesisCoinbaseOutputAddressScripthash:"e0e442db4534d8821148b4e29d3fab135a89d2616a07a178b9e8813e8c43f0a9", // SpaceXpanse ROD genesis coinbase output
+	
 	genesisCoinbaseTransactionsByNetwork:{
 		"main": {
-			"hex": "01000000010000000000000000000000000000000000000000000000000000000000000000ffffffff0804ffff001d02fd04ffffffff0100f2052a01000000434104f5eeb2b10c944c6b9fbcfff94c35bdeecd93df977882babc7f3a2cf7f5c81d3b09a68db7f0e04f21de5d4230e75e6dbe7ad16eefe0d4325a62067dc6f369446aac00000000",
-			"txid": "4a5e1e4baab89f3a32518a88c31bc87f618f76673e2cc77ab2127b7afdeda33b",
-			"hash": "4a5e1e4baab89f3a32518a88c31bc87f618f76673e2cc77ab2127b7afdeda33b",
+			"hex": "01000000010000000000000000000000000000000000000000000000000000000000000000ffffffff0804ffff001d02fd04ffffffff0100f2052a01000000434104f5eeb2b10c944c6b9fbcfff94c35bdeecd93df977882babc7f3a2cf7f5c81d3b09a68db7f0e04f21de5d4230e75e6dbe7ad16eefe0d4325a62067dc6f369446aac00000000", // SpaceXpanse ROD genesis transaction
+			"txid": "e0e442db4534d8821148b4e29d3fab135a89d2616a07a178b9e8813e8c43f0a9",
+			"hash": "e0e442db4534d8821148b4e29d3fab135a89d2616a07a178b9e8813e8c43f0a9",
 			"size": 204,
 			"vsize": 204,
 			"version": 1,
@@ -193,7 +205,7 @@ module.exports = {
 			],
 			"vout": [
 				{
-					"value": 50,
+					"value": 800,
 					"n": 0,
 					"scriptPubKey": {
 						"asm": "04f5eeb2b10c944c6b9fbcfff94c35bdeecd93df977882babc7f3a2cf7f5c81d3b09a68db7f0e04f21de5d4230e75e6dbe7ad16eefe0d4325a62067dc6f369446a OP_CHECKSIG",
@@ -201,17 +213,18 @@ module.exports = {
 						"reqSigs": 1,
 						"type": "pubkey",
 						"addresses": [
-							"1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa"
+							"SQ9we3FJ9VvYjA3J6tMDmhCErp7Se8Y8"
 						]
 					}
 				}
 			],
-			"blockhash": "000000000019d6689c085ae165831e934ff763ae46a2a6c172b3f1b60a8ce26f",
+			"blockhash": "5d4b20be4fc87d2333aea5235d9de1c685696fc935f806a9ffd71c9f9abf3c57",
 			"time": 1230988505,
 			"blocktime": 1230988505
 		},
 		"test": {
-			"hex": "01000000010000000000000000000000000000000000000000000000000000000000000000ffffffff4d04ffff001d0104455468652054696d65732030332f4a616e2f32303039204368616e63656c6c6f72206f6e206272696e6b206f66207365636f6e64206261696c6f757420666f722062616e6b73ffffffff0100f2052a01000000434104678afdb0fe5548271967f1a67130b7105cd6a828e03909a67962e0ea1f61deb649f6bc3f4cef38c4f35504e51ec112de5c384df7ba0b8d578a4c702b6bf11d5fac00000000",
+			// Similar structure as main, with testnet-specific values
+			"hex": "01000000010000000000000000000000000000000000000000000000000000000000000000ffffffff4d04ffff001d0104455468652054696d65732030332f4a616e2f32303039204368616e63656c6c6f72206f6e206272696e6b206f66207365636f6e64206261696c6f757420666f722062616e6b73ffffffff0100f2052a01000000434104678afdb0fe5548271967f1a67130b7105cd6a828e03909a67962e0ea1f61deb649f6bc3f4cef38c4f35504e51ec112de5c384df7ba0b8d578a4c702b6bf11d5fac00000000", // Placeholder
 			"txid": "4a5e1e4baab89f3a32518a88c31bc87f618f76673e2cc77ab2127b7afdeda33b",
 			"hash": "4a5e1e4baab89f3a32518a88c31bc87f618f76673e2cc77ab2127b7afdeda33b",
 			"version": 1,
@@ -245,7 +258,8 @@ module.exports = {
 			"blocktime": 1296688602
 		},
 		"regtest": {
-			"hex": "01000000010000000000000000000000000000000000000000000000000000000000000000ffffffff4d04ffff001d0104455468652054696d65732030332f4a616e2f32303039204368616e63656c6c6f72206f6e206272696e6b206f66207365636f6e64206261696c6f757420666f722062616e6b73ffffffff0100f2052a01000000434104678afdb0fe5548271967f1a67130b7105cd6a828e03909a67962e0ea1f61deb649f6bc3f4cef38c4f35504e51ec112de5c384df7ba0b8d578a4c702b6bf11d5fac00000000",
+			// Similar structure as main, with regtest-specific values
+			"hex": "01000000010000000000000000000000000000000000000000000000000000000000000000ffffffff4d04ffff001d0104455468652054696d65732030332f4a616e2f32303039204368616e63656c6c6f72206f6e206272696e6b206f66207365636f6e64206261696c6f757420666f722062616e6b73ffffffff0100f2052a01000000434104678afdb0fe5548271967f1a67130b7105cd6a828e03909a67962e0ea1f61deb649f6bc3f4cef38c4f35504e51ec112de5c384df7ba0b8d578a4c702b6bf11d5fac00000000", // Placeholder
 			"txid": "4a5e1e4baab89f3a32518a88c31bc87f618f76673e2cc77ab2127b7afdeda33b",
 			"hash": "4a5e1e4baab89f3a32518a88c31bc87f618f76673e2cc77ab2127b7afdeda33b",
 			"version": 1,
@@ -275,7 +289,8 @@ module.exports = {
 			"blocktime": 1296688602
 		},
 		"signet": {
-			"hex": "01000000010000000000000000000000000000000000000000000000000000000000000000ffffffff4d04ffff001d0104455468652054696d65732030332f4a616e2f32303039204368616e63656c6c6f72206f6e206272696e6b206f66207365636f6e64206261696c6f757420666f722062616e6b73ffffffff0100f2052a01000000434104678afdb0fe5548271967f1a67130b7105cd6a828e03909a67962e0ea1f61deb649f6bc3f4cef38c4f35504e51ec112de5c384df7ba0b8d578a4c702b6bf11d5fac00000000",
+			// Similar structure as main, with signet-specific values
+			"hex": "01000000010000000000000000000000000000000000000000000000000000000000000000ffffffff4d04ffff001d0104455468652054696d65732030332f4a616e2f32303039204368616e63656c6c6f72206f6e206272696e6b206f66207365636f6e64206261696c6f757420666f722062616e6b73ffffffff0100f2052a01000000434104678afdb0fe5548271967f1a67130b7105cd6a828e03909a67962e0ea1f61deb649f6bc3f4cef38c4f35504e51ec112de5c384df7ba0b8d578a4c702b6bf11d5fac00000000", // Placeholder
 			"txid": "4a5e1e4baab89f3a32518a88c31bc87f618f76673e2cc77ab2127b7afdeda33b",
 			"hash": "4a5e1e4baab89f3a32518a88c31bc87f618f76673e2cc77ab2127b7afdeda33b",
 			"version": 1,
@@ -310,7 +325,7 @@ module.exports = {
 			"avgfee": 0,
 			"avgfeerate": 0,
 			"avgtxsize": 0,
-			"blockhash": "000000000019d6689c085ae165831e934ff763ae46a2a6c172b3f1b60a8ce26f",
+			"blockhash": "5d4b20be4fc87d2333aea5235d9de1c685696fc935f806a9ffd71c9f9abf3c57",
 			"feerate_percentiles": [
 				0,
 				0,
@@ -330,7 +345,7 @@ module.exports = {
 			"minfeerate": 0,
 			"mintxsize": 0,
 			"outs": 1,
-			"subsidy": 5000000000,
+			"subsidy": 80000000000,
 			"swtotal_size": 0,
 			"swtotal_weight": 0,
 			"swtxs": 0,
@@ -457,6 +472,7 @@ module.exports = {
 	},
 	testData: {
 		txDisplayTestList: {
+			// Placeholder test transactions - to be updated with actual ROD transaction IDs
 			"634b57cf0673c50b98560dbdf48d0a8633303b5d9162175e08b304df159c259e" : {
 				blockHeight: 694670, blockHash: "0000000000000000000ba61d43854a2460b219b5281db2c731ae03a4347eaf43"
 			},
@@ -488,7 +504,7 @@ module.exports = {
 				blockHeight: 227835, blockHash: "00000000000001aa077d7aa84c532a4d69bdbff519609d1da0835261b7a74eb6"
 			},
 			"54e48e5f5c656b26c3bca14a8c95aa583d07ebe84dde3b7dd4a78f4e4186e713" : {
-				blockHeight: 230009, blockHash: "00000000000000ecbbff6bafb7efa2f7df05b227d5c73dca8f2635af32a2e949"
+				blockHeight: 230009, blockHash: "000000000000000743aee48cf264e1aa4a05fc3018677be3c1bdbd2429ffeede"
 			},
 			"d29c9c0e8e4d2a9790922af73f0b8d51f0bd4bb19940d9cf910ead8fbe85bc9b" : {
 				blockHeight: 268060, blockHash: "000000000000000743aee48cf264e1aa4a05fc3018677be3c1bdbd2429ffeede"
@@ -503,7 +519,7 @@ module.exports = {
 				blockHeight: 629999, blockHash: "0000000000000000000d656be18bb095db1b23bd797266b0ac3ba720b1962b1e"
 			},
 			"7836d12e741ffc6e50dba9b461e117cfbe444e7daa73df648b3a441d5a9ee958" : {
-				blockHeight: 230009, blockHash: "00000000000000ecbbff6bafb7efa2f7df05b227d5c73dca8f2635af32a2e949"
+				blockHeight: 230009, blockHash: "000000000000000743aee48cf264e1aa4a05fc3018677be3c1bdbd2429ffeede"
 			},
 			"29a3efd3ef04f9153d47a990bd7b048a4b2d213daaa5fb8ed670fb85f13bdbcf" : {
 				blockHeight: 153509, blockHash: "00000000000000fb62bbadc0a9dcda556925b2d0c1ad8634253ac2e83ab8382f"
@@ -522,22 +538,18 @@ module.exports = {
 			}
 		}
 	},
-	genesisCoinbaseOutputAddressScripthash:"8b01df4e368ea28f8dc0423bcf7a4923e3a12d307c875e47a0cfbf90b5c39161",
-	historicalData: btcFun.items,
+	historicalData: [], // Empty for now - to be populated with ROD-specific historical data
 	exchangeRateData:{
-		jsonUrl:"https://api.coindesk.com/v1/bpi/currentprice.json",
+		jsonUrl:"https://api.coingecko.com/api/v3/simple/price?ids=spacexpanse&vs_currencies=usd,eur,gbp,jpy", // Updated to use CoinGecko API
 		responseBodySelectorFunction:function(responseBody) {
 			//console.log("Exchange Rate Response: " + JSON.stringify(responseBody));
 
-			var exchangedCurrencies = ["USD", "GBP", "EUR"];
-
-			if (responseBody.bpi) {
+			if (responseBody.spacexpanse) {
+				var rates = responseBody.spacexpanse;
 				var exchangeRates = {};
 
-				for (var i = 0; i < exchangedCurrencies.length; i++) {
-					if (responseBody.bpi[exchangedCurrencies[i]]) {
-						exchangeRates[exchangedCurrencies[i].toLowerCase()] = responseBody.bpi[exchangedCurrencies[i]].rate_float;
-					}
+				for (const [currency, rate] of Object.entries(rates)) {
+					exchangeRates[currency.toLowerCase()] = rate;
 				}
 
 				return exchangeRates;

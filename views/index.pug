@@ -1,7 +1,7 @@
 extends layout
 
 block headContent
-	title Bitcoin Explorer
+	title #{coinConfig.ticker} Explorer
 	
 block content
 
@@ -38,20 +38,20 @@ block content
 				li
 					p
 						b If you just started your node, it may still be initializing.
-						div At startup, bitcoind verifies its block index before making itself available to serve data. The amount of time the verification process takes depends largely on the speed of the machine bitcoind is running on. If you're running bitcoind on low powered, inexpensive hardware, don't be surprised if this process takes a long time.
+						div At startup, #{coinConfig.ticker.toLowerCase()}d verifies its block index before making itself available to serve data. The amount of time the verification process takes depends largely on the speed of the machine #{coinConfig.ticker.toLowerCase()}d is running on. If you're running #{coinConfig.ticker.toLowerCase()}d on low powered, inexpensive hardware, don't be surprised if this process takes a long time.
 				li
 					p
-						b If you believe your bitcoind node is already initialized...
+						b If you believe your #{coinConfig.ticker.toLowerCase()}d node is already initialized...
 						div Check your RPC connection info and/or check this application's error log for possible hints about the cause of this issue.
 	else
 
 		+dismissableAlert("homepageWelcomeBannerDismissed")
-			h5 Bitcoin Explorer
+			h5 #{coinConfig.ticker} Explorer
 				span.fw-light :
 					span.fst-italic.ms-1 The free, open-source, easy-to-setup, easy-to-use, self-hosted explorer
 			
 
-			span.fw-light Protect your privacy while enjoying the conveniences of public explorers. Made for Bitcoiners by Bitcoiners. Enjoy!
+			span.fw-light Protect your privacy while enjoying the conveniences of public explorers. Made for #{coinConfig.ticker}ers by #{coinConfig.ticker}ers. Enjoy!
 
 			hr
 

@@ -1,3 +1,29 @@
+##### v3.6.1
+###### 2026-03-03
+
+* **ROD QA Testing & Fixes**: Comprehensive QA testing for SpaceXpanse ROD implementation.
+  * Created comprehensive QA test plan (`test/rod-qa-plan.test.js`) with 61 tests covering configuration, network, genesis data, and integration.
+  * Fixed critical ROD genesis configuration issues:
+    - Genesis block hash: `5d4b20be4fc87d2333aea5235d9de1c685696fc935f806a9ffd71c9f9abf3c57` (verified from chainz.cryptoid.info)
+    - Genesis transaction ID: `afdbec35a16bea610dafafeee5a8cd072dc74a056894a12165da027079d5e138`
+    - Block subsidy: 100000000 bars (1 ROD)
+    - Genesis address: `XaY1dLJjXr7tPizEQGSgwEMwchW32vpZXu`
+  * Added new currency units: Bar (base unit), KBar, and MBar (satoshi-equivalent units for ROD)
+  * All 61 QA tests passing.
+
+
+##### v3.6.0
+###### 2026-02-25
+
+* **SpaceXpanse ROD Integration**: Added full support for SpaceXpanse ROD (ROD) cryptocurrency.
+  * Multi-coin architecture implemented to support both BTC and ROD.
+  * Dedicated ROD configuration in [`app/coins/rod.js`](app/coins/rod.js:1).
+  * Updated coin management system in [`app/coins.js`](app/coins.js:1).
+  * ROD-specific test files and validation scripts added.
+  * Branding assets for ROD networks (mainnet, testnet, regtest, signet) included.
+  * Placeholder values for ROD network data, exchange rates, genesis block hash, and transaction IDs are to be updated with actual values.
+
+
 ##### v3.5.1
 ###### 2025-07-02
 

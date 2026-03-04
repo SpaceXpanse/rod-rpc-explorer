@@ -61,3 +61,10 @@ typings/
 cache/
 
 *.css.map
+
+#Kilo Code files
+.kilocode
+
+# Backup
+*old
+*test*.*

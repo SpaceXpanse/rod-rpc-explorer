@@ -14,7 +14,12 @@ function createCache(keyPrefix, onCacheEvent) {
 	return {
 		get: async function(key) {
 			if (!redisClient.isOpen) {
-				await redisClient.connect();
+				try {
+					await redisClient.connect();
+				} catch (connectErr) {
+					// Gracefully handle connection errors - return null to fallback to next cache tier
+					return null;
+				}
 			}
 
 			const prefixedKey = `${keyPrefix}-${key}`;
@@ -39,17 +44,28 @@ function createCache(keyPrefix, onCacheEvent) {
 
 				utils.logError("328rhwefghsdgsdss", err, {key:prefixedKey});
 
-				throw err;
+				// Return null to allow fallback to next cache tier instead of throwing
+				return null;
 			}
 		},
 		set: async function(key, obj, maxAgeMillis) {
 			if (!redisClient.isOpen) {
-				await redisClient.connect();
+				try {
+					await redisClient.connect();
+				} catch (connectErr) {
+					// Gracefully handle connection errors - silently fail
+					return;
+				}
 			}
 			
 			const prefixedKey = `${keyPrefix}-${key}`;
 
-			await redisClient.set(prefixedKey, JSON.stringify(obj), {"PX": maxAgeMillis});
+			try {
+				await redisClient.set(prefixedKey, JSON.stringify(obj), {"PX": maxAgeMillis});
+			} catch (err) {
+				// Silently fail on Redis errors to prevent cache writes from breaking the application
+				utils.logError("redis_set_error", err, {key:prefixedKey});
+			}
 		}
 	};
 }

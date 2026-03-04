@@ -818,6 +818,98 @@ expressApp.onStartup = async () => {
 	global.coinConfigs = coins;
 
 	global.SATS_PER_BTC = global.coinConfig.baseCurrencyUnit.multiplier;
+	
+	// Initialize currency types for the active coin
+	global.currencyTypes = {};
+	global.currencySymbols = {};
+
+	// Add base currency types (BTC and fiat) as fallbacks
+	global.currencyTypes["btc"] = {
+		id: "btc",
+		type: "native",
+		name: "BTC",
+		multiplier: 1,
+		default: true,
+		decimalPlaces: 8
+	};
+	global.currencyTypes["sat"] = {
+		id: "sat",
+		type: "native",
+		name: "sat",
+		multiplier: 100000000,
+		decimalPlaces: 0
+	};
+	global.currencyTypes["usd"] = {
+		id: "usd",
+		type: "exchanged",
+		name: "USD",
+		multiplier: "usd",
+		decimalPlaces: 2,
+		symbol: "$"
+	};
+	global.currencyTypes["eur"] = {
+		id: "eur",
+		type: "exchanged",
+		name: "EUR",
+		multiplier: "eur",
+		decimalPlaces: 2,
+		symbol: "€"
+	};
+	global.currencyTypes["gbp"] = {
+		id: "gbp",
+		type: "exchanged",
+		name: "GBP",
+		multiplier: "gbp",
+		decimalPlaces: 2,
+		symbol: "£"
+	};
+
+	// Add base currency symbols
+	global.currencySymbols["btc"] = "₿";
+	global.currencySymbols["usd"] = "$";
+	global.currencySymbols["eur"] = "€";
+	global.currencySymbols["gbp"] = "£";
+	
+	// Add coin-specific currency types from the coin config
+	if (global.coinConfig.currencyUnits) {
+		global.coinConfig.currencyUnits.forEach(unit => {
+			const unitNameLower = unit.name.toLowerCase();
+			
+			// Add the main unit name
+			global.currencyTypes[unitNameLower] = {
+				id: unitNameLower,
+				type: unit.type,
+				name: unit.name,
+				multiplier: unit.multiplier,
+				default: unit.default || false,
+				decimalPlaces: unit.decimalPlaces,
+				symbol: unit.symbol || ""
+			};
+
+			// Add symbol for the coin's main unit
+			if (unit.symbol) {
+				global.currencySymbols[unitNameLower] = unit.symbol;
+			}
+
+			// Add each value alias for this unit
+			if (unit.values) {
+				for (const value of unit.values) {
+					const valueLower = value.toLowerCase();
+					if (valueLower !== unitNameLower) {
+						global.currencyTypes[valueLower] = {
+							id: valueLower,
+							type: unit.type,
+							name: unit.name,
+							multiplier: unit.multiplier,
+							default: unit.default || false,
+							decimalPlaces: unit.decimalPlaces,
+							symbol: unit.symbol || ""
+						};
+					}
+				}
+			}
+		});
+	}
 
 	global.specialTransactions = {};
 	global.specialBlocks = {};

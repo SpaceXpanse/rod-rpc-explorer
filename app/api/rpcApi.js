@@ -38,10 +38,24 @@ global.rpcStats = {};
 
 function getBlockchainInfo() {
 	return new Promise((resolve, reject) => {
-		getRpcData("getblockchaininfo").then((getblockchaininfo) => {
+		getRpcData("getblockchaininfo").then(async (getblockchaininfo) => {
 			// keep global.pruneHeight updated
 			if (getblockchaininfo.pruned) {
 				global.pruneHeight = getblockchaininfo.pruneheight;
+			}
+
+			// For ROD, difficulty is not in getblockchaininfo, so get it from getmininginfo
+			if (!getblockchaininfo.difficulty && config.coin === 'ROD') {
+				try {
+					const miningInfo = await getRpcData("getmininginfo");
+					if (miningInfo && miningInfo.difficulty) {
+						// ROD returns difficulty as object with sha256d and neoscrypt
+						// Use sha256d as the primary difficulty
+						getblockchaininfo.difficulty = miningInfo.difficulty.sha256d || miningInfo.difficulty.neoscrypt || 0;
+					}
+				} catch (e) {
+					// Ignore errors, just don't add difficulty
+				}
 			}
 
 			resolve(getblockchaininfo);

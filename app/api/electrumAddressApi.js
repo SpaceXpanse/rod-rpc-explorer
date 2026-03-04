@@ -231,11 +231,14 @@ function getAddressDetails(address, scriptPubkey, sort, limit, offset) {
 			}
 
 			if (balanceData) {
+				console.log("[DEBUG] balanceData received:", JSON.stringify(balanceData));
 				addressDetails.balanceSat = balanceData.confirmed;
 
 				if (balanceData.unconfirmed) {
 					addressDetails.unconfirmedBalanceSat = balanceData.unconfirmed;
 				}
+			} else {
+				console.log("[DEBUG] No balanceData received from Electrum server");
 			}
 
 			var errors = [];
@@ -296,11 +299,13 @@ function getAddressBalance(addrScripthash) {
 	return new Promise(function(resolve, reject) {
 		var startTime = new Date().getTime();
 
+		console.log("[DEBUG] getAddressBalance called with addrScripthash:", addrScripthash);
+
 		runOnAllServers(function(electrumClient) {
 			return electrumClient.blockchainScripthash_getBalance(addrScripthash);
 
 		}).then(function(results) {
-			debugLog(`getAddressBalance=${JSON.stringify(results)}`);
+			console.log("[DEBUG] getAddressBalance raw results:", JSON.stringify(results));
 
 			logStats("blockchainScripthash_getBalance", new Date().getTime() - startTime, true);
 
@@ -328,6 +333,7 @@ function getAddressBalance(addrScripthash) {
 			}
 		}).catch(function(err) {
 			logStats("blockchainScripthash_getBalance", new Date().getTime() - startTime, false);
+			console.log("[DEBUG] getAddressBalance error:", err);
 
 			reject(err);
 		});

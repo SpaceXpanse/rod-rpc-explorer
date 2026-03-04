@@ -814,7 +814,7 @@ function geoLocateIpAddresses(ipAddresses, provider) {
 			promises.push(new Promise(function(resolve2, reject2) {
 				ipCache.get(ipStr).then(async function(result) {
 					if (result.value == null) {
-						let apiUrl = "http://api.ipstack.com/" + result.key + "?access_key=" + config.credentials.ipStackComApiAccessKey;
+						let apiUrl = "https://api.ipstack.com/" + result.key + "?access_key=" + config.credentials.ipStackComApiAccessKey;
 						
 						try {
 							const response = await axios.get(apiUrl);
@@ -1007,6 +1007,16 @@ function logError(errorId, err, optionalUserData = {}, logStacktrace=true) {
 	global.errorLog.push({errorId:errorId, error:err, userData:optionalUserData, date:new Date()});
 	while (global.errorLog.length > 100) {
 		global.errorLog.splice(0, 1);
+	}
+
+	// Cleanup old errorStats entries periodically to prevent memory leak
+	const maxErrorStatsEntries = 1000;
+	const errorStatsKeys = Object.keys(global.errorStats);
+	if (errorStatsKeys.length > maxErrorStatsEntries) {
+		// Remove oldest entries (based on firstSeen timestamp)
+		const sortedKeys = errorStatsKeys.sort((a, b) => global.errorStats[a].firstSeen - global.errorStats[b].firstSeen);
+		const keysToRemove = sortedKeys.slice(0, errorStatsKeys.length - maxErrorStatsEntries);
+		keysToRemove.forEach(key => delete global.errorStats[key]);
 	}
 
 	
@@ -1513,7 +1523,19 @@ function tryParseAddress(address) {
 
 	let parsedAddress = null;
 
-	let b58prefix = (global.activeBlockchain == "main" ? /^[13].*$/ : /^[2mn].*$/);
+	// For ROD mainnet, P2PKH addresses start with 'R', for testnet they start with 'm' or 'n'
+	// For BTC mainnet, P2PKH addresses start with '1' or '3' (for P2SH)
+	let b58prefix = null;
+	if (global.activeBlockchain == "main") {
+		// ROD uses 'R' for mainnet P2PKH, BTC uses '1' and '3'
+		b58prefix = /^[13R].*$/;
+	} else {
+		// Testnet/regtest: ROD uses 'm' or 'n', BTC uses 'm' or '2'
+		b58prefix = /^[2mn].*$/;
+	}
+	
+	// First, try base58 parsing for any address that matches base58 prefix
+	// This handles both BTC and ROD P2PKH/P2SH addresses
 	if (address.match(b58prefix)) {
 		try {
 			parsedAddress = bitcoinjs.address.fromBase58Check(address);
@@ -1529,6 +1551,46 @@ function tryParseAddress(address) {
 		}
 	}
 
+	// Only try bech32 parsing for addresses that DON'T match base58 prefix
+	// This prevents false positives for ROD P2PKH addresses that happen to start with 'R'
+	// ROD bech32 addresses start with 'R' (mainnet) or 'r' (testnet)
+	// These need special handling as they use "rod" HRP instead of "bc"
+	if (!address.match(b58prefix) && address.toLowerCase().startsWith("r")) {
+		try {
+			// Try to decode using raw bech32 library with "rod" HRP
+			const rodResult = bech32.decode(address);
+			parsedAddress = {
+				hrp: rodResult.hrp,
+				version: rodResult.version,
+				data: Buffer.from(rodResult.words).toString("hex")
+			};
+
+			return {
+				encoding: "bech32",
+				parsedAddress: parsedAddress
+			};
+
+		} catch (err) {
+			// ROD bech32 parsing failed, try bech32m as fallback
+			try {
+				const rodResultM = bech32m.decode(address);
+				parsedAddress = {
+					hrp: rodResultM.hrp,
+					version: rodResultM.version,
+					data: Buffer.from(rodResultM.words).toString("hex")
+				};
+
+				return {
+					encoding: "bech32m",
+					parsedAddress: parsedAddress
+				};
+			} catch (err2) {
+				// Both failed, continue to other methods
+			}
+		}
+	}
+
+	// Try to parse with bitcoinjs-lib (defaults to bc HRP for mainnet, tb for testnet)
 	try {
 		parsedAddress = bitcoinjs.address.fromBech32(address);
 		parsedAddress.data = parsedAddress.data.toString("hex");
@@ -1543,6 +1605,8 @@ function tryParseAddress(address) {
 	}
 
 
+	// Try bech32m decoding with the raw bech32 library
+	// This allows us to handle different HRPs like "rod" for ROD
 	try {
 		parsedAddress = bech32m.decode(address);
 		parsedAddress.words = Buffer.from(parsedAddress.words).toString("hex");
@@ -1555,7 +1619,7 @@ function tryParseAddress(address) {
 	} catch (err) {
 		bech32mError = err;
 	}
-	
+
 
 	let returnVal = {errors:[]};
 

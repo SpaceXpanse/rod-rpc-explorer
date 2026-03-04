@@ -1838,7 +1838,7 @@ function buildMempoolSummary(statusId, ageBuckets, sizeBuckets, statusFunc) {
 			}
 
 			
-			if (topIndex < satoshiPerByteBuckets.length) {
+			if (topIndex < satoshiPerByteBuckets.length && topIndex >= 0) {
 				satoshiPerByteBuckets[topIndex].buckets = 0;
 
 				// merge the top buckets into one

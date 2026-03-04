@@ -684,7 +684,27 @@ router.get("/mining/hashrate", asyncHandler(async (req, res, next) => {
 
 			promises.push(new Promise(async (resolve, reject) => {
 				try {
-					const hashrate = await coreApi.getNetworkHashrate(x);
+					let rawHashrate = await coreApi.getNetworkHashrate(x);
+					// Handle ROD multi-algorithm hashrate format
+					let hashrate;
+					if (typeof rawHashrate === 'object' && rawHashrate !== null) {
+						// For ROD, use the primary algorithm (sha256d) if available, otherwise use neoscrypt
+						if (rawHashrate.sha256d !== undefined) {
+							hashrate = rawHashrate.sha256d;
+						} else if (rawHashrate.neoscrypt !== undefined) {
+							hashrate = rawHashrate.neoscrypt;
+						} else {
+							// If neither is available, use the first available property or default to 0
+							const keys = Object.keys(rawHashrate);
+							if (keys.length > 0) {
+								hashrate = rawHashrate[keys[0]];
+							} else {
+								hashrate = 0;
+							}
+						}
+					} else {
+						hashrate = rawHashrate;
+					}
 					let summary = utils.formatLargeNumber(hashrate, decimals);
 					
 					rates[index] = {

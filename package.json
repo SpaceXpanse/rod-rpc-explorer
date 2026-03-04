@@ -1,12 +1,14 @@
 {
 	"name": "btc-rpc-explorer",
 	"version": "3.5.1",
-	"description": "Open-source, self-hosted Bitcoin explorer",
+	"description": "Open-source, self-hosted Bitcoin and SpaceXpanse ROD explorer",
 	"private": false,
 	"bin": "bin/cli.js",
 	"scripts": {
 		"start": "node ./bin/www",
 		"test": "node ./bin/test.js",
+		"test-rod": "mocha test/rod-tests.js",
+		"test-all": "npm test && npm run test-rod",
 		"miners": "node ./bin/refresh-mining-pool-configs.js",
 		"integrity": "node ./bin/frontend-resource-integrity.js",
 		"lint": "eslint app routes",
@@ -22,6 +24,8 @@
 	"keywords": [
 		"bitcoin",
 		"btc",
+		"space-xpanse",
+		"rod",
 		"blockchain"
 	],
 	"author": "Dan Janosik <dan@47.io>",
@@ -72,6 +76,7 @@
 		"serve-favicon": "^2.5.1",
 		"simple-git": "^3.28.0",
 		"tiny-secp256k1": "^2.2.4",
+		"tough-cookie": "^6.0.0",
 		"zeromq": "^6.5.0"
 	},
 	"optionalDependencies": {
@@ -79,6 +84,7 @@
 	},
 	"devDependencies": {
 		"eslint": "^9.34.0",
+		"mocha": "^11.7.5",
 		"sass": "^1.90.0"
 	}
 }

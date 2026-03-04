@@ -78,6 +78,14 @@ router.get("/", asyncHandler(async (req, res, next) => {
 
 		promises.push(utils.timePromise("homepage.getMiningInfo", async () => {
 			res.locals.miningInfo = await coreApi.getMiningInfo();
+			// Handle ROD multi-algorithm difficulty from mining info
+			if (res.locals.miningInfo && res.locals.miningInfo.difficulty) {
+				const diff = res.locals.miningInfo.difficulty;
+				if (typeof diff === 'object' && diff !== null) {
+					res.locals.difficulty_sha256d = diff.sha256d;
+					res.locals.difficulty_neoscrypt = diff.neoscrypt;
+				}
+			}
 		}, perfResults));
 
 		promises.push(utils.timePromise("homepage.getSmartFeeEstimates", async () => {
@@ -103,22 +111,15 @@ router.get("/", asyncHandler(async (req, res, next) => {
 			let rawHashrate = await coreApi.getNetworkHashrate(1008);
 			// Handle ROD multi-algorithm hashrate format
 			if (typeof rawHashrate === 'object' && rawHashrate !== null) {
-				// For ROD, use the primary algorithm (sha256d) if available, otherwise use neoscrypt
-				if (rawHashrate.sha256d !== undefined) {
-					res.locals.hashrate7d = rawHashrate.sha256d;
-				} else if (rawHashrate.neoscrypt !== undefined) {
-					res.locals.hashrate7d = rawHashrate.neoscrypt;
-				} else {
-					// If neither is available, use the first available property or default to 0
-					const keys = Object.keys(rawHashrate);
-					if (keys.length > 0) {
-						res.locals.hashrate7d = rawHashrate[keys[0]];
-					} else {
-						res.locals.hashrate7d = 0;
-					}
-				}
+				// For ROD, extract both algorithms for display
+				res.locals.hashrate7d_sha256d = rawHashrate.sha256d;
+				res.locals.hashrate7d_neoscrypt = rawHashrate.neoscrypt;
+				// Also set the combined/total for backward compatibility
+				res.locals.hashrate7d = (rawHashrate.sha256d || 0) + (rawHashrate.neoscrypt || 0);
 			} else {
 				res.locals.hashrate7d = rawHashrate;
+				res.locals.hashrate7d_sha256d = null;
+				res.locals.hashrate7d_neoscrypt = null;
 			}
 		}, perfResults));
 
@@ -126,22 +127,15 @@ router.get("/", asyncHandler(async (req, res, next) => {
 			let rawHashrate = await coreApi.getNetworkHashrate(4320);
 			// Handle ROD multi-algorithm hashrate format
 			if (typeof rawHashrate === 'object' && rawHashrate !== null) {
-				// For ROD, use the primary algorithm (sha256d) if available, otherwise use neoscrypt
-				if (rawHashrate.sha256d !== undefined) {
-					res.locals.hashrate30d = rawHashrate.sha256d;
-				} else if (rawHashrate.neoscrypt !== undefined) {
-					res.locals.hashrate30d = rawHashrate.neoscrypt;
-				} else {
-					// If neither is available, use the first available property or default to 0
-					const keys = Object.keys(rawHashrate);
-					if (keys.length > 0) {
-						res.locals.hashrate30d = rawHashrate[keys[0]];
-					} else {
-						res.locals.hashrate30d = 0;
-					}
-				}
+				// For ROD, extract both algorithms for display
+				res.locals.hashrate30d_sha256d = rawHashrate.sha256d;
+				res.locals.hashrate30d_neoscrypt = rawHashrate.neoscrypt;
+				// Also set the combined/total for backward compatibility
+				res.locals.hashrate30d = (rawHashrate.sha256d || 0) + (rawHashrate.neoscrypt || 0);
 			} else {
 				res.locals.hashrate30d = rawHashrate;
+				res.locals.hashrate30d_sha256d = null;
+				res.locals.hashrate30d_neoscrypt = null;
 			}
 		}, perfResults));
 

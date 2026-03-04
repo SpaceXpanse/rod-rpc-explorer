@@ -1,3 +1,15 @@
+##### v3.7.0
+###### 2026-03-04
+
+* **ROD Multi-Algorithm Support**: Added support for displaying hashrate and difficulty metrics for both SHA-256d and NeoScrypt algorithms used by the ROD blockchain.
+  * Home page dashboard now shows combined compact display of both algorithms in the Network Summary section.
+  * Each algorithm's data is clearly labeled with "SHA256d:" and "NeoScrypt:" prefixes.
+  * Separate 7d Hashrate entry showing both algorithms side-by-side.
+  * Separate Difficulty entry showing both algorithms side-by-side.
+  * Backward compatible - Bitcoin displays single combined hashrate and difficulty.
+  * Data is fetched via live RPC calls to the ROD node (getnetworkhashps, getmininginfo).
+
+
 ##### v3.6.1
 ###### 2026-03-03
 

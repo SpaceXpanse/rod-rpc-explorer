@@ -98,6 +98,32 @@ module.exports = {
 		"regtest":"ROD Regtest Explorer",
 		"signet":"ROD Signet Explorer",
 	},
+	addressValidation: {
+		base58VersionBytesByNetwork: {
+			"main": {
+				p2pkh: [60],
+				p2sh: [75]
+			},
+			"test": {
+				p2pkh: [111],
+				p2sh: [196]
+			},
+			"regtest": {
+				p2pkh: [111],
+				p2sh: [196]
+			},
+			"signet": {
+				p2pkh: [111],
+				p2sh: [196]
+			}
+		},
+		bech32HrpByNetwork: {
+			"main": ["rod"],
+			"test": ["rod", "trod"],
+			"regtest": ["rod", "bcrt"],
+			"signet": ["rod", "tb"]
+		}
+	},
 	demoSiteUrlsByNetwork: {
 		"main": "https://rod.space", // Official SpaceXpanse explorer
 		"test": "https://testnet.rod.space",

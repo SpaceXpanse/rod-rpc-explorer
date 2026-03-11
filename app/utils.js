@@ -1516,126 +1516,348 @@ function nextHalvingEstimates(eraStartBlockHeader, currentBlockHeader, difficult
 	};
 }
 
-function tryParseAddress(address) {
-	let base58Error = null;
-	let bech32Error = null;
-	let bech32mError = null;
+function buildAddressError(code, message, details={}) {
+	let err = { code, message };
 
-	let parsedAddress = null;
-
-	// For ROD mainnet, P2PKH addresses start with 'R', for testnet they start with 'm' or 'n'
-	// For BTC mainnet, P2PKH addresses start with '1' or '3' (for P2SH)
-	let b58prefix = null;
-	if (global.activeBlockchain == "main") {
-		// ROD uses 'R' for mainnet P2PKH, BTC uses '1' and '3'
-		b58prefix = /^[13R].*$/;
-	} else {
-		// Testnet/regtest: ROD uses 'm' or 'n', BTC uses 'm' or '2'
-		b58prefix = /^[2mn].*$/;
+	if (details && Object.keys(details).length > 0) {
+		err.details = details;
 	}
-	
-	// First, try base58 parsing for any address that matches base58 prefix
-	// This handles both BTC and ROD P2PKH/P2SH addresses
-	if (address.match(b58prefix)) {
-		try {
-			parsedAddress = bitcoinjs.address.fromBase58Check(address);
-			parsedAddress.hash = parsedAddress.hash.toString("hex");
 
+	return err;
+}
+
+function getAddressValidationConfigForActiveCoin() {
+	if (coinConfig && coinConfig.addressValidation) {
+		return coinConfig.addressValidation;
+	}
+
+	return null;
+}
+
+const addressValidationCache = {
+	base58VersionsByNetwork: new Map(),
+	bech32HrpsByNetwork: new Map()
+};
+
+function getAllowedBase58VersionsForActiveNetwork() {
+	const activeNetwork = global.activeBlockchain;
+
+	if (addressValidationCache.base58VersionsByNetwork.has(activeNetwork)) {
+		return addressValidationCache.base58VersionsByNetwork.get(activeNetwork);
+	}
+
+	const validationConfig = getAddressValidationConfigForActiveCoin();
+	if (!validationConfig || !validationConfig.base58VersionBytesByNetwork) {
+		addressValidationCache.base58VersionsByNetwork.set(activeNetwork, null);
+		return null;
+	}
+
+	const networkConfig = validationConfig.base58VersionBytesByNetwork[activeNetwork];
+	if (!networkConfig) {
+		addressValidationCache.base58VersionsByNetwork.set(activeNetwork, null);
+		return null;
+	}
+
+	let versions = [];
+	if (Array.isArray(networkConfig.p2pkh)) {
+		versions.push(...networkConfig.p2pkh);
+	}
+
+	if (Array.isArray(networkConfig.p2sh)) {
+		versions.push(...networkConfig.p2sh);
+	}
+
+	const allowedVersions = new Set(versions);
+	addressValidationCache.base58VersionsByNetwork.set(activeNetwork, allowedVersions);
+
+	return allowedVersions;
+}
+
+function getAllowedBech32HrpsForActiveNetwork() {
+	const activeNetwork = global.activeBlockchain;
+
+	if (addressValidationCache.bech32HrpsByNetwork.has(activeNetwork)) {
+		return addressValidationCache.bech32HrpsByNetwork.get(activeNetwork);
+	}
+
+	const validationConfig = getAddressValidationConfigForActiveCoin();
+	if (!validationConfig || !validationConfig.bech32HrpByNetwork) {
+		addressValidationCache.bech32HrpsByNetwork.set(activeNetwork, null);
+		return null;
+	}
+
+	const networkHrps = validationConfig.bech32HrpByNetwork[activeNetwork];
+	if (!Array.isArray(networkHrps)) {
+		addressValidationCache.bech32HrpsByNetwork.set(activeNetwork, null);
+		return null;
+	}
+
+	const allowedHrps = new Set(networkHrps.map(x => x.toLowerCase()));
+	addressValidationCache.bech32HrpsByNetwork.set(activeNetwork, allowedHrps);
+
+	return allowedHrps;
+}
+
+function looksLikeBech32Address(address) {
+	if (!/^[A-Za-z0-9]+$/.test(address)) {
+		return false;
+	}
+
+	const separatorIndex = address.lastIndexOf("1");
+	if (separatorIndex <= 0) {
+		return false;
+	}
+
+	const dataPart = address.substring(separatorIndex + 1);
+	if (dataPart.length < 6) {
+		return false;
+	}
+
+	// Bech32 data part excludes 1, b, i, o
+	if (/[1bio]/i.test(dataPart)) {
+		return false;
+	}
+
+	return true;
+}
+
+function parseBase58Address(address) {
+	try {
+		const decoded = bitcoinjs.address.fromBase58Check(address);
+		const allowedVersions = getAllowedBase58VersionsForActiveNetwork();
+
+		if (allowedVersions && !allowedVersions.has(decoded.version)) {
 			return {
-				encoding: "base58",
-				parsedAddress: parsedAddress
+				errors: [
+					buildAddressError(
+						"ERR_ADDRESS_VERSION_UNSUPPORTED",
+						`Unsupported base58 version byte for active network: ${decoded.version}`,
+						{ version: decoded.version, network: global.activeBlockchain }
+					)
+				]
 			};
-
-		} catch (err) {
-			base58Error = err;
 		}
-	}
 
-	// Only try bech32 parsing for addresses that DON'T match base58 prefix
-	// This prevents false positives for ROD P2PKH addresses that happen to start with 'R'
-	// ROD bech32 addresses start with 'R' (mainnet) or 'r' (testnet)
-	// These need special handling as they use "rod" HRP instead of "bc"
-	if (!address.match(b58prefix) && address.toLowerCase().startsWith("r")) {
-		try {
-			// Try to decode using raw bech32 library with "rod" HRP
-			const rodResult = bech32.decode(address);
-			parsedAddress = {
-				hrp: rodResult.hrp,
-				version: rodResult.version,
-				data: Buffer.from(rodResult.words).toString("hex")
-			};
-
-			return {
-				encoding: "bech32",
-				parsedAddress: parsedAddress
-			};
-
-		} catch (err) {
-			// ROD bech32 parsing failed, try bech32m as fallback
-			try {
-				const rodResultM = bech32m.decode(address);
-				parsedAddress = {
-					hrp: rodResultM.hrp,
-					version: rodResultM.version,
-					data: Buffer.from(rodResultM.words).toString("hex")
-				};
-
-				return {
-					encoding: "bech32m",
-					parsedAddress: parsedAddress
-				};
-			} catch (err2) {
-				// Both failed, continue to other methods
+		return {
+			encoding: "base58",
+			parsedAddress: {
+				version: decoded.version,
+				hash: decoded.hash.toString("hex")
 			}
+		};
+
+	} catch (err) {
+		const message = err && err.message ? err.message : "Unable to decode base58 address";
+		const code = message.includes("Non-base58") ? "ERR_ADDRESS_CHARSET" : "ERR_ADDRESS_BASE58_CHECKSUM";
+
+		return {
+			errors: [buildAddressError(code, message)]
+		};
+	}
+}
+
+function parseBech32Address(address) {
+	const allowedHrps = getAllowedBech32HrpsForActiveNetwork();
+	const errors = [];
+
+	const codecs = [
+		{ name: "bech32", impl: bech32 },
+		{ name: "bech32m", impl: bech32m }
+	];
+
+	for (const codec of codecs) {
+		try {
+			const decoded = codec.impl.decode(address);
+
+			if (!decoded.words || decoded.words.length === 0) {
+				return {
+					errors: [
+						buildAddressError(
+							"ERR_ADDRESS_BECH32_MALFORMED",
+							`Malformed ${codec.name} address payload`,
+							{ encoding: codec.name }
+						)
+					]
+				};
+			}
+
+			const hrp = decoded.hrp.toLowerCase();
+
+			if (allowedHrps && !allowedHrps.has(hrp)) {
+				return {
+					errors: [
+						buildAddressError(
+							"ERR_ADDRESS_BECH32_HRP",
+							`Unsupported bech32 HRP for active network: ${decoded.hrp}`,
+							{ hrp: decoded.hrp, network: global.activeBlockchain }
+						)
+					]
+				};
+			}
+
+			let witnessVersion = null;
+			let data = "";
+
+			witnessVersion = decoded.words[0];
+
+			if (witnessVersion < 0 || witnessVersion > 16) {
+				return {
+					errors: [
+						buildAddressError(
+							"ERR_ADDRESS_WITNESS_VERSION",
+							`Invalid witness version: ${witnessVersion}`,
+							{ version: witnessVersion, encoding: codec.name }
+						)
+					]
+				};
+			}
+
+			const witnessProgramWords = decoded.words.slice(1);
+			const witnessProgram = Buffer.from(codec.impl.fromWords(witnessProgramWords));
+			data = witnessProgram.toString("hex");
+
+			return {
+				encoding: codec.name,
+				parsedAddress: {
+					hrp: decoded.hrp,
+					version: witnessVersion,
+					data: data
+				}
+			};
+
+		} catch (err) {
+			const message = err && err.message ? err.message : `Unable to decode ${codec.name} address`;
+			errors.push(buildAddressError("ERR_ADDRESS_BECH32_CHECKSUM", message, { encoding: codec.name }));
 		}
 	}
 
-	// Try to parse with bitcoinjs-lib (defaults to bc HRP for mainnet, tb for testnet)
-	try {
-		parsedAddress = bitcoinjs.address.fromBech32(address);
-		parsedAddress.data = parsedAddress.data.toString("hex");
+	return { errors };
+}
 
+function prioritizeAddressErrors(errors, preferredFamily=null) {
+	if (!Array.isArray(errors) || errors.length === 0) {
+		return [];
+	}
+
+	const basePriorityCodes = [
+		"ERR_ADDRESS_EMPTY",
+		"ERR_ADDRESS_TYPE",
+		"ERR_ADDRESS_VERSION_UNSUPPORTED",
+		"ERR_ADDRESS_CHARSET",
+		"ERR_ADDRESS_BASE58_CHECKSUM",
+		"ERR_ADDRESS_BECH32_HRP",
+		"ERR_ADDRESS_BECH32_CHECKSUM",
+		"ERR_ADDRESS_WITNESS_VERSION",
+		"ERR_ADDRESS_BECH32_MALFORMED",
+		"ERR_ADDRESS_INVALID"
+	];
+
+	const bech32FirstPriorityCodes = [
+		"ERR_ADDRESS_EMPTY",
+		"ERR_ADDRESS_TYPE",
+		"ERR_ADDRESS_BECH32_HRP",
+		"ERR_ADDRESS_BECH32_CHECKSUM",
+		"ERR_ADDRESS_WITNESS_VERSION",
+		"ERR_ADDRESS_BECH32_MALFORMED",
+		"ERR_ADDRESS_VERSION_UNSUPPORTED",
+		"ERR_ADDRESS_CHARSET",
+		"ERR_ADDRESS_BASE58_CHECKSUM",
+		"ERR_ADDRESS_INVALID"
+	];
+
+	const base58FirstPriorityCodes = [
+		"ERR_ADDRESS_EMPTY",
+		"ERR_ADDRESS_TYPE",
+		"ERR_ADDRESS_VERSION_UNSUPPORTED",
+		"ERR_ADDRESS_CHARSET",
+		"ERR_ADDRESS_BASE58_CHECKSUM",
+		"ERR_ADDRESS_BECH32_HRP",
+		"ERR_ADDRESS_BECH32_CHECKSUM",
+		"ERR_ADDRESS_WITNESS_VERSION",
+		"ERR_ADDRESS_BECH32_MALFORMED",
+		"ERR_ADDRESS_INVALID"
+	];
+
+	let priorityCodes = basePriorityCodes;
+	if (preferredFamily === "bech32") {
+		priorityCodes = bech32FirstPriorityCodes;
+
+	} else if (preferredFamily === "base58") {
+		priorityCodes = base58FirstPriorityCodes;
+	}
+
+	for (const code of priorityCodes) {
+		const match = errors.find(err => err && err.code === code);
+		if (match) {
+			return [match];
+		}
+	}
+
+	return [errors[0]];
+}
+
+function tryParseAddress(address) {
+	if (address == null) {
 		return {
-			encoding: "bech32",
-			parsedAddress: parsedAddress
+			errors: [buildAddressError("ERR_ADDRESS_EMPTY", "Address must be provided")]
 		};
-
-	} catch (err) {
-		bech32Error = err;
 	}
 
-
-	// Try bech32m decoding with the raw bech32 library
-	// This allows us to handle different HRPs like "rod" for ROD
-	try {
-		parsedAddress = bech32m.decode(address);
-		parsedAddress.words = Buffer.from(parsedAddress.words).toString("hex");
-
+	if (typeof address !== "string") {
 		return {
-			encoding: "bech32m",
-			parsedAddress: parsedAddress
+			errors: [buildAddressError("ERR_ADDRESS_TYPE", "Address must be a string")]
 		};
-
-	} catch (err) {
-		bech32mError = err;
 	}
 
-
-	let returnVal = {errors:[]};
-
-	if (base58Error) {
-		returnVal.errors.push(base58Error);
+	const normalizedAddress = address.trim();
+	if (normalizedAddress.length === 0) {
+		return {
+			errors: [buildAddressError("ERR_ADDRESS_EMPTY", "Address cannot be empty")]
+		};
 	}
 
-	if (bech32Error) {
-		returnVal.errors.push(bech32Error);
+	let base58Result = null;
+	let bech32Result = null;
+
+	if (looksLikeBech32Address(normalizedAddress)) {
+		bech32Result = parseBech32Address(normalizedAddress);
+		if (!bech32Result.errors) {
+			return bech32Result;
+		}
+
+		base58Result = parseBase58Address(normalizedAddress);
+		if (!base58Result.errors) {
+			return base58Result;
+		}
+
+	} else {
+		base58Result = parseBase58Address(normalizedAddress);
+		if (!base58Result.errors) {
+			return base58Result;
+		}
+
+		bech32Result = parseBech32Address(normalizedAddress);
+		if (!bech32Result.errors) {
+			return bech32Result;
+		}
 	}
 
-	if (bech32mError) {
-		returnVal.errors.push(bech32mError);
+	let errors = [];
+	if (base58Result && base58Result.errors) {
+		errors.push(...base58Result.errors);
 	}
 
-	return returnVal;
+	if (bech32Result && bech32Result.errors) {
+		errors.push(...bech32Result.errors);
+	}
+
+	if (errors.length === 0) {
+		errors.push(buildAddressError("ERR_ADDRESS_INVALID", "Unable to parse address"));
+	}
+
+	const preferredFamily = looksLikeBech32Address(normalizedAddress) ? "bech32" : "base58";
+
+	return { errors: prioritizeAddressErrors(errors, preferredFamily) };
 }
 
 

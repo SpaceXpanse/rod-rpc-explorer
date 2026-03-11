@@ -8,6 +8,7 @@
 		"start": "node ./bin/www",
 		"test": "node ./bin/test.js",
 		"test-rod": "mocha test/rod-tests.js",
+		"test-rod-address": "mocha test/rod-address-validation.test.js",
 		"test-all": "npm test && npm run test-rod",
 		"miners": "node ./bin/refresh-mining-pool-configs.js",
 		"integrity": "node ./bin/frontend-resource-integrity.js",

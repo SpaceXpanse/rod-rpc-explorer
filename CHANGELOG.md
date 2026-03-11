@@ -1,3 +1,13 @@
+##### v3.7.1
+###### 2026-03-11
+
+* **ROD Address Parsing Hardening**: Improved resilience and correctness of address parsing/validation paths.
+  * Added network-level caching for allowed base58 version bytes and bech32 HRPs to reduce repeated allocations in hot parsing paths.
+  * Added explicit malformed bech32 payload validation and witness version bounds checks (0..16).
+  * Improved deterministic error prioritization so users receive clearer single-error responses for base58-like vs bech32-like inputs.
+  * Added/validated targeted regression coverage via `npm run test-rod-address` (8 passing).
+
+
 ##### v3.7.0
 ###### 2026-03-04
 

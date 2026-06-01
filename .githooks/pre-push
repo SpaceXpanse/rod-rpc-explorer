@@ -5,7 +5,7 @@ npm run docs:check
 status=$?
 
 if [ $status -ne 0 ]; then
-  echo "Docs check failed. Push blocked."
+  echo "Docs check failed. Run 'npm run docs:check' locally to see specific error details. Push blocked."
   exit $status
 fi
 

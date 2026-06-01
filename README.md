@@ -1,6 +1,6 @@
 # ROD RPC Explorer
 
-## Self-Hosted Bitcoin and SpaceXpanse ROD explorer for everyone running [Bitcoin Core](https://github.com/bitcoin/bitcoin) or [SpaceXpanse ROD daemon](https://github.com/space-xpanse/rod-core).
+## Self-Hosted Bitcoin and SpaceXpanse ROD explorer for everyone running [Bitcoin Core](https://github.com/bitcoin/bitcoin) or [SpaceXpanse ROD daemon](https://github.com/SpaceXpanse/rod-core-wallet).
 
 [![npm version][npm-ver-img]][npm-ver-url] [![NPM downloads][npm-dl-alltime-img]][npm-dl-url]
 
@@ -12,7 +12,7 @@
 
 
 
-This is a self-hosted explorer for the Bitcoin and SpaceXpanse ROD blockchains, driven by RPC calls to your own [Bitcoin](https://github.com/bitcoin/bitcoin) or [SpaceXpanse ROD](https://github.com/space-xpanse/rod-core) node. It is easy to run and can be connected to other tools (like Electrum servers) to achieve a full-featured explorer.
+This is a self-hosted explorer for the Bitcoin and SpaceXpanse ROD blockchains, driven by RPC calls to your own [Bitcoin](https://github.com/bitcoin/bitcoin) or [SpaceXpanse ROD](https://github.com/SpaceXpanse/rod-core-wallet) node. It is easy to run and can be connected to other tools (like Electrum servers) to achieve a full-featured explorer.
 
 Whatever reasons you may have for running a full node (trustlessness, technical curiosity, supporting the network, etc) it's valuable to appreciate the *fullness* of your node. With this explorer, you can explore not just the blockchain database, but also explore all of the functional capabilities of your own node.
 
@@ -43,7 +43,7 @@ See [CHANGELOG.md](/CHANGELOG.md).
 # Getting started
 
 ## Prerequisites
-1. Install `Bitcoin Core` or `SpaceXpanse ROD Core` - [instructions](https://bitcoin.org/en/full-node) for Bitcoin, or [SpaceXpanse ROD](https://github.com/space-xpanse/rod-core) for ROD. Ensure that the node's RPC server is enabled (`server=1`).
+1. Install `Bitcoin Core` or `SpaceXpanse ROD Core` - [instructions](https://bitcoin.org/en/full-node) for Bitcoin, or [SpaceXpanse ROD](https://github.com/SpaceXpanse/rod-core-wallet) for ROD. Ensure that the node's RPC server is enabled (`server=1`).
 
 2. Allow `Bitcoin Core` to synchronize with the Bitcoin network (you *can* use this tool while sychronizing, but some pages may fail).
 3. Install Node.js (18+ required, 22+ recommended).
@@ -76,7 +76,7 @@ btc-rpc-explorer
 
 #### Run from source:
 
-1. `git clone https://github.com/janoside/btc-rpc-explorer`
+1. `git clone https://github.com/SpaceXpanse/rod-rpc-explorer`
 2. `cd btc-rpc-explorer`
 3. `npm install`
 4. `npm start`

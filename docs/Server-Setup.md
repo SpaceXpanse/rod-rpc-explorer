@@ -25,13 +25,13 @@ Misc setup
     openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout /etc/ssl/private/selfsigned.key -out /etc/ssl/certs/selfsigned.crt
     
     # get nginx config
-    wget https://raw.githubusercontent.com/janoside/btc-rpc-explorer/master/docs/explorer.btc21.org.conf
+    wget https://raw.githubusercontent.com/SpaceXpanse/rod-rpc-explorer/master/docs/explorer.btc21.org.conf
     mv explorer.btc21.org.conf /etc/nginx/sites-available/bitcoinexplorer.org
 
 Get source, npm install
 
     cd /home/bitcoin
-    git clone https://github.com/janoside/btc-rpc-explorer.git
+    git clone https://github.com/SpaceXpanse/rod-rpc-explorer.git
     cd /home/bitcoin/btc-rpc-explorer
     npm install
     

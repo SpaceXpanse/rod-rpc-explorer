@@ -1,5 +1,5 @@
 {
-	"name": "btc-rpc-explorer",
+	"name": "rod-rpc-explorer",
 	"version": "3.5.1",
 	"description": "Open-source, self-hosted Bitcoin and SpaceXpanse ROD explorer",
 	"private": false,
@@ -35,7 +35,7 @@
 	"license": "MIT",
 	"repository": {
 		"type": "git",
-		"url": "git+https://github.com/janoside/btc-rpc-explorer.git"
+		"url": "git+https://github.com/SpaceXpanse/rod-rpc-explorer.git"
 	},
 	"dependencies": {
 		"@janoside/app-utils": "github:janoside/app-utils#ba4c23d3f",

@@ -1,0 +1,13 @@
+#!/bin/sh
+
+echo "Running maintainer docs checks..."
+npm run docs:check
+status=$?
+
+if [ $status -ne 0 ]; then
+  echo "Docs check failed. Push blocked."
+  exit $status
+fi
+
+echo "Docs check passed."
+exit 0

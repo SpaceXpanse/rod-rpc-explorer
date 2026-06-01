@@ -392,63 +392,33 @@ router.get("/address/:address", asyncHandler(async (req, res, next) => {
 		
 		const result = {};
 
-		let addressEncoding = "unknown";
+		const parsedAddressResult = utils.tryParseAddress(address);
 
-		let base58Error = null;
-		let bech32Error = null;
-		let bech32mError = null;
-
-		if (address.match(/^[132mn].*$/)) {
-			try {
-				let base58Data = bitcoinjs.address.fromBase58Check(address);
-				result.base58 = {hash:base58Data.hash.toString("hex"), version:base58Data.version};
-
-				addressEncoding = "base58";
-
-			} catch (err) {
-				utils.logError("api.AddressParseError-001", err);
-			}
-		}
-
-		if (addressEncoding == "unknown") {
-			try {
-				let bech32Data = bitcoinjs.address.fromBech32(address);
-				result.bech32 = {data:bech32Data.data.toString("hex"), version:bech32Data.version};
-
-				addressEncoding = "bech32";
-
-			} catch (err) {
-				utils.logError("api.AddressParseError-002", err);
-			}
-		}
-
-		if (addressEncoding == "unknown") {
-			try {
-				let bech32mData = bech32m.decode(address);
-				result.bech32m = {words:Buffer.from(bech32mData.words).toString("hex"), version:bech32mData.version};
-
-				addressEncoding = "bech32m";
-
-			} catch (err) {
-				utils.logError("api.AddressParseError-003", err);
-			}
-		}
-
-		if (addressEncoding == "unknown") {
-			res.json({success:false, error:"Invalid address"});
+		if (parsedAddressResult.errors) {
+			res.json({success:false, error:"Invalid address", errors:parsedAddressResult.errors});
 
 			next();
 
 			return;
 		}
 
-		result.encoding = addressEncoding;
+		result.encoding = parsedAddressResult.encoding;
+
+		if (parsedAddressResult.encoding === "base58") {
+			result.base58 = parsedAddressResult.parsedAddress;
+
+		} else if (parsedAddressResult.encoding === "bech32") {
+			result.bech32 = parsedAddressResult.parsedAddress;
+
+		} else if (parsedAddressResult.encoding === "bech32m") {
+			result.bech32m = parsedAddressResult.parsedAddress;
+		}
 
 		result.notes = [];
 		if (global.specialAddresses[address] && global.specialAddresses[address].type == "fun") {
 			let funInfo = global.specialAddresses[address].addressInfo;
 
-			notes.push(funInfo);
+			result.notes.push(funInfo);
 		}
 
 		if (global.miningPoolsConfigs) {

@@ -9,6 +9,7 @@
 		"test": "node ./bin/test.js",
 		"test-rod": "mocha test/rod-tests.js",
 		"test-rod-address": "mocha test/rod-address-validation.test.js",
+		"test-rod-followup": "mocha test/rod-followup.test.js",
 		"test-all": "npm test && npm run test-rod",
 		"wiki:lint": "node ./scripts/lint_wiki.js docs/maintainer-wiki .",
 		"docs:check": "node ./scripts/lint_wiki.js docs/maintainer-wiki .",

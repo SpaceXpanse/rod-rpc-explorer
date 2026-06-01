@@ -3,11 +3,20 @@
 const Decimal = require("decimal.js");
 const Decimal8 = Decimal.clone({ precision:8, rounding:8 });
 
-const blockRewardEras = [ new Decimal8(800) ]; // Starting with 800 ROD per block as per SpaceXpanse specifications
-for (let i = 1; i < 6; i++) { // 5 halvings, then inflation starts
+const PRE_RELEASE_BLOCK_COUNT = 55560;
+const PRE_RELEASE_BLOCK_REWARD = new Decimal8(1);
+const STANDARD_BLOCK_REWARD = new Decimal8(800);
+const HALVING_INTERVAL = 1054080;
+const HALVING_YEARS = 5;
+const ANNUAL_INFLATION_RATE = new Decimal8(0.03);
+
+const blockRewardEras = [ STANDARD_BLOCK_REWARD ];
+for (let i = 1; i <= HALVING_YEARS; i++) {
 	let previous = blockRewardEras[i - 1];
 	blockRewardEras.push(new Decimal8(previous).dividedBy(2));
 }
+
+const postHalvingBaseReward = blockRewardEras[HALVING_YEARS];
 
 const currencyUnits = [
 	{
@@ -138,8 +147,10 @@ module.exports = {
 		"https://raw.githubusercontent.com/SpaceXpanse/ROD-Known-Miners/master/miners.json", // Official SpaceXpanse miners list
 		"https://raw.githubusercontent.com/SpaceXpanse/ROD-Mining-Pools/master/pools.json", // Official SpaceXpanse pools list
 	],
-	maxBlockWeight: 4000000, // Same as BTC for compatibility
-	maxBlockSize: 1000000, // Same as BTC for compatibility
+	maxBlockWeight: 400000,
+	maxBlockSize: 100000,
+	maxBlockSigops: 8000,
+	maxScriptElementSize: 2048,
 	minTxBytes: 166, // Same as BTC for compatibility
 	minTxWeight: 166 * 4, // Same as BTC for compatibility
 	difficultyAdjustmentBlockCount: 2016, // Same as BTC for compatibility
@@ -601,14 +612,22 @@ module.exports = {
 		}
 	},
 	blockRewardFunction:function(blockHeight, chain) {
-		let halvingBlockInterval = this.halvingBlockIntervalsByNetwork[chain];
-		let index = Math.floor(blockHeight / halvingBlockInterval);
-
-		// Safety check: if index exceeds available reward eras, return last known reward
-		if (index >= blockRewardEras.length) {
-			return blockRewardEras[blockRewardEras.length - 1];
+		if (blockHeight < PRE_RELEASE_BLOCK_COUNT) {
+			return PRE_RELEASE_BLOCK_REWARD;
 		}
 
-		return blockRewardEras[index];
+		let halvingBlockInterval = this.halvingBlockIntervalsByNetwork[chain] || HALVING_INTERVAL;
+		let standardEraHeight = blockHeight - PRE_RELEASE_BLOCK_COUNT;
+		let halvingIndex = Math.floor(standardEraHeight / halvingBlockInterval);
+
+		if (halvingIndex <= HALVING_YEARS) {
+			return blockRewardEras[halvingIndex];
+		}
+
+		let inflationStartHeight = PRE_RELEASE_BLOCK_COUNT + (HALVING_YEARS * halvingBlockInterval);
+		let inflationIntervalsElapsed = Math.floor((blockHeight - inflationStartHeight) / halvingBlockInterval);
+		let inflationMultiplier = new Decimal8(1).plus(ANNUAL_INFLATION_RATE).pow(inflationIntervalsElapsed);
+
+		return new Decimal8(postHalvingBaseReward).times(inflationMultiplier);
 	}
 };

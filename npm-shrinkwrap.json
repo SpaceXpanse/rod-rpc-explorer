@@ -1,11 +1,11 @@
 {
-	"name": "btc-rpc-explorer",
+	"name": "rod-rpc-explorer",
 	"version": "3.5.1",
 	"lockfileVersion": 3,
 	"requires": true,
 	"packages": {
 		"": {
-			"name": "btc-rpc-explorer",
+			"name": "rod-rpc-explorer",
 			"version": "3.5.1",
 			"license": "MIT",
 			"dependencies": {
@@ -54,7 +54,7 @@
 				"zeromq": "^6.5.0"
 			},
 			"bin": {
-				"btc-rpc-explorer": "bin/cli.js"
+				"rod-rpc-explorer": "bin/cli.js"
 			},
 			"devDependencies": {
 				"eslint": "^9.34.0",
@@ -1707,7 +1707,6 @@
 			"resolved": "https://registry.npmjs.org/@redis/client/-/client-1.6.1.tgz",
 			"integrity": "sha512-/KCsg3xSlR+nCK8/8ZYSknYxvXHwubJrU82F3Lm1Fp6789VQ0/3RJKfsmRXjqfaTA++23CvC3hqmqe/2GEt6Kw==",
 			"license": "MIT",
-			"peer": true,
 			"dependencies": {
 				"cluster-key-slot": "1.1.2",
 				"generic-pool": "3.9.0",
@@ -2583,7 +2582,6 @@
 			"integrity": "sha512-NZyJarBfL7nWwIq+FDL6Zp/yHEhePMNnnJ0y3qfieCrmNvYct8uvtiV41UvlSe6apAfk0fY1FbWx+NwfmpvtTg==",
 			"dev": true,
 			"license": "MIT",
-			"peer": true,
 			"bin": {
 				"acorn": "bin/acorn"
 			},
@@ -3794,7 +3792,6 @@
 			"integrity": "sha512-RNCHRX5EwdrESy3Jc9o8ie8Bog+PeYvvSR8sDGoZxNFTvZ4dlxUB3WzQ3bQMztFrSRODGrLLj8g6OFuGY/aiQg==",
 			"dev": true,
 			"license": "MIT",
-			"peer": true,
 			"dependencies": {
 				"@eslint-community/eslint-utils": "^4.2.0",
 				"@eslint-community/regexpp": "^4.12.1",
@@ -7730,7 +7727,6 @@
 			"resolved": "https://registry.npmjs.org/ws/-/ws-7.5.10.tgz",
 			"integrity": "sha512-+dbF1tHwZpXcbOJdVOkzLDxZP1ailvSxM6ZweXTegylPny803bFhA+vqBYw4s31NSAk4S2Qz+AKXK9a4wkdjcQ==",
 			"license": "MIT",
-			"peer": true,
 			"engines": {
 				"node": ">=8.3.0"
 			},

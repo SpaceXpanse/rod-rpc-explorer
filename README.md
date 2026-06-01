@@ -1,4 +1,4 @@
-# BTC RPC Explorer
+# ROD RPC Explorer
 
 ## Self-Hosted Bitcoin and SpaceXpanse ROD explorer for everyone running [Bitcoin Core](https://github.com/bitcoin/bitcoin) or [SpaceXpanse ROD daemon](https://github.com/space-xpanse/rod-core).
 

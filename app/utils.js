@@ -42,7 +42,7 @@ const exponentScales = [
 	{val:1000000000000, name:"tera", abbreviation:"T", exponent:"12", textDesc:"T"},
 	{val:1000000000, name:"giga", abbreviation:"G", exponent:"9", textDesc:"B"},
 	{val:1000000, name:"mega", abbreviation:"M", exponent:"6", textDesc:"M"},
-	{val:1000, name:"kilo", abbreviation:"K", exponent:"3", textDesc:"thou"}
+	{val:1000, name:"kilo", abbreviation:"K", exponent:"3", textDesc:"K"}
 ];
 
 const crawlerBotUserAgentStrings = {
@@ -351,16 +351,41 @@ function satoshisPerUnitOfLocalCurrency(localCurrency) {
 		// USD/BTC -> BTC/USD
 		dec = one.dividedBy(dec);
 
-		let unitName = coins[config.coin].baseCurrencyUnit.name;
-		let satCurrencyType = global.currencyTypes["sat"];
-		let localCurrencyType = global.currencyTypes[localCurrency];
+		let baseCurrencyType = coins[config.coin].baseCurrencyUnit;
+		let localCurrencyType = global.currencyTypes[exchangeType];
 
-		// BTC/USD -> sat/USD
-		dec = dec.times(satCurrencyType.multiplier);
+		// BTC/USD -> sat/USD, or equivalent base units for other coins
+		dec = dec.times(baseCurrencyType.multiplier);
 
 		let exchangedAmt = parseInt(dec);
 
-		return {amt:addThousandsSeparators(exchangedAmt),amtRaw:exchangedAmt, unit:`sat/${localCurrencyType.symbol}`}
+		return {amt:addThousandsSeparators(exchangedAmt),amtRaw:exchangedAmt, unit:`${baseCurrencyType.name}/${localCurrencyType.symbol}`}
+	}
+
+	return null;
+}
+
+function coinsPerUnitOfLocalCurrency(localCurrency) {
+	if (global.exchangeRates != null) {
+		let exchangeType = localCurrency;
+
+		if (!global.exchangeRates[localCurrency]) {
+			// if current display currency is a native unit, default to USD for exchange values
+			exchangeType = "usd";
+		}
+
+		let dec = new Decimal(1).dividedBy(global.exchangeRates[exchangeType]);
+		let localCurrencyType = global.currencyTypes[exchangeType];
+		let coinCurrencyType = coins[config.coin].defaultCurrencyUnit;
+		let compactData = formatLargeNumberSignificant(dec, 3);
+		let compactAmount = compactData[1].abbreviation ? `${compactData[0]}${compactData[1].abbreviation}` : compactData[0].toString();
+
+		return {
+			amt:compactAmount,
+			amtRaw:dec,
+			unit:`${coinCurrencyType.name}/${localCurrencyType.symbol}`,
+			fullAmount:addThousandsSeparators(dec.toDP(coinCurrencyType.decimalPlaces).toString())
+		};
 	}
 
 	return null;
@@ -423,6 +448,31 @@ function formatExchangedCurrency(amount, exchangeType, decimals=2) {
 	}
 
 	return "";
+}
+
+function formatExchangedCurrencyForDisplay(amount, exchangeType, decimals=2, significantDigits=3) {
+	if (global.exchangeRates != null && global.exchangeRates[exchangeType.toLowerCase()] != null) {
+		let dec = new Decimal(amount).times(global.exchangeRates[exchangeType.toLowerCase()]);
+		let roundedAmt = dec.toDecimalPlaces(decimals);
+		let displayAmt = roundedAmt;
+
+		if (!dec.isZero() && roundedAmt.isZero()) {
+			displayAmt = dec.toSignificantDigits(significantDigits);
+		}
+
+		let baseStr = addThousandsSeparators(displayAmt.toFixed());
+		let fullStr = addThousandsSeparators(dec.toFixed());
+
+		return {
+			val:baseStr,
+			symbol: global.currencyTypes[exchangeType].symbol,
+			unit: exchangeType,
+			valRaw: dec.toString(),
+			fullVal: fullStr
+		};
+	}
+
+	return formatExchangedCurrency(amount, exchangeType, decimals);
 }
 
 function seededRandom(seed) {
@@ -1951,8 +2001,10 @@ module.exports = {
 	formatCurrencyAmount: formatCurrencyAmount,
 	formatCurrencyAmountWithForcedDecimalPlaces: formatCurrencyAmountWithForcedDecimalPlaces,
 	formatExchangedCurrency: formatExchangedCurrency,
+	formatExchangedCurrencyForDisplay: formatExchangedCurrencyForDisplay,
 	getExchangedCurrencyFormatData: getExchangedCurrencyFormatData,
 	satoshisPerUnitOfLocalCurrency: satoshisPerUnitOfLocalCurrency,
+	coinsPerUnitOfLocalCurrency: coinsPerUnitOfLocalCurrency,
 	addThousandsSeparators: addThousandsSeparators,
 	formatCurrencyAmountInSmallestUnits: formatCurrencyAmountInSmallestUnits,
 	seededRandom: seededRandom,

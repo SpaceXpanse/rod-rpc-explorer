@@ -49,16 +49,16 @@ if (exchangeRates)
 			- var timeText = tzMoment.format("h:mma");
 
 			+summaryItem("Exchange Rate", `Source: ${new URL(coinConfig.exchangeRateData.jsonUrl).hostname}<br/>Last Updated: ${timeText} (${new Decimal(new Date().getTime() - global.exchangeRatesUpdateTime.getTime()).dividedBy(1000).dividedBy(60).toDP(0)} min ago)`)
-				- var formatData = utils.formatExchangedCurrency(1.0, userSettings.localCurrency, 0);
+				- var formatData = utils.formatExchangedCurrencyForDisplay(1.0, userSettings.localCurrency, 2, 3);
 
-				span.text-success
+				span.text-success.border-dotted(title=`1 ${coinConfig.defaultCurrencyUnit.name} = ${formatData.symbol}${formatData.fullVal} ${formatData.unit.toUpperCase()}`, data-bs-toggle="tooltip")
 					span.me-1 #{formatData.symbol}
 					| #{formatData.val}
 
-			+summaryItem("Sats Rate")
-				- var satsRateData = utils.satoshisPerUnitOfLocalCurrency(userSettings.localCurrency);
-				span #{satsRateData.amt}
-					small  #{satsRateData.unit}
+			+summaryItem(`${coinConfig.defaultCurrencyUnit.name} Rate`)
+				- var coinRateData = utils.coinsPerUnitOfLocalCurrency(userSettings.localCurrency);
+				span.border-dotted(title=`1 ${global.currencyTypes[userSettings.localCurrency].name} = ${coinRateData.fullAmount} ${coinConfig.defaultCurrencyUnit.name}`, data-bs-toggle="tooltip") #{coinRateData.amt}
+					small  #{coinRateData.unit}
 
 			+summaryItem("Market Cap")
 				- var supply = utils.estimatedSupply(getblockchaininfo.blocks);
@@ -66,7 +66,7 @@ if (exchangeRates)
 
 				span.me-1 #{global.currencyTypes[userSettings.localCurrency].symbol}
 				
-				span #{mcapData[0]}
+				span.border-dotted(title=`${global.currencyTypes[userSettings.localCurrency].symbol}${(parseFloat(supply) * global.exchangeRates[userSettings.localCurrency]).toLocaleString()}`, data-bs-toggle="tooltip") #{mcapData[0]}
 				if (mcapData[1].textDesc)
 					span.ms-1 #{mcapData[1].textDesc}
 				else

@@ -1,6 +1,9 @@
 ##### Unreleased
 
-* No entries yet.
+* **Homepage Market UX Fix**: Improved ROD market display formatting so tiny rates and compact values remain readable instead of showing misleading zero or BTC-style labels.
+  * Tiny exchange rates now preserve significant digits, e.g. `0.00001661` displays as `0.0000166` instead of `$0`.
+  * Reciprocal rate display now uses ROD-oriented units such as `60.2K ROD/$`, while base-unit output uses `Bar/$` instead of `sat/$`.
+  * Compact market cap output now uses standard compact suffixes such as `23.347K` instead of `23.347 thou`.
 
 
 ##### v4.0.1

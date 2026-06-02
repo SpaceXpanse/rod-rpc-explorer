@@ -84,6 +84,7 @@ const pug = require("pug");
 const momentDurationFormat = require("moment-duration-format");
 const coreApi = require("./app/api/coreApi.js");
 const rpcApi = require("./app/api/rpcApi.js");
+const { shouldSkipUtxoSetSummaryFetch } = require("./app/utxoSetSummary.js");
 const coins = require("./app/coins.js");
 const axios = require("axios");
 const qrcode = require("qrcode");
@@ -717,23 +718,26 @@ async function assessTxindexAvailability() {
 }
 
 async function refreshUtxoSetSummary() {
-	if (config.slowDeviceMode) {
-		if (!global.getindexinfo || !global.getindexinfo.coinstatsindex) {
-			global.utxoSetSummary = null;
-			global.utxoSetSummaryPending = false;
+	if (shouldSkipUtxoSetSummaryFetch()) {
+		global.utxoSetSummary = null;
+		global.utxoSetSummaryPending = false;
 
-			debugLog("Skipping performance-intensive task: fetch UTXO set summary. This is skipped due to the flag 'slowDeviceMode' which defaults to 'true' to protect slow nodes. Set this flag to 'false' to enjoy UTXO set summary details.");
+		debugLog("Skipping performance-intensive task: fetch UTXO set summary. This is skipped due to the flag 'slowDeviceMode' which defaults to 'true' to protect slow nodes. Set this flag to 'false' to enjoy UTXO set summary details.");
 
-			return;
-		}
+		return;
 	}
 
 	// flag that we're working on calculating UTXO details (to differentiate cases where we don't have the details and we're not going to try computing them)
 	global.utxoSetSummaryPending = true;
 
-	global.utxoSetSummary = await coreApi.getUtxoSetSummary(true, false);
+	try {
+		global.utxoSetSummary = await coreApi.getUtxoSetSummary(true, false);
 
-	debugLog("Refreshed utxo summary: " + JSON.stringify(global.utxoSetSummary));
+		debugLog("Refreshed utxo summary: " + JSON.stringify(global.utxoSetSummary));
+
+	} finally {
+		global.utxoSetSummaryPending = false;
+	}
 }
 
 function refreshNetworkVolumes() {

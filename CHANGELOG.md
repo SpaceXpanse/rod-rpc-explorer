@@ -1,5 +1,13 @@
 ##### Unreleased
 
+* **UTXO Set Page Loading Fix**: Fixed slow RPC regression on the `/utxo-set` page that could trigger expensive `gettxoutsetinfo` calls in slow-device mode even without `coinstatsindex`.
+  * Prevented [`/utxo-set`](routes/baseRouter.js:2272) snippet from unconditionally calling [`coreApi.getUtxoSetSummary()`](app/api/coreApi.js:290) when `coinstatsindex` is not available.
+  * Slow-device/no-index mode now renders a clear disabled state instead of triggering fallback [`gettxoutsetinfo`](app/api/rpcApi.js:169) RPC call.
+  * Added [`shouldSkipUtxoSetSummaryFetch()`](app/utxoSetSummary.js:5) helper function and integrated it into [`routes/snippetRouter.js`](routes/snippetRouter.js) and [`app.js`](app.js) to centralize skip logic.
+  * Updated [`views/snippets/utxo-set.pug`](views/snippets/utxo-set.pug:47) template to safely handle missing UTXO summary data.
+  * Fixed [`global.utxoSetSummaryPending`](app.js:732) state cleanup with `finally` block to prevent stale state.
+  * Regression coverage added in [`test/rod-followup.test.js`](test/rod-followup.test.js): 11/11 tests passing.
+
 * **Homepage Market UX Fix**: Improved ROD market display formatting so tiny rates and compact values remain readable instead of showing misleading zero or BTC-style labels.
   * Tiny exchange rates now preserve significant digits, e.g. `0.00001661` displays as `0.0000166` instead of `$0`.
   * Reciprocal rate display now uses ROD-oriented units such as `60.2K ROD/$`, while base-unit output uses `Bar/$` instead of `sat/$`.

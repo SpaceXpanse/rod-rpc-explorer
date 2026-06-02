@@ -20,6 +20,7 @@ const config = require("./../app/config.js");
 const coreApi = require("./../app/api/coreApi.js");
 const addressApi = require("./../app/api/addressApi.js");
 const btcQuotes = require("./../app/coins/btcQuotes.js");
+const utxoSetSummary = require("./../app/utxoSetSummary.js");
 
 
 
@@ -143,6 +144,10 @@ router.get("/utxo-set", asyncHandler(async (req, res, next) => {
 	promises.push(utils.timePromise("api/utxo-set", async () => {
 		if (global.utxoSetSummary) {
 			res.locals.utxoSetSummary = global.utxoSetSummary;
+
+		} else if (utxoSetSummary.shouldSkipUtxoSetSummaryFetch()) {
+			res.locals.utxoSetSummary = null;
+			res.locals.utxoSetSummaryDisabled = true;
 
 		} else {
 			res.locals.utxoSetSummary = await coreApi.getUtxoSetSummary(true, true);

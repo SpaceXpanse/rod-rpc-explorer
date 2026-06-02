@@ -1,5 +1,17 @@
 ##### Unreleased
 
+* **ROD Branding Asset Refresh**: Added a practical SpaceXpanse-themed UX image set for browser, mobile, pinned-tab, CDN, and social preview surfaces.
+  * Replaced placeholder mainnet SVG branding with SpaceXpanse/ROD rocket badge assets in [`public/img/network-mainnet/logo.svg`](public/img/network-mainnet/logo.svg) and [`public/img/network-mainnet/coin-icon.svg`](public/img/network-mainnet/coin-icon.svg).
+  * Added reusable brand/social SVGs at [`public/img/brand/spacexpanse-rod-icon.svg`](public/img/brand/spacexpanse-rod-icon.svg) and [`public/img/rod-social-preview.svg`](public/img/rod-social-preview.svg).
+  * Updated web app metadata in [`public/img/network-mainnet/site.webmanifest`](public/img/network-mainnet/site.webmanifest), [`views/layout.pug`](views/layout.pug), and [`views/layout-iframe.pug`](views/layout-iframe.pug) to use ROD image/social references.
+  * Added static asset coverage in [`test/rod-brand-assets.test.js`](test/rod-brand-assets.test.js) and added new CDN upload entries in [`app.js`](app.js).
+
+* **ROD PNG UX Branding Migration**: Switched visible mainnet explorer branding and social preview surfaces to PNG assets while preserving SVG source and Safari pinned-tab mask behavior.
+  * Added generated PNG assets at [`public/img/network-mainnet/logo.png`](public/img/network-mainnet/logo.png), [`public/img/network-mainnet/coin-icon.png`](public/img/network-mainnet/coin-icon.png), [`public/img/brand/spacexpanse-rod-icon.png`](public/img/brand/spacexpanse-rod-icon.png), and [`public/img/rod-social-preview.png`](public/img/rod-social-preview.png).
+  * Updated mainnet/runtime metadata references in [`app/coins/rod.js`](app/coins/rod.js), [`views/layout.pug`](views/layout.pug), and [`views/layout-iframe.pug`](views/layout-iframe.pug) to prefer PNG UX assets while keeping Safari pinned-tab SVG references unchanged.
+  * Added PNG CDN asset declarations in [`app.js`](app.js) and a reproducible generator at [`scripts/generate_rod_brand_assets.js`](scripts/generate_rod_brand_assets.js) that now generates PNG UX outputs from the canonical SpaceXpanse logo source at `https://www.spacexpanse.org/img/about.png` instead of SVG render inputs.
+  * Expanded asset assertions in [`test/rod-brand-assets.test.js`](test/rod-brand-assets.test.js) to require the new PNG assets and preserve the pinned-tab SVG requirement.
+
 * **UTXO Set Page Loading Fix**: Fixed slow RPC regression on the `/utxo-set` page that could trigger expensive `gettxoutsetinfo` calls in slow-device mode even without `coinstatsindex`.
   * Prevented [`/utxo-set`](routes/baseRouter.js:2272) snippet from unconditionally calling [`coreApi.getUtxoSetSummary()`](app/api/coreApi.js:290) when `coinstatsindex` is not available.
   * Slow-device/no-index mode now renders a clear disabled state instead of triggering fallback [`gettxoutsetinfo`](app/api/rpcApi.js:169) RPC call.

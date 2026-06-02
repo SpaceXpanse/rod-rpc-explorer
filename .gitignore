@@ -59,6 +59,7 @@ typings/
 
 # cache dir
 cache/
+tmp/
 
 *.css.map
 

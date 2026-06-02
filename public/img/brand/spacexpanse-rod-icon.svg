@@ -1,8 +1,8 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" role="img" aria-labelledby="title desc">
-	<title id="title">ROD coin icon</title>
-	<desc id="desc">A SpaceXpanse rocket mark on a ROD coin badge.</desc>
-	<circle cx="128" cy="128" r="120" fill="#022e70"/>
-	<circle cx="128" cy="128" r="100" fill="#1c2d66" stroke="#f4b73f" stroke-width="12"/>
+	<title id="title">SpaceXpanse ROD icon</title>
+	<desc id="desc">A SpaceXpanse rocket mark on a deep blue ROD explorer badge.</desc>
+	<rect width="256" height="256" rx="52" fill="#022e70"/>
+	<circle cx="128" cy="128" r="93" fill="#1c2d66" stroke="#f4b73f" stroke-width="8"/>
 	<g fill="#fff" opacity=".9">
 		<circle cx="58" cy="87" r="4"/>
 		<circle cx="88" cy="55" r="3"/>

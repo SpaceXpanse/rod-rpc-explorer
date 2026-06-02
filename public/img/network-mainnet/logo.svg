@@ -1,4 +1,21 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
-  <rect width="100" height="100" fill="#FF8C00"/>
-  <text x="50" y="55" font-family="Arial" font-size="20" text-anchor="middle" fill="white">ROD</text>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" role="img" aria-labelledby="title desc">
+	<title id="title">SpaceXpanse ROD Explorer logo</title>
+	<desc id="desc">A SpaceXpanse rocket mark on a deep blue ROD explorer badge.</desc>
+	<rect width="256" height="256" rx="52" fill="#022e70"/>
+	<circle cx="128" cy="128" r="93" fill="#1c2d66" stroke="#f4b73f" stroke-width="8"/>
+	<g fill="#fff" opacity=".9">
+		<circle cx="58" cy="87" r="4"/>
+		<circle cx="88" cy="55" r="3"/>
+		<circle cx="201" cy="112" r="3"/>
+		<circle cx="194" cy="180" r="5"/>
+		<circle cx="78" cy="199" r="2.8"/>
+	</g>
+	<g transform="rotate(45 128 128)">
+		<path d="M128 44c23 28 32 63 25 105h-50c-7-42 2-77 25-105Z" fill="#f4f7fb"/>
+		<path d="M128 44c14 17 23 36 27 58h-54c4-22 13-41 27-58Z" fill="#e91539"/>
+		<path d="M103 146l-34 28 3-45 32-8Z" fill="#e91539"/>
+		<path d="M153 146l34 28-3-45-32-8Z" fill="#e91539"/>
+		<circle cx="128" cy="112" r="15" fill="#13bfe7"/>
+		<path d="M111 154h34l-17 45Z" fill="#f4b73f"/>
+	</g>
 </svg>

@@ -84,13 +84,13 @@ module.exports = {
 	name:"SpaceXpanse ROD",
 	ticker:"ROD",
 	logoUrlsByNetwork:{
-		"main":"./img/network-mainnet/logo.svg",
+		"main":"./img/network-mainnet/logo.png",
 		"test":"./img/network-testnet/logo.svg",
 		"regtest":"./img/network-regtest/logo.svg",
 		"signet":"./img/network-signet/logo.svg"
 	},
 	coinIconUrlsByNetwork:{
-		"main":"./img/network-mainnet/coin-icon.svg",
+		"main":"./img/network-mainnet/coin-icon.png",
 		"test":"./img/network-testnet/coin-icon.svg",
 		"signet":"./img/network-signet/coin-icon.svg",
 		"regtest":"./img/network-regtest/coin-icon.svg"

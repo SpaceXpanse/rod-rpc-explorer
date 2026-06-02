@@ -24,4 +24,5 @@
 
 ## Volatile memory rule (noncanonical)
 - If local volatile memory exists at `.kilocode/rules/memory-bank/`, update `.kilocode/rules/memory-bank/context.md` and `.kilocode/rules/memory-bank/active.md` after significant work, on explicit memory-update requests, and before final completion of multi-step tasks.
+- During each such volatile memory update loop, also update `CHANGELOG.md` with a concise `Unreleased` release-note entry that reflects task codebase/docs/test changes, or explicitly confirm in the memory update that `CHANGELOG.md` is already up to date for the task.
 - Durable knowledge must be written to `docs/maintainer-wiki/` and indexed in `docs/maintainer-wiki/index.md`.

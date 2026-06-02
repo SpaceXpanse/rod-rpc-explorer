@@ -1,4 +1,4 @@
 # Open Work
 
-- Verify placeholder genesis metadata for test/regtest/signet in [`app/coins/rod.js`](../../app/coins/rod.js) against canonical sources in [`reference-canonical-rod-sources.md`](reference-canonical-rod-sources.md).
-- Keep reward and parser conformance checks in [`test/rod-followup.test.js`](../../test/rod-followup.test.js) aligned with upstream protocol updates.
+- Verify placeholder genesis metadata for test/regtest/signet in [`app/coins/rod.js`](../../app/coins/rod.js) against canonical sources in [`reference-canonical-rod-sources.md`](reference-canonical-rod-sources.md) (Status: open; Evidence: [`app/coins/rod.js`](../../app/coins/rod.js), [`gotcha-genesis-metadata.md`](gotcha-genesis-metadata.md)).
+- Keep reward and parser conformance checks in [`test/rod-followup.test.js`](../../test/rod-followup.test.js) and [`test/rod-address-validation.test.js`](../../test/rod-address-validation.test.js) aligned with upstream protocol updates (Status: ongoing; Evidence: [`test/rod-followup.test.js`](../../test/rod-followup.test.js), [`test/rod-address-validation.test.js`](../../test/rod-address-validation.test.js), [`reference-canonical-rod-sources.md`](reference-canonical-rod-sources.md)).

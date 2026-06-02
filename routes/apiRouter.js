@@ -33,16 +33,18 @@ router.get("/docs", function(req, res, next) {
 	res.locals.apiDocs = apiDocs;
 	res.locals.apiBaseUrl = apiDocs.baseUrl;
 	res.locals.route = req.query.route;
+	res.locals.activeCoin = config.coin;
 
 	res.locals.categories = [];
-	apiDocs.routes.forEach(x => {
-		let category = x.category;
-
-		if (!res.locals.categories.find(y => (y.name == category))) {
-			res.locals.categories.push({name:category, items:[]});
+	apiDocs.routes.filter(route => {
+		return !route.hideForCoins || !route.hideForCoins.includes(config.coin);
+	}).forEach(route => {
+		let cat = res.locals.categories.find(c => c.name === route.category);
+		if (!cat) {
+			cat = {name: route.category, items: []};
+			res.locals.categories.push(cat);
 		}
-
-		res.locals.categories.find(x => (x.name == category)).items.push(x);
+		cat.items.push(route);
 	});
 
 	res.render("api-docs");
@@ -184,7 +186,7 @@ router.get("/tx/:txid", asyncHandler(async (req, res, next) => {
 
 		outJson.fee = {
 			"amount": (inputBtc - outputBtc) / global.coinConfig.baseCurrencyUnit.multiplier,
-			"unit": "BTC"
+			"unit": global.coinConfig.defaultCurrencyUnit.name
 		};
 
 		if (outJson.confirmations == null) {

@@ -8,7 +8,7 @@ module.exports = {
 			"category":"blocks",
 			"url":"/block/$HASH",
 			"desc":"Returns the details of the block with the given hash.",
-			"testUrl":"/block/0000000000000000001c8018d9cb3b742ef25114f27563e3fc4a1902167f9893"
+			"testUrl":"/block/580e486001d504ac964c1f17cabebfb29c7e267b73cc830c1e105a852422bd6d"
 		},
 
 		{
@@ -22,7 +22,7 @@ module.exports = {
 			"category":"blocks",
 			"url":"/block/header/$HASH",
 			"desc":"Returns the details of the block header with the given hash.",
-			"testUrl":"/block/header/0000000000000000001c8018d9cb3b742ef25114f27563e3fc4a1902167f9893"
+			"testUrl":"/block/header/580e486001d504ac964c1f17cabebfb29c7e267b73cc830c1e105a852422bd6d"
 		},
 
 		{
@@ -46,7 +46,7 @@ module.exports = {
 			"category":"transactions",
 			"url":"/tx/$TXID",
 			"desc":"Returns the details of the transaction with the given txid.",
-			"testUrl": "/tx/f4184fc596403b9d638783cf57adfe4c75c605f6356fbc91338530e9831e9e16"
+			"testUrl": "/tx/65b5196f3c5a01db7fa99bb196b048b51c50862615f8f08ddc4464bac1865274"
 		},
 		{
 			"category":"transactions",
@@ -63,12 +63,12 @@ module.exports = {
 		{
 			"category":"blockchain",
 			"url":"/blockchain/coins",
-			"desc":"Returns the current supply of Bitcoin. An estimate using a checkpoint can be returned in 2 cases: on 'slow' devices, and before the UTXO Set snapshot is loaded."
+			"desc":"Returns the current supply of the active coin. An estimate using a checkpoint can be returned in 2 cases: on 'slow' devices, and before the UTXO Set snapshot is loaded."
 		},
 		{
 			"category":"blockchain",
 			"url":"/blockchain/utxo-set",
-			"desc":"Returns the latest UTXO Set snapshot. Warning: This call can be very slow, depending on node hardware and index configurations."
+			"desc":"Returns the latest UTXO Set snapshot. This endpoint may return null if the snapshot/RPC result is unavailable. Warning: This call can be very slow, depending on node hardware and index configurations."
 		},
 		{
 			"category":"blockchain",
@@ -90,7 +90,7 @@ module.exports = {
 				"offset":"Offset into transactions",
 				"sort":"Sorting direction for transactions ('desc'=new first, 'asc'=old first)"
 			},
-			"testUrl":"/address/34rng4QwB5pHUbGDJw1JxjLwgEU8TQuEqv"
+			"testUrl":"/address/RUqvGA1SHS7aR3NW9riQAjh55ae4dUSqED"
 		},
 
 
@@ -106,7 +106,7 @@ module.exports = {
 				"limit":"The number of addresses to return",
 				"offset":"Offset into the list of addresses"
 			},
-			"testUrl": "/util/xyzpub/xpub6EuV33a2DXxAhoJTRTnr8qnysu81AA4YHpLY6o8NiGkEJ8KADJ35T64eJsStWsmRf1xXkEANVjXFXnaUKbRtFwuSPCLfDdZwYNZToh4LBCd"
+			"testUrl": "/xyzpub/xpub6EuV33a2DXxAhoJTRTnr8qnysu81AA4YHpLY6o8NiGkEJ8KADJ35T64eJsStWsmRf1xXkEANVjXFXnaUKbRtFwuSPCLfDdZwYNZToh4LBCd"
 		},
 		{
 			"category":"xpubs",
@@ -163,7 +163,7 @@ module.exports = {
 		{
 			"category":"mining",
 			"url":"/mining/miner-summary",
-			"desc":"Returns whether the specified transaction ID is included in the estimated next block to be mined (produced via getblocktemplate).",
+			"desc":"Returns a mining summary (miner/pool breakdown) over a selected day-based window or explicit block-height range.",
 			"optionalParams": {
 				"since":"Use the form 'Nd' to specify the number of day to look back (e.g. 'since=7d' will analyze the last 7 days)",
 				"startHeight+endHeight":"Use these 2 parameters to specify a custom start/end height (e.g. 'startHeight=0&endHeight=24' to analyze the first 25 blocks)"
@@ -178,20 +178,15 @@ module.exports = {
 		// mempool
 		{
 			"category":"mempool",
-			"url":"/mempool/count",
-			"desc":"Returns the number of transactions in Bitcoin Core's mempool."
-		},
-		{
-			"category":"mempool",
 			"url":"/mempool/summary",
-			"desc":"Returns a summary of Bitcoin Core's mempool (full output from 'getmempoolinfo')",
+			"desc":"Returns a summary of the configured node's mempool (full output from 'getmempoolinfo')",
 			"example": {"loaded":true,"size":225,"bytes":76209,"usage":410496,"total_fee":0.01763495,"maxmempool":15000000,"mempoolminfee":0.00001,"minrelaytxfee":0.00001,"unbroadcastcount":0}
 		},
 		{
 			"category":"mempool",
 			"url":"/mempool/fees",
-			"desc":"Returns recommended fee rates in sats/vB for next block, ~30 min, 1 hr, and 1 day.",
-			"example": {"nextBlock":17,"30min":9,"60min":9,"1day":9}
+			"desc":"Returns recommended fee rates in base units/vB for next block, ~30 min, 1 hr, and 1 day. The nextBlock field includes smart/min/max/median when available.",
+			"example": {"nextBlock":{"smart":17,"min":11,"max":29,"median":18},"30min":9,"60min":9,"1day":9}
 		},
 
 
@@ -200,7 +195,7 @@ module.exports = {
 		{
 			"category":"price",
 			"url":"/price",
-			"desc":"Returns the price of 1 BTC, in USD, EUR, GBP, and XAU",
+			"desc":"Returns the price of 1 unit of the active coin, in USD, EUR, GBP, and XAU",
 			"optionalParams": {
 				"format":"Set to 'true' to include thousands-separator formatting in results"
 			}
@@ -208,12 +203,12 @@ module.exports = {
 		{
 			"category":"price",
 			"url":"/price/marketcap",
-			"desc":"Returns the market cap of Bitcoin, in USD, EUR, GBP, XAU",
+			"desc":"Returns the market cap estimate of the active coin, in USD, EUR, GBP, and XAU",
 		},
 		{
 			"category":"price",
 			"url":"/price/sats",
-			"desc":"Returns the price of 1 unit of [USD, EUR, GBP, XAU] (e.g. 1 \"usd\") in satoshis (aka \"Moscow Time\")",
+			"desc":"Returns the price of 1 unit of [USD, EUR, GBP, XAU] (e.g. 1 \"usd\") in base units of the active coin",
 		},
 
 
@@ -224,22 +219,26 @@ module.exports = {
 			"category":"fun",
 			"url":"/quotes/all",
 			"desc":"Returns the full curated list of Bitcoin quotes.",
+			"hideForCoins":["ROD"]
 		},
 		{
 			"category":"fun",
 			"url":"/quotes/$INDEX",
 			"desc":"Returns the Bitcoin quote with the given index from the curated list.",
-			"testUrl": "/quotes/0"
+			"testUrl": "/quotes/0",
+			"hideForCoins":["ROD"]
 		},
 		{
 			"category":"fun",
 			"url":"/quotes/random",
-			"desc":"Returns a random Bitcoin quote from the curated list."
+			"desc":"Returns a random Bitcoin quote from the curated list.",
+			"hideForCoins":["ROD"]
 		},
 		{
 			"category":"fun",
 			"url":"/holidays/all",
-			"desc":"Returns the full curated list of Bitcoin Holidays."
+			"desc":"Returns the full curated list of Bitcoin Holidays.",
+			"hideForCoins":["ROD"]
 		},
 		{
 			"category":"fun",
@@ -248,13 +247,15 @@ module.exports = {
 			"optionalParams": {
 				"tzOffset":"The number of hours to offset from UTC for the caller's local timezone, e.g. \"-5\" for EST"
 			},
-			"testUrl": "/holidays/today?tzOffset=-5"
+			"testUrl": "/holidays/today?tzOffset=-5",
+			"hideForCoins":["ROD"]
 		},
 		{
 			"category":"fun",
 			"url":"/holidays/$DAY",
 			"desc":"Returns the Bitcoin Holidays celebrated on the specified day, using one of the following formats: yyyy-MM-DD, MM-DD.",
-			"testUrl": "/holidays/01-03"
+			"testUrl": "/holidays/01-03",
+			"hideForCoins":["ROD"]
 		},
 
 

@@ -1,4 +1,4 @@
-### Setup of https://bitcoinexplorer.org on Ubuntu 20.04
+### Setup of a Dockerized explorer instance on Ubuntu 20.04 (Bitcoin or ROD)
 
 	# update and install packages
 	apt update

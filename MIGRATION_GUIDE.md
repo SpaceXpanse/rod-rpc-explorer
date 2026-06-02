@@ -101,10 +101,10 @@ Dockerfile updated to support ROD configuration through environment variables.
 
 ### REST API Endpoints
 
-All existing API endpoints remain functional with ROD:
+All existing API endpoints remain functional with ROD (using current public API paths):
 
-- `/api/blockchain/block/:hash` - Get block information
-- `/api/transaction/:txid` - Get transaction details
+- `/api/block/:hashOrHeight` - Get block information by hash or height
+- `/api/tx/:txid` - Get transaction details
 - `/api/address/:address` - Get address information
 - `/api/mempool/summary` - Get mempool summary
 

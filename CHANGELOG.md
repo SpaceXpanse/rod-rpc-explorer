@@ -1,3 +1,17 @@
+##### Unreleased
+
+* **API Docs Route Consistency Cleanup**: Corrected markdown/API documentation references to current public endpoints to match router and API docs behavior.
+  * Updated migration guide endpoint references from legacy `/api/blockchain/block/:hash` and `/api/transaction/:txid` to `/api/block/:hashOrHeight` and `/api/tx/:txid` in [`MIGRATION_GUIDE.md`](MIGRATION_GUIDE.md).
+  * Added API changelog note for endpoint-reference cleanup consistency in [`CHANGELOG-API.md`](CHANGELOG-API.md).
+
+* **ROD Compliance Audit/Remediation Follow-up**: Captured completed ROD-focused compliance fixes, validation, and deferred canonical verification scope for the next release.
+  * Fee display output now uses configured coin units via [`global.coinConfig.defaultCurrencyUnit.name`](routes/apiRouter.js:187) in [`routes/apiRouter.js`](routes/apiRouter.js).
+  * ROD mode now disables BTC-only tools by coin-aware gating using [`isRodCoin`](app/config.js:37) and [`isEnabled: !isRodCoin`](app/config.js:260) in [`app/config.js`](app/config.js) (Whitepaper Extractor, Quotes, Holidays).
+  * Restored/added ROD address validation coverage in [`test/rod-address-validation.test.js`](test/rod-address-validation.test.js), with recorded validation runs: [`npm run test-rod-followup`](package.json:12) (9 passing), [`npm run test-rod-address`](package.json:11) (4 passing), and [`npm test`](package.json:9) (passed).
+  * Documentation and maintainer records updated in [`README.md`](README.md), [`docs/Server-Setup.md`](docs/Server-Setup.md), [`docs/Server-Setup-Docker.md`](docs/Server-Setup-Docker.md), [`docs/maintainer-wiki/decisions.md`](docs/maintainer-wiki/decisions.md), [`docs/maintainer-wiki/open-work.md`](docs/maintainer-wiki/open-work.md), and [`docs/maintainer-wiki/log.md`](docs/maintainer-wiki/log.md).
+  * Deferred item retained: canonical upstream verification of placeholder/`UNVERIFIED` non-mainnet genesis/checkpoint metadata in [`app/coins/rod.js`](app/coins/rod.js), tracked in [`docs/maintainer-wiki/open-work.md`](docs/maintainer-wiki/open-work.md).
+
+
 ##### v3.7.1
 ###### 2026-03-11
 

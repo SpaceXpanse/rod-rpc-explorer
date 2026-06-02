@@ -1,4 +1,4 @@
-### Setup of https://bitcoinexplorer.org on Ubuntu 20.04
+### Setup of an explorer instance on Ubuntu 20.04 (Bitcoin or ROD)
 
 Update and install packages
 
@@ -18,7 +18,7 @@ Install NVM from https://github.com/nvm-sh/nvm
     
 Misc setup
 
-    # add user for btc-related stuff
+    # add user for explorer-related services
     adduser bitcoin # leave everything blank if you want
     
     # gen self-signed cert
@@ -26,7 +26,7 @@ Misc setup
     
     # get nginx config
     wget https://raw.githubusercontent.com/SpaceXpanse/rod-rpc-explorer/master/docs/explorer.btc21.org.conf
-    mv explorer.btc21.org.conf /etc/nginx/sites-available/bitcoinexplorer.org
+    mv explorer.btc21.org.conf /etc/nginx/sites-available/explorer.example.org
 
 Get source, npm install
 
@@ -39,7 +39,7 @@ Get source, npm install
     pm2 start bin/www --name "btc"
     
     # get letsencrypt cert
-    certbot --nginx -d bitcoinexplorer.org
+    certbot --nginx -d explorer.example.org
     
 Tor setup
 

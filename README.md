@@ -45,7 +45,7 @@ See [CHANGELOG.md](/CHANGELOG.md).
 ## Prerequisites
 1. Install `Bitcoin Core` or `SpaceXpanse ROD Core` - [instructions](https://bitcoin.org/en/full-node) for Bitcoin, or [SpaceXpanse ROD](https://github.com/SpaceXpanse/rod-core-wallet) for ROD. Ensure that the node's RPC server is enabled (`server=1`).
 
-2. Allow `Bitcoin Core` to synchronize with the Bitcoin network (you *can* use this tool while sychronizing, but some pages may fail).
+2. Allow your selected node (`Bitcoin Core` or `SpaceXpanse ROD Core`) to synchronize with its network (you *can* use this tool while synchronizing, but some pages may fail).
 3. Install Node.js (18+ required, 22+ recommended).
 
 ### Note about pruning and indexing configurations
@@ -119,7 +119,7 @@ btc-rpc-explorer --port 8080 --bitcoind-port 18443 --bitcoind-cookie ~/.bitcoin/
 
 #### Demo site settings
 
-To match the features visible on the demo site at [BitcoinExplorer.org](https://bitcoinexplorer.org) you'll need to set the following non-default configuration values:
+To match the features visible on demo deployments (including ROD mode), set the following non-default configuration values:
 
     BTCEXP_DEMO=true 		# enables some demo/informational aspects of the site
     BTCEXP_NO_RATES=false		# enables querying of exchange rate data

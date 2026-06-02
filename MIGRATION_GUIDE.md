@@ -6,6 +6,12 @@ This document outlines the changes required to migrate the BTC RPC Explorer to s
 
 This project has been updated to support SpaceXpanse ROD (ROD) cryptocurrency alongside Bitcoin (BTC). The following changes have been made to accommodate the new coin.
 
+## Release 4.0.1
+
+No migration actions are required for `4.0.1`.
+
+This release only finalizes release-documentation consistency updates (including public API route-reference wording) and does not introduce configuration, schema, or runtime behavior changes requiring operator action.
+
 ## Configuration Changes
 
 ### 1. Coin Configuration Added

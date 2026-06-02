@@ -1,5 +1,11 @@
 ##### Unreleased
 
+* No entries yet.
+
+
+##### v4.0.1
+###### 2026-06-02
+
 * **API Docs Route Consistency Cleanup**: Corrected markdown/API documentation references to current public endpoints to match router and API docs behavior.
   * Updated migration guide endpoint references from legacy `/api/blockchain/block/:hash` and `/api/transaction/:txid` to `/api/block/:hashOrHeight` and `/api/tx/:txid` in [`MIGRATION_GUIDE.md`](MIGRATION_GUIDE.md).
   * Added API changelog note for endpoint-reference cleanup consistency in [`CHANGELOG-API.md`](CHANGELOG-API.md).

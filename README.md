@@ -77,7 +77,7 @@ btc-rpc-explorer
 #### Run from source:
 
 1. `git clone https://github.com/SpaceXpanse/rod-rpc-explorer`
-2. `cd btc-rpc-explorer`
+2. `cd rod-rpc-explorer`
 3. `npm install`
 4. `npm start`
 

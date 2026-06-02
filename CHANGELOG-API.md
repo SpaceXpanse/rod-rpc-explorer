@@ -5,6 +5,7 @@ This changelog specifically tracks changes to the Public API available at `/api`
 
 * Changed `/api/mempool/fees` to include more details pertaining to `nextBlock` (nextBlock.smart is where the previous "nextBlock" scalar value used to be)
 * Docs cleanup: aligned public endpoint examples and references to current routes (`/api/block/$HASH_OR_HEIGHT` and `/api/tx/$TXID`) used by the API docs UI and router.
+* API behavior unchanged in `4.0.1`; this change only documents route-reference consistency.
 
 ##### v2.0.0
 ###### 2023-06-14

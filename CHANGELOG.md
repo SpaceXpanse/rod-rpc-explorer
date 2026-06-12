@@ -1,5 +1,10 @@
 ##### Unreleased
 
+* **Wiki Initialization Consistency Cleanup**: Aligned maintainer initialization guidance and wiki entrypoints with the repository's actual docs-validation workflow.
+  * Added explicit initialization-rule guidance in [`C:/Users/VSCode/.kilocode/rules/wiki-and-memory-bank-init.md`](C:/Users/VSCode/.kilocode/rules/wiki-and-memory-bank-init.md) to document repository hooks such as [`.githooks/pre-push`](.githooks/pre-push) when they enforce [`npm run docs:check`](package.json:15).
+  * Updated [`docs/maintainer-wiki/index.md`](docs/maintainer-wiki/index.md) to list [`docs/maintainer-wiki/README.md`](docs/maintainer-wiki/README.md) and [`docs/maintainer-wiki/log.md`](docs/maintainer-wiki/log.md) so the catalog matches the actual maintained wiki structure.
+  * Updated [`docs/maintainer-wiki/agent-guide.md`](docs/maintainer-wiki/agent-guide.md) to direct maintainers to the overview and dated-log entrypoints before using the full wiki catalog.
+
 * **ROD Branding Asset Refresh**: Added a practical SpaceXpanse-themed UX image set for browser, mobile, pinned-tab, CDN, and social preview surfaces.
   * Replaced placeholder mainnet SVG branding with SpaceXpanse/ROD rocket badge assets in [`public/img/network-mainnet/logo.svg`](public/img/network-mainnet/logo.svg) and [`public/img/network-mainnet/coin-icon.svg`](public/img/network-mainnet/coin-icon.svg).
   * Added reusable brand/social SVGs at [`public/img/brand/spacexpanse-rod-icon.svg`](public/img/brand/spacexpanse-rod-icon.svg) and [`public/img/rod-social-preview.svg`](public/img/rod-social-preview.svg).

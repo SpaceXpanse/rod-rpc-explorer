@@ -1,5 +1,7 @@
 # Maintainer Wiki Index
 
+- [README](README.md) — Overview of the maintainer wiki and how to use it.
+- [Maintainer log](log.md) — Dated notable decisions, gotchas, and initialization notes.
 - [Concept: Architecture overview](concept-architecture-overview.md) — High-level map of explorer runtime and core source directories.
 - [Concept: ROD chainparams parity](concept-rod-chainparams-parity.md) — Why explorer-side ROD config must stay aligned with canonical core/spec parameters.
 - [Gotcha: Genesis metadata verification](gotcha-genesis-metadata.md) — Genesis fields are high-risk and must be re-verified before edits.

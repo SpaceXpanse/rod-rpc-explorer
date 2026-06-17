@@ -1,5 +1,10 @@
 ##### Unreleased
 
+* **ROD Genesis Metadata Fix**: Corrected block 0 fallback metadata so the explorer no longer renders a nonexistent address or wrong transaction for the ROD genesis block.
+  * Replaced fabricated mainnet genesis tx data in [`app/coins/rod.js`](app/coins/rod.js) with live-RPC-verified values for the txid, coinbase payload, output address, P2SH script, size, timestamp, weight, and locktime.
+  * Updated [`knownTransactionsByNetwork.main`](app/coins/rod.js:141), [`genesisCoinbaseOutputAddressScripthash`](app/coins/rod.js:226), and [`genesisBlockStatsByNetwork.main`](app/coins/rod.js:360) to match the actual ROD mainnet genesis block.
+  * Documented the mainnet genesis correction and remaining non-mainnet placeholder verification work in [`docs/maintainer-wiki/gotcha-genesis-metadata.md`](docs/maintainer-wiki/gotcha-genesis-metadata.md), [`docs/maintainer-wiki/log.md`](docs/maintainer-wiki/log.md), and [`docs/maintainer-wiki/open-work.md`](docs/maintainer-wiki/open-work.md).
+
 * **Wiki Initialization Consistency Cleanup**: Aligned maintainer initialization guidance and wiki entrypoints with the repository's actual docs-validation workflow.
   * Added explicit initialization-rule guidance in [`C:/Users/VSCode/.kilocode/rules/wiki-and-memory-bank-init.md`](C:/Users/VSCode/.kilocode/rules/wiki-and-memory-bank-init.md) to document repository hooks such as [`.githooks/pre-push`](.githooks/pre-push) when they enforce [`npm run docs:check`](package.json:15).
   * Updated [`docs/maintainer-wiki/index.md`](docs/maintainer-wiki/index.md) to list [`docs/maintainer-wiki/README.md`](docs/maintainer-wiki/README.md) and [`docs/maintainer-wiki/log.md`](docs/maintainer-wiki/log.md) so the catalog matches the actual maintained wiki structure.

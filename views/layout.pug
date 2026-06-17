@@ -18,7 +18,7 @@ html(lang="en")
 		+themeCss
 		
 
-		link(id="canonical" rel="canonical" href="https://bitcoinexplorer.org")
+		link(id="canonical" rel="canonical" href="https://explorer.rod.spacexpanse.org")
 
 		meta(property="og:title" content=(metaTitle != undefined ? metaTitle : `${coinConfig.ticker} Explorer - Open-Source ${coinConfig.ticker} Explorer`))
 		meta(property="og:description" content=(metaDesc != undefined ? metaDesc : `Open-source, easy-to-use, educational ${coinConfig.ticker} explorer whose only dependency is your ${coinConfig.name} node.`))
@@ -300,7 +300,7 @@ html(lang="en")
 									if (coinConfig.demoSiteUrlsByNetwork && coinConfig.demoSiteUrlsByNetwork.main)
 										a.footer-link(href=coinConfig.demoSiteUrlsByNetwork.main) #{coinConfig.demoSiteUrlsByNetwork.main}
 									else
-										a.footer-link(href="https://bitcoinexplorer.org") https://bitcoinexplorer.org
+										a.footer-link(href="https://explorer.rod.spacexpanse.org") https://explorer.rod.spacexpanse.org
 
 									br
 
@@ -325,10 +325,10 @@ html(lang="en")
 										a.text-white.mb-1.me-3(href="https://github.com/SpaceXpanse/rod-rpc-explorer", title="View source code", data-bs-toggle="tooltip")
 											i.bi-git
 
-									a.text-danger.mb-1.me-3(href="https://donate.bitcoinexplorer.org", target="_blank", title="Support this project with a donation", data-bs-toggle="tooltip")
+									a.text-danger.mb-1.me-3(href="https://spacexpanse.org", target="_blank", title="Visit the official SpaceXpanse site", data-bs-toggle="tooltip")
 										i.bi-heart-fill.text-danger
 
-									a.text-white.mb-1(href="https://twitter.com/BitcoinExplorer", target="_blank", title="Follow @BitcoinExplorer on Twitter", data-bs-toggle="tooltip")
+									a.text-white.mb-1(href="https://twitter.com/SpaceXpanse", target="_blank", title="Follow @SpaceXpanse on X", data-bs-toggle="tooltip")
 										i.bi-twitter.text-twitter
 								
 								

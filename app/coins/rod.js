@@ -139,7 +139,7 @@ module.exports = {
 		"signet": "https://signet.rod.space",
 	},
 	knownTransactionsByNetwork: {
-		main: "e0e442db4534d8821148b4e29d3fab135a89d2616a07a178b9e8813e8c43f0a9", // SpaceXpanse ROD genesis transaction
+		main: "afdbec35a16bea610dafafeee5a8cd072dc74a056894a12165da027079d5e138", // SpaceXpanse ROD genesis transaction
 		test: "4a5e1e4baab89f3a32518a88c31bc87f618f76673e2cc77ab2127b7afdeda33b", // Placeholder
 		signet: "39332e10af6fe491e8ae4ba1e2dd674698fedf8aa3c8c42bf71572debc1bb5b9" // Placeholder
 	},
@@ -223,41 +223,43 @@ module.exports = {
 		"regtest": "4a5e1e4baab89f3a32518a88c31bc87f618f76673e2cc77ab2127b7afdeda33b", // Placeholder for regtest
 		"signet":  "4a5e1e4baab89f3a32518a88c31bc87f618f76673e2cc77ab2127b7afdeda33b" // Placeholder for signet
 	},
-	genesisCoinbaseOutputAddressScripthash:"e0e442db4534d8821148b4e29d3fab135a89d2616a07a178b9e8813e8c43f0a9", // SpaceXpanse ROD genesis coinbase output
+	genesisCoinbaseOutputAddressScripthash:"6ecccda96f973b1a35ea862ab67742e20a941dbf745b88e2a813c0409a66b84a", // SpaceXpanse ROD genesis coinbase output
 	
 	genesisCoinbaseTransactionsByNetwork:{
 		"main": {
-			"hex": "01000000010000000000000000000000000000000000000000000000000000000000000000ffffffff0804ffff001d02fd04ffffffff0100f2052a01000000434104f5eeb2b10c944c6b9fbcfff94c35bdeecd93df977882babc7f3a2cf7f5c81d3b09a68db7f0e04f21de5d4230e75e6dbe7ad16eefe0d4325a62067dc6f369446aac00000000", // SpaceXpanse ROD genesis transaction
-			"txid": "e0e442db4534d8821148b4e29d3fab135a89d2616a07a178b9e8813e8c43f0a9",
-			"hash": "e0e442db4534d8821148b4e29d3fab135a89d2616a07a178b9e8813e8c43f0a9",
-			"size": 204,
-			"vsize": 204,
+			"hex": "01000000010000000000000000000000000000000000000000000000000000000000000000ffffffff464530312f4a756e2f323032323a204e4153412068617320686f7374656420746865204d61727469616e204d6574617665727365204372656174696f6e204368616c6c656e6765ffffffff01003e96d3e40d470017a914fe546eafc3574b33f1c9e20a4d44680c4e54074d8700000000", // Verified from live ROD node at localhost:11999
+			"txid": "afdbec35a16bea610dafafeee5a8cd072dc74a056894a12165da027079d5e138",
+			"hash": "afdbec35a16bea610dafafeee5a8cd072dc74a056894a12165da027079d5e138",
+			"size": 153,
+			"vsize": 153,
+			"weight": 612,
 			"version": 1,
+			"locktime": 0,
 			"confirmations":475000,
 			"vin": [
 				{
-					"coinbase": "04ffff001d0104455468652054696d65732030332f4a616e2f32303039204368616e63656c6c6f72206f6e206272696e6b206f66207365636f6e64206261696c6f757420666f722062616e6b73",
+					"coinbase": "4530312f4a756e2f323032323a204e4153412068617320686f7374656420746865204d61727469616e204d6574617665727365204372656174696f6e204368616c6c656e6765",
 					"sequence": 4294967295
 				}
 			],
 			"vout": [
 				{
-					"value": 800,
+					"value": 199999998,
 					"n": 0,
 					"scriptPubKey": {
-						"asm": "04f5eeb2b10c944c6b9fbcfff94c35bdeecd93df977882babc7f3a2cf7f5c81d3b09a68db7f0e04f21de5d4230e75e6dbe7ad16eefe0d4325a62067dc6f369446a OP_CHECKSIG",
-						"hex": "4104f5eeb2b10c944c6b9fbcfff94c35bdeecd93df977882babc7f3a2cf7f5c81d3b09a68db7f0e04f21de5d4230e75e6dbe7ad16eefe0d4325a62067dc6f369446aac",
+						"asm": "OP_HASH160 fe546eafc3574b33f1c9e20a4d44680c4e54074d OP_EQUAL",
+						"hex": "a914fe546eafc3574b33f1c9e20a4d44680c4e54074d87",
 						"reqSigs": 1,
-						"type": "pubkey",
+						"type": "scripthash",
 						"addresses": [
-							"SQ9we3FJ9VvYjA3J6tMDmhCErp7Se8Y8"
+							"XaY1dLJjXr7tPizEQGSgwEMwchW32vpZXu"
 						]
 					}
 				}
 			],
 			"blockhash": "5d4b20be4fc87d2333aea5235d9de1c685696fc935f806a9ffd71c9f9abf3c57",
-			"time": 1230988505,
-			"blocktime": 1230988505
+			"time": 1654336219,
+			"blocktime": 1654336219
 		},
 		"test": {
 			// Similar structure as main, with testnet-specific values
@@ -376,17 +378,17 @@ module.exports = {
 			"maxfeerate": 0,
 			"maxtxsize": 0,
 			"medianfee": 0,
-			"mediantime": 1231006505,
+			"mediantime": 1654336219,
 			"mediantxsize": 0,
 			"minfee": 0,
 			"minfeerate": 0,
 			"mintxsize": 0,
 			"outs": 1,
-			"subsidy": 80000000000,
+			"subsidy": 19999999800000000, // Display-only fallback; exceeds Number.MAX_SAFE_INTEGER and may lose precision
 			"swtotal_size": 0,
 			"swtotal_weight": 0,
 			"swtxs": 0,
-			"time": 1231006505,
+			"time": 1654336219,
 			"total_out": 0,
 			"total_size": 0,
 			"total_weight": 0,

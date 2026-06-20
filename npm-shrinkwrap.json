@@ -1,12 +1,12 @@
 {
 	"name": "rod-rpc-explorer",
-	"version": "4.0.1",
+	"version": "4.1.0",
 	"lockfileVersion": 3,
 	"requires": true,
 	"packages": {
 		"": {
 			"name": "rod-rpc-explorer",
-		"version": "4.0.1",
+		"version": "4.1.0",
 			"license": "MIT",
 			"dependencies": {
 				"@janoside/app-utils": "github:janoside/app-utils#ba4c23d3f",

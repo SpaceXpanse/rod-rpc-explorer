@@ -1,5 +1,8 @@
 ##### Unreleased
 
+##### v4.1.0
+###### 2026-06-20
+
 * **ROD Favicon and Branding Correction**: Fixed explorer favicon and metadata branding so visible browser/app icon surfaces no longer show a Bitcoin badge for the ROD explorer.
   * Updated visible branding metadata and canonical/icon references in [`views/layout.pug`](views/layout.pug), [`views/layout-iframe.pug`](views/layout-iframe.pug), and [`views/index.pug`](views/index.pug).
   * Corrected non-mainnet manifest branding in [`public/img/network-testnet/site.webmanifest`](public/img/network-testnet/site.webmanifest), [`public/img/network-signet/site.webmanifest`](public/img/network-signet/site.webmanifest), and [`public/img/network-regtest/site.webmanifest`](public/img/network-regtest/site.webmanifest).
